@@ -2,4 +2,4 @@
 Version: 1.41
 Package URL: https://login.salesforce.com/packaging/installPackage.apexp?p0=04tbm0000003BoX 
 Install Guide:  https://paultocreatelink
-Release notes
+Release notes:  HTTP://somelink
