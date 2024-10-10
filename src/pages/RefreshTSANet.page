@@ -1,0 +1,2 @@
+<apex:page standardController="TSANetCase__c" extensions="TSANetRefreshUtils" action="{!refresh}">
+</apex:page>

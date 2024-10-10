@@ -1,0 +1,25 @@
+<template>
+    <div>
+        <lightning-combobox
+            class="slds-m-around_xx-small"
+            label={field.label}
+            value={value}
+            options={options}
+            onchange={handleChangeSelect} 
+            required={field.required}></lightning-combobox>
+
+        <template if:true={children.length}>
+            <template for:each={children} for:item="child">
+                
+                <lightning-combobox
+                    key={child.value}
+                    class="slds-m-around_xx-small"
+                    label={child.label}
+                    value={child.value}
+                    options={child.options}
+                    onchange={handleChangeSelectChild} 
+                    required={field.required}></lightning-combobox>
+            </template>
+        </template>
+    </div>
+</template>

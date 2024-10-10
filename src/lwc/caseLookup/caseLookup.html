@@ -1,0 +1,73 @@
+<template>
+    <template if:true={caseRecord}>
+        <div class="slds-form-element">
+            <div class="slds-form-element__control">
+                <div class="slds-combobox_container slds-has-selection">
+                    <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click">
+                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_left-right" role="none">
+                            <span class="slds-icon_container slds-icon-standard-account slds-combobox__input-entity-icon">
+                                <lightning-icon icon-name="standard:account"></lightning-icon>
+                            </span>
+                            <div role="combobox" tabindex="0" class="slds-input_faux slds-combobox__input slds-combobox__input-value" aria-labelledby="combobox-label-id-32 combobox-id-5-selected-value" id="combobox-id-5-selected-value" aria-controls="listbox-id-5" aria-expanded="false" aria-haspopup="listbox">
+                                <span class="slds-truncate" id="combobox-value-id-19">{caseRecord.CaseNumber}</span>
+                                <button class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" onclick={handleChangeCase}>
+                                    <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template if:false={caseRecord}>
+        <div class="slds-card">
+            <div class="slds-form-element">
+                <div style={boxHeight} class="slds-form-element__control">
+                    <lightning-input
+                        name="enter-search"
+                        label="Case"
+                        placeholder="Search Case..."
+                        type="search"
+                        onchange={handleSearchKey}
+                        onclick={handleSearchKey}
+                    ></lightning-input>
+                    <template if:true={isLoading}>
+                        <div class="slds-align_absolute-center" style="height:5rem">
+                            <lightning-spinner variant="brand" size="medium"> </lightning-spinner>
+                        </div>
+                    </template>
+                    <div if:true={cases.length} class="slds-dropdown slds-dropdown_length-5 slds-dropdown_fluid" role="listbox">
+                        <ul class="slds-listbox slds-listbox_vertical" style="max-height:130px;" role="presentation">
+                            <template for:each={cases} for:item="c">
+                                <li key={c.Id} data-value={c.Id} role="presentation"
+                                    onclick={selectCase} class="slds-listbox__item">
+                                    <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                        <span class="slds-media__body">
+                                            <span class="slds-truncate">
+                                                {c.CaseNumber}
+                                            </span>
+                                        </span>
+                                    </div>
+                                </li>
+                            </template>
+                            <!--li class="slds-listbox__item" role="presentation" onclick={createNewCase}>
+                                <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                    <span class="slds-media__body">
+                                        <div class="slds-truncate slds-align_absolute-center">
+                                            New
+                                        </div>
+                                    </span>
+                                </div>
+                            </li-->
+                            <div class="slds-align_absolute-center" style="padding-bottom: 15px;">
+                                <lightning-button variant="base" label="New" onclick={createNewCase} class="slds-m-left_x-small"></lightning-button>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+</template>

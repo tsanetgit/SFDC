@@ -1,0 +1,126 @@
+<template>
+
+    <!--c-case-popover top={top} left={left} onclose={handleClose} record-id={recordId} record={selectedRecord} show={show} onmouseleave={handlePopoverLeave}></c-case-popover-->
+
+    <div class="slds-page-header slds-page-header_related-list" style="margin-top: -25px; margin-bottom: -20px;">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <div style="display: flex; align-items: center;">
+                                    <img class="logo" src={logo}>
+                                    <h1>
+                                        <span class="slds-page-header__title slds-truncate" style="font-size: 14px;" title="TSANet Cases">{title}</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-page-header__col-actions" style="margin-top: 10px;">
+                <div class="slds-page-header__controls">
+                    <template if:true={isLoading}>
+                        <div class="slds-dropdown-trigger slds-dropdown-trigger_click">
+                            <button class="slds-button slds-button_icon slds-button_icon-border-filled" style="box-shadow:none;" aria-haspopup="true">
+                                <lightning-spinner variant="brand" size="x-small"> </lightning-spinner>
+                            </button>
+                        </div>
+                    </template>
+                    <template if:false={isLogin}>
+                        <template if:false={isLoading}>
+                            <div class="slds-dropdown-trigger slds-dropdown-trigger_click">
+                                <button class="slds-button slds-button_icon slds-button_icon-border-filled" aria-haspopup="true" title="Refresh" onclick={handleRefresh}>
+                                    <lightning-button-icon icon-name="utility:refresh" variant="border-filled"></lightning-button-icon>
+                                    <span class="slds-assistive-text">Refresh</span>
+                                </button>
+                            </div>
+                        </template>
+                        <div class="slds-page-header__control">
+                            <ul class="slds-button-group-list">
+                                <li>
+                                    <lightning-button label="New" onclick={handleSwitchNew}></lightning-button>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <template if:true={records.length}>
+            <div>
+                <div class="relatedlistbox" style={datatableHeight}>
+                    <template for:each={records} for:item="record">
+                        <div key={record.Id}>
+                            <div class="slds-p-horizontal_small slds-size_1-of-1" style="margin: 30px 10px; cursor: pointer;">
+                                <article class="slds-tile slds-media slds-card__tile slds-hint-parent">
+                                    <div class="slds-media__body" style="height: 50px; margin-top: 7px;">
+                                    <div class="slds-grid slds-grid_align-spread slds-has-flexi-truncate">
+                                        <h3 class="slds-tile__title slds-truncate">
+                                            <lightning-formatted-url value={record.link} label={record.Name}></lightning-formatted-url><span data-recordid={record.Id} title={record.Name} onmouseover={handlePopover} style="margin-left: 10px; height: 30px; width: 60px;"><lightning-icon icon-name="utility:info" size="xx-small"></lightning-icon></span>
+                                        </h3>
+                                        <div class="slds-shrink-none">
+                                            <template if:false={isLogin}>
+                                                <template if:true={record.isNoteable}>
+                                                    <button class="slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small" style="margin-top: 10px; margin-right: 20px;" data-id={record.tsanet_connect__tsaNetCaseId__c} onclick={addNewNote}>
+                                                        <lightning-icon icon-name="utility:note" size="x-small"></lightning-icon>
+                                                    </button>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div class="slds-tile__detail">
+                                        <dl class="slds-list_horizontal slds-wrap">
+                                        <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Member">Member:</dt>
+                                        <dd class="slds-item_detail slds-truncate" title={record.tsanet_connect__SubmittedCompanyName__c}>{record.tsanet_connect__Partner__c}</dd>
+                                        <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Contact">Contact:</dt>
+                                        <dd class="slds-item_detail slds-truncate" title={record.tsanet_connect__TSANetContact__c}>{record.tsanet_connect__TSANetContact__c}</dd>
+                                        <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Email">Email:</dt>
+                                        <dd class="slds-item_detail slds-truncate" title={record.tsanet_connect__TSANetEmail__c}>
+                                            <lightning-formatted-email value={record.tsanet_connect__TSANetEmail__c} ></lightning-formatted-email>
+                                        </dd>
+                                        <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Status">Status:</dt>
+                                        <dd class="slds-item_detail slds-truncate" title={record.tsanet_connect__Status__c}>{record.tsanet_connect__Status__c}</dd>
+                                        </dl>
+                                        <hr style="margin-top: 5px;"></hr>
+                                    </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="slds-card__footer">
+                <a onclick={handleGotoRelatedList}>View All</a>
+            </div> 
+        </template>
+    </div>
+
+
+    <template if:true={isNew}>
+        <c-partner-collaboration-case-form 
+            record-id={recordId} 
+            state={state}
+            onclose={handleSwitchNew}
+            onrefresh={handleRefresh}>
+        </c-partner-collaboration-case-form>
+    </template>
+
+    <template if:true={isApprove}>
+        <c-approve-incoming-request
+            record={record}
+            case-record={caseRecord}
+            onclose={handleSwitchApprove}>
+        </c-approve-incoming-request>
+    </template>
+
+    <template if:true={isNoteMode}>
+        <c-tsa-net-case-add-note case-id={externalCaseId} onclose={handleCloseNoteNode}></c-tsa-net-case-add-note>
+    </template>
+
+</template>
