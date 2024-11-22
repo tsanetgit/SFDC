@@ -226,6 +226,7 @@
         <expression>{!LoopPopulateCustomerData.fieldName} + &apos; : &apos; + {!CustomerDataValue} + &apos;; &apos;</expression>
     </formulas>
     <interviewLabel>Create TSANet Collaboration Case {!$Flow.CurrentDateTime}</interviewLabel>
+    <isTemplate>true</isTemplate>
     <label>Create TSANet Collaboration Case</label>
     <loops>
         <name>LoopPopulateCustomerData</name>

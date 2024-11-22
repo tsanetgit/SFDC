@@ -3,7 +3,9 @@ import { NavigationMixin } from "lightning/navigation"
 
 import TSANetLogo from '@salesforce/resourceUrl/TSANetLogo'
 
-import { getRelatedTSANetCases } from 'c/tsaNetHelper'
+import closeTSANetCase from '@salesforce/apex/TSANetService.closeTSANetCase'
+
+import { getRelatedTSANetCases, toast } from 'c/tsaNetHelper'
 
 import './relatedList.css'
  
@@ -18,6 +20,9 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
     isApprove = false
 
     isNoteMode = false
+    isRejectMode = false
+    isRequestMode = false
+    isResponseMode = false
     externalCaseId 
 
     logo = TSANetLogo
@@ -27,6 +32,7 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
     unAssignedCases = []
     @track caseRecord
     @track config 
+    @track currentUser
 
     @track _state
 
@@ -39,9 +45,12 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
 
         this._state = value
 
+        console.log('value current user', value?.currentUser)
+
         this.config = value?.config
         this.records = value?.relatedCases ? value.relatedCases : []
         this.caseRecord = value?.caseRecord
+        this.currentUser = value?.currentUser
         this.columns = value?.columns
         //this.logo = value?.logo
     }
@@ -67,8 +76,13 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
         })
     }
 
-    handleSwitchNew(){
+    handleSwitchNew(event){
+        let isRefresh = event.detail.refresh;
+        console.log('isRefresh; ', isRefresh)
         this.isNew = !this.isNew
+        if(isRefresh){
+            this.handleRefresh()
+        }
     }
 
     handleSwitchApprove(){
@@ -81,6 +95,7 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
 
     handleOnCloseNote(event){
         this.isNoteMode = false
+        this.dispatchEvent(new CustomEvent('refesh'))
     }
 
     addNewNote(event){
@@ -93,11 +108,125 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
         })
     }
 
-    handleCloseNoteNode(){
+    handleRejectTSANetCase(event){
+        let externalId = event.currentTarget.dataset.id
+        let record = this.records.find(r => ( r.tsanet_connect__tsaNetCaseId__c == externalId))
+        this.externalCaseId = externalId
+        this.record = record
+
+        this.isRejectMode = true
+    }
+
+    handleRequestTSANetInfo(event){
+        let externalId = event.currentTarget.dataset.id
+        let record = this.records.find(r => ( r.tsanet_connect__tsaNetCaseId__c == externalId))
+        this.externalCaseId = externalId
+        this.record = record
+
+        this.isRequestMode = true
+    }
+
+    handleOnSelectAction(event){
+        let selectedItemValue = event.detail.value;
+
+        let externalId = event.currentTarget.dataset.id
+        let record = this.records.find(r => ( r.tsanet_connect__tsaNetCaseId__c == externalId))
+        this.externalCaseId = externalId
+        this.record = record
+
+        if(selectedItemValue == 'note'){
+            this.isNoteMode = true
+        } else if(selectedItemValue == 'reject'){
+            this.isRejectMode = true
+        } else if(selectedItemValue == 'request'){
+            this.isRequestMode = true
+        } else if(selectedItemValue == 'response'){
+            this.isResponseMode = true
+        } else if('close'){
+            this.isLoading = true
+            closeTSANetCase({ tsaNetCaseId: record.Id }).then(response => {
+                this.isLoading = false
+                try {
+                    let data = JSON.parse(response)
+                    if(data?.status == 'CLOSED'){
+                        toast(this, 'Success', 'success', 'Case has been closed successfully!')
+                    }
+                    this.dispatchEvent(new CustomEvent('refesh'))
+                } catch(e){
+                    toast(this, 'Error', 'error', response)
+                    this.dispatchEvent(new CustomEvent('refesh'))
+                }
+            }).catch(error => {
+                if(error?.body?.message == 'Unauthorized'){
+                    getNewAccessToken().then(response => {
+                        if(response){
+                            closeTSANetCase({ tsaNetCaseId: record.Id }).then(response => {
+                                this.isLoading = false
+                                try {
+                                    let data = JSON.parse(response)
+                                    if(data?.status == 'CLOSED'){
+                                        toast(this, 'Success', 'success', 'Case has been closed successfully!')
+                                    }
+                                    this.dispatchEvent(new CustomEvent('refesh'))
+                                } catch(e){
+                                    toast(this, 'Error', 'error', response)
+                                    this.dispatchEvent(new CustomEvent('refesh'))
+                                }
+                            })
+                        } else {
+                            console.log(error)
+                            toast(this, 'Error', 'error', error?.body?.message)
+                        }
+                    }).catch(err => {
+                        console.log(err)
+                        toast(this, 'Error', 'error', err?.body?.message)
+                    })
+                } else {
+                    console.log(error)
+                    toast(this, 'Error', 'error', error?.body?.message)
+                }
+                
+                getRelatedTSANetCases(undefined)
+            })
+        }
+    }
+
+    handleCloseNoteMode(event){
+        let isRefresh = event.detail.refresh;
+        console.log('isRefresh; ', isRefresh)
         this.isNoteMode = false
-        this.dispatchEvent(new CustomEvent('closenote'), {
-            detail: this.isNoteMode
-        })
+
+        if(isRefresh){
+            this.handleRefresh()
+        }
+    }
+
+    handleCloseRejectMode(event){
+        let isRefresh = event.detail.refresh;
+        console.log('isRefresh; ', isRefresh)
+        this.isRejectMode = false
+        if(isRefresh){
+            this.handleRefresh()
+        }  
+    }
+
+    handleCloseRequestMode(event){
+        let isRefresh = event.detail.refresh;
+        console.log('isRefresh; ', isRefresh)
+        this.isRequestMode = false
+        if(isRefresh){
+            this.handleRefresh()
+        }       
+    }
+
+    handleCloseResponseMode(event){
+        console.log('event handleCloseResponseMode', JSON.stringify(event))
+        let isRefresh = event.detail.refresh;
+        console.log('isRefresh; ', isRefresh)
+        this.isResponseMode = false
+        if(isRefresh){
+            this.handleRefresh()
+        } 
     }
 
     get recordsLength(){ return this.records && this.records?.length ? this.records.length : '0' }
@@ -106,7 +235,7 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
         if(this.records?.length == 0){
             return 'min-height:3rem;';
         } else if(this.records?.length > 3){
-            return 'min-height:300px;';
+            return 'max-height:300px;';
         } else {
             return 'min-height:150px;'
         }

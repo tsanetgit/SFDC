@@ -1,6 +1,7 @@
 public class TSANetNoteTriggerHelper {
     
     public static void handleAfterInsert(tsanet_connect__TSANetNote__c[] notes){
+        //createTSANetAPINote(notes);
         createFeedItems(notes);
     }
     
@@ -78,7 +79,7 @@ public class TSANetNoteTriggerHelper {
     
     }
 
-    /*
+	/*
     public static void createTSANetAPINote(tsanet_connect__TSANetNote__c[] notes) {
         
         String[] caseIds = new String[]{};
@@ -89,7 +90,7 @@ public class TSANetNoteTriggerHelper {
         Map<Id, tsanet_connect__TSANetCase__c> tsaNetCases = new Map<Id, tsanet_connect__TSANetCase__c>([SELECT Id, Name, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id IN:caseIds]);
         
         for(tsanet_connect__TSANetNote__c note: notes){
-            if(note.tsanet_connect__isApiNote__c == TRUE){
+            if(note.tsanet_connect__isApiNote__c == FALSE && note.tsanet_connect__TSANetCase__c != NULL){
                 String json = '{"summary": "' + note.tsanet_connect__Summary__c + '", "description": "' + note.tsanet_connect__Description__c + '", "priority":"' + note.tsanet_connect__Priority__c + '"}';
                 tsanet_connect__TSANetCase__c tsaNetCase = tsaNetCases.get(note.tsanet_connect__TSANetCase__c);
                 createTSANetAPINoteFuture(tsaNetCase.tsanet_connect__tsaNetCaseId__c, json, note.Id);
@@ -99,6 +100,7 @@ public class TSANetNoteTriggerHelper {
     
     @future(callout=true)
     public static void createTSANetAPINoteFuture(String caseId, String json, String noteId){
+        System.debug('json: ' + json);
         HttpRequest req = new HttpRequest();
         req.setEndpoint(TSANetService.endpoint + '/0.1.0/cases/' + caseId + '/notes/create');
         req.setHeader('Authorization', TSANetService.getBearerToken());
@@ -114,22 +116,21 @@ public class TSANetNoteTriggerHelper {
             updateAccessTokenAndCreateNote(caseId, json, noteId);
         } else {
             System.debug(res.getStatusCode());
+            System.debug(res.getBody());
     
             TSANetNoteResponse noteResponse = TSANetNoteResponse.parseOneRecord(res.getBody());
             System.debug('noteId :' + noteId);
             System.debug('noteResponse.token :' + noteResponse.token);
             System.debug('noteResponse; ' + noteResponse);
-            upsert new tsanet_connect__TSANetNote__c(
+            update new tsanet_connect__TSANetNote__c(
                 Id = noteId, 
                 tsanet_connect__Token__c = noteResponse.token,
                 tsanet_connect__Status__c = noteResponse.status,
                 tsanet_connect__Priority__c = noteResponse.priority,
                 tsanet_connect__CreatorName__c = noteResponse.creatorUsername
-            ) tsanet_connect__Token__c;
+            );
             
         }
-        
-        
     }
     
     public static void updateAccessTokenAndCreateNote(String caseId, String json, String noteId) {

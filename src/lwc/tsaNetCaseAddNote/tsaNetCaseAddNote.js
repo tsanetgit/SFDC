@@ -10,11 +10,28 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
     @api isQuickAction = false
     @api tsaNetCaseId 
     @api caseId
+    @api currentUser
+
+    priority = 'MEDIUM'
+    priorities = [
+        { label: 'Low', value: 'LOW' },
+        { label: 'Medium', value: 'MEDIUM' },
+        { label: 'High', value: 'HIGH' }
+    ]
+
     note = {}
 
     handleCreateNote(){
-        this.note['priority'] = 'Low'
         console.log(JSON.stringify(this.note))
+
+        this.note['priority'] = this.priority
+        this.note['submittedBy'] = {
+            "firstName": this.currentUser?.FirstName,
+            "lastName": this.currentUser?.LastName
+        }
+
+        console.log(JSON.stringify(this.note))
+
         this.isLoading = true
         let caseRecordId = this.caseId + ''
         let json = JSON.stringify(this.note)
@@ -24,7 +41,7 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
             this.isLoading = false
             if(response){
                 toast(this, 'Success', 'success', 'The Note have been created successfully!')
-                this.handleClose()
+                this.handleCloseWindow(true)
             }
         }).catch(error => {
             if(error.body.message == 'Unauthorized'){
@@ -36,7 +53,7 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
                         this.isLoading = false
                         if(response){
                             toast(this, 'Success', 'success', 'The Note have been created successfully!')
-                            this.handleClose()
+                            this.handleCloseWindow(true)
                         }
                     })
                 })
@@ -48,9 +65,23 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
         this.note[event.target.name] = event.target.value
     }
 
+    handleChangePriority(event){
+        this.priority = event.target.value
+    }
+
     handleClose(){
+        this.handleCloseWindow(false)
+    }
+
+    handleCloseWindow(isRefresh){
+        console.log('isRefresh: ', isRefresh)
         if(!this.isQuickAction){
-            this.dispatchEvent(new CustomEvent('close'))
+            console.log('isRefresh: ', isRefresh)
+            this.dispatchEvent(new CustomEvent('close', {
+                detail: {
+                    refresh: isRefresh
+                }
+            }))
         } else {
             this[NavigationMixin.Navigate]({
                 type: 'standard__recordPage',
@@ -62,4 +93,6 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
             })
         }
     }
+
+    
 }

@@ -206,6 +206,45 @@ public class TSANetService {
     }
     
     @AuraEnabled
+    public static tsanet_connect__TSANetCase__c[] getRelatedCollaborationCasesWithToken(String caseId, String token){
+        
+        String path = endpoint + get_cases_path;
+        if(caseId != NULL){
+            path += caseId;
+        }
+        
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(path);
+        req.setHeader('Authorization', token);
+        req.setMethod('GET');
+        req.setHeader('Content-Type', 'application/json');
+        //req.setTimeout(120000);
+        
+        Http http = new Http();
+
+        HTTPResponse res;
+        //if(!Test.isRunningTest()){
+             res = http.send(req);
+            
+            //HTTPResponse res = http.send(req);
+            System.debug(res.getBody());
+            
+            if(res.getStatusCode() != 200){
+                handleResponseErrors(res);
+                
+                return [SELECT Id, Name, tsanet_connect__Name__c, tsanet_connect__customFields__c, tsanet_connect__TSANetContact__c, tsanet_connect__FirstName__c, tsanet_connect__LastName__c, tsanet_connect__Phone__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerEmail__c, tsanet_connect__TSANetEmail__c, tsanet_connect__EngineerPhone__c, tsanet_connect__Email__c, tsanet_connect__Case__c, tsanet_connect__Case__r.CaseNumber, Partner__c, tsanet_connect__SubmittedCompanyName__c, tsanet_connect__SubmittedCompanyId__c, tsanet_connect__receivedCompanyName__c, tsanet_connect__receivedCompanyId__c, tsanet_connect__Summary__c, tsanet_connect__Description__c, tsanet_connect__Status__c, tsanet_connect__Token__c, tsanet_connect__Responded__c, tsanet_connect__FeedbackRequested__c, tsanet_connect__ReminderSent__c, tsanet_connect__Priority__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__RequestDate__c, tsanet_connect__ResponseDate__c, tsanet_connect__PriorityNote__c, tsanet_connect__Type__c,
+                    (SELECT Id, Name, tsanet_connect__TSANetCase__c, tsanet_connect__Type__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerPhone__c, tsanet_connect__EngineerEmail__c, tsanet_connect__Note__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__tsaNetResponseId__c FROM tsanet_connect__TSANetResponses__r ORDER BY tsanet_connect__CreatedAt__c DESC)
+                    FROM tsanet_connect__TSANetCase__c 
+                    WHERE tsanet_connect__Case__c =:caseId 
+                    ORDER BY tsanet_connect__RequestDate__c DESC];
+            }
+        //}
+        return parseTSANetCases(res.getBody(), caseId);
+
+        //return res.getBody();
+    }
+    
+    @AuraEnabled
     public static tsanet_connect__TSANetCase__c[] getRelatedCollaborationCases(String caseId){
         
         String path = endpoint + get_cases_path;
@@ -400,6 +439,8 @@ public class TSANetService {
                                 
                                 tsanet_connect__TSANetNote__c newNote = new tsanet_connect__TSANetNote__c();
                                 
+                                newNote.tsanet_connect__isApiNote__c = TRUE;
+                                
                                 System.debug('note :' + noteResponse);
                                 for(String field : noteResponse.keySet()){
                                     System.debug('field :' + field);
@@ -589,7 +630,7 @@ public class TSANetService {
 		}
         
         Map<String, Object> response = (Map<String, Object>) System.JSON.deserializeUntyped(res.getBody());
-        System.debug('response : ' + response);
+        System.debug('response 1111: ' + response);
         createCaseFeedItem(caseId, response);
              
         return res.getBody();
@@ -616,6 +657,125 @@ public class TSANetService {
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
+        
+        if(!Test.isRunningTest()){
+            getRelatedCollaborationCases(null);
+        }
+        
+        return res.getBody();
+    }
+    
+    @AuraEnabled
+    public static String rejectTSANetCase(String tsaNetCaseId, String json){
+        
+        System.debug('tsaNetCaseId : ' + tsaNetCaseId);
+        System.debug('json : ' + json);
+        
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
+        
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(endpoint + '/1.0.3/cases/' + tsaNetCase.tsanet_connect__tsaNetCaseId__c + '/reject');
+        req.setHeader('Authorization', getBearerToken());
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setBody(json);
+        
+        Http http = new Http();
+        HTTPResponse res = http.send(req);
+        System.debug(res.getBody());
+        System.debug(res.getStatusCode());
+        
+        if(res.getStatusCode() != 200){
+            handleResponseErrors(res);
+        }
+        
+        getRelatedCollaborationCases(null);
+        
+        return res.getBody();
+    }
+    
+    @AuraEnabled
+    public static String requestAdditionalInformation(String tsaNetCaseId, String json){
+        
+        System.debug('tsaNetCaseId : ' + tsaNetCaseId);
+        System.debug('json : ' + json);
+        
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
+        
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(endpoint + '/1.0.3/cases/' + tsaNetCase.tsanet_connect__tsaNetCaseId__c + '/request-information');
+        req.setHeader('Authorization', getBearerToken());
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setBody(json);
+        
+        Http http = new Http();
+        HTTPResponse res = http.send(req);
+        System.debug(res.getBody());
+        System.debug(res.getStatusCode());
+        
+        if(res.getStatusCode() != 200){
+            handleResponseErrors(res);
+        }
+        
+        getRelatedCollaborationCases(null);
+        
+        return res.getBody();
+    }
+    
+    @AuraEnabled
+    public static String sendAdditionalInformation(String tsaNetCaseId, String json){
+        
+        System.debug('tsaNetCaseId : ' + tsaNetCaseId);
+        System.debug('json : ' + json);
+        
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
+        
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(endpoint + '/1.0.3/cases/' + tsaNetCase.tsanet_connect__tsaNetCaseId__c + '/information-response');
+        req.setHeader('Authorization', getBearerToken());
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setBody(json);
+        
+        Http http = new Http();
+        HTTPResponse res = http.send(req);
+        System.debug(res.getBody());
+        System.debug(res.getStatusCode());
+        
+        if(res.getStatusCode() != 200){
+            handleResponseErrors(res);
+        }
+        
+        getRelatedCollaborationCases(null);
+        
+        return res.getBody();
+    }
+    
+    @AuraEnabled
+    public static String closeTSANetCase(String tsaNetCaseId){
+        
+        System.debug('tsaNetCaseId : ' + tsaNetCaseId);
+        
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
+        
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(endpoint + '/1.0.3/cases/' + tsaNetCase.tsanet_connect__tsaNetCaseId__c + '/close');
+        req.setHeader('Authorization', getBearerToken());
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setBody('');
+        
+        Http http = new Http();
+        HTTPResponse res = http.send(req);
+        System.debug(res.getBody());
+        System.debug(res.getStatusCode());
+        
+        if(res.getStatusCode() != 200){
+            handleResponseErrors(res);
+        }
+        
+        getRelatedCollaborationCases(null);
         
         return res.getBody();
     }
@@ -747,9 +907,14 @@ public class TSANetService {
         String email = (String) submittedByMap.get('email');
         String phone = (String) submittedByMap.get('phone');
         String phoneCountryCode = (String) submittedByMap.get('phoneCountryCode');
+        String priorityNote = (String) response.get('priorityNote');
         String city = (String) submittedByMap.get('city');
         
-        String message = 'Your collaboration request to ' + receiveCompanyName + ' for ' + submitCompanyName + ' Case# ' + submitterCaseNumber + ' has been sent. You should receive a response within 4 hours. If you need to escalate this case follow the instructions below: \n' +
+        System.debug('priorityNote: ' + priorityNote);
+        
+        priorityNote = stripHtmlTags(priorityNote);
+        
+        String message = 'Your collaboration request to ' + receiveCompanyName + ' for ' + submitCompanyName + ' Case# ' + submitterCaseNumber + ' has been sent. ' + priorityNote + '. \n' +
             '\n' + 
             'Request Details: \n' + 
             'Summary: ' + summary + ' \n' +

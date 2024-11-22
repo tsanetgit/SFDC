@@ -76,12 +76,14 @@ global class TSANetScheduledJob implements Schedulable {
         //return res.getBody();
     }
     
+    
     public static tsanet_connect__TSANetCase__c[] parseTSANetCases(String json, String caseId){
         System.debug(json);
         List<Object> cases = (List<Object>) System.JSON.deserializeUntyped(json);
         System.debug('cases : ' + cases);
         tsanet_connect__TSANetCase__c[] newCases = new tsanet_connect__TSANetCase__c[]{};
         Map<String, tsanet_connect__TSANetResponse__c[]> caseToResponses = new Map<String, tsanet_connect__TSANetResponse__c[]>();
+        Map<String, tsanet_connect__TSANetNote__c[]> caseToNotes = new Map<String, tsanet_connect__TSANetNote__c[]>();  
             
         String[] existedIds = new String[]{};
         for(Object caseRecord : cases){
@@ -91,12 +93,16 @@ global class TSANetScheduledJob implements Schedulable {
             if(!existedIds.contains(externalId)){
                 tsanet_connect__TSANetCase__c newCase = new tsanet_connect__TSANetCase__c();
                     
-                for(TSANetCaseMapping__mdt element : TSANET_MAPPING){
+                for(tsanet_connect__TSANetCaseMapping__mdt element : TSANET_MAPPING){
                     if(element.tsanet_connect__Type__c == 'DATETIME'){
                         try {
-                            DateTime parsed_datetime =  DateTime.newInstance(Long.valueOf(String.valueOf(record.get(element.tsanet_connect__From__c)))); //DateTime.newInstance(String.valueOf(record.get(element.From__c)));
-                            //(DateTime) System.JSON.deserialize('"' + record.get(element.From__c) + '"', DateTime.class)
-                            newCase.put(element.tsanet_connect__To__c, parsed_datetime);
+                            String datetimeString = (String) record.get(element.tsanet_connect__From__c);
+                            if(datetimeString != null){
+                                datetimeString = datetimeString.replace('Z', '');
+                                DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                System.debug('Parsed DateTime: ' + dt);
+                                newCase.put(element.tsanet_connect__To__c, dt);
+                            }
                         } catch(Exception e){}
                         
                     } else if(element.tsanet_connect__Type__c == 'BOOLEAN'){
@@ -104,21 +110,29 @@ global class TSANetScheduledJob implements Schedulable {
                     } else if(element.tsanet_connect__Type__c == 'STRING'){
                         newCase.put(element.tsanet_connect__To__c, String.valueOf(record.get(element.tsanet_connect__From__c)));
                     } else if(element.tsanet_connect__Type__c == 'REFERENCE'){
+                        System.debug('REFERENCE : ');
                         String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
                         try {
-                            
-                            if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(parentCaseId).matches() &&
-                                Id.valueOf(parentCaseId).getSObjectType() == Schema.Case.SObjectType &&
-                                existedCases.containsKey(parentCaseId)
-                              ){
-                                newCase.put(element.tsanet_connect__To__c, String.valueOf(record.get(element.tsanet_connect__From__c)));
-                            } else {
-                                if(existedCases.containsKey(parentCaseId)){
-                                    Case relatedCase = existedCases.get(parentCaseId);
-                                    newCase.put(element.tsanet_connect__To__c, relatedCase.Id);
+                            System.debug('parentCaseId : ');
+                            Boolean isInbound = String.valueOf(record.get('receiveCompanyId')) == String.valueOf(CONFIG.tsanet_connect__companyId__c);
+                            System.debug('isInbound : ' + isInbound);
+                            if(!isInbound){
+                                if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(parentCaseId).matches() &&
+                                    Id.valueOf(parentCaseId).getSObjectType() == Schema.Case.SObjectType &&
+                                    existedCases.containsKey(parentCaseId)
+                                  ){
+                                    newCase.put(element.tsanet_connect__To__c, String.valueOf(record.get(element.tsanet_connect__From__c)));
+                                } else {
+                                    if(existedCases.containsKey(parentCaseId)){
+                                        Case relatedCase = existedCases.get(parentCaseId);
+                                        newCase.put(element.tsanet_connect__To__c, relatedCase.Id);
+                                    }
                                 }
                             }
-                        } catch(Exception e){}
+                            
+                        } catch(Exception e){
+                            System.debug(e.getMessage());
+                        }
                         
                     } else if(element.tsanet_connect__Type__c == 'OBJECT'){
                         System.debug('OBJECT');
@@ -155,13 +169,13 @@ global class TSANetScheduledJob implements Schedulable {
                                     if(field == 'id'){
                                         newResponse.put('tsanet_connect__tsaNetResponseId__c', String.valueOf(caseResponse.get('id')));
                                     } else if(field == 'engineerName'){
-                                        //newCase.put('EngineerName__c', (String) caseResponse.get('engineerName'));
+                                        newCase.put('tsanet_connect__EngineerName__c', (String) caseResponse.get('engineerName'));
                                         newResponse.put('tsanet_connect__EngineerName__c',(String) caseResponse.get('engineerName'));
                                     } else if(field == 'engineerEmail'){
-                                        //newCase.put('EngineerEmail__c ', (String) caseResponse.get('engineerEmail'));
+                                        newCase.put('tsanet_connect__EngineerEmail__c', (String) caseResponse.get('engineerEmail'));
                                         newResponse.put('tsanet_connect__EngineerEmail__c',(String) caseResponse.get('engineerEmail'));
                                     } else if(field == 'engineerPhone'){
-                                        //newCase.put('EngineerPhone__c ', (String) caseResponse.get('engineerPhone'));
+                                        newCase.put('tsanet_connect__EngineerPhone__c', (String) caseResponse.get('engineerPhone'));
                                         newResponse.put('tsanet_connect__EngineerPhone__c',(String) caseResponse.get('engineerPhone'));
                                     } else if(field == 'nextSteps'){
                                         newResponse.put('tsanet_connect__Note__c',(String) caseResponse.get('nextSteps'));
@@ -171,17 +185,25 @@ global class TSANetScheduledJob implements Schedulable {
                                         newResponse.put('tsanet_connect__Type__c',(String) caseResponse.get('type'));
                                     } else if(field == 'createdAt'){
                                         try {
-                                            DateTime createdAt = DateTime.newInstance(Long.valueOf(String.valueOf(caseResponse.get('createdAt'))));
-                                            newResponse.put('tsanet_connect__CreatedAt__c', createdAt);
+                                            //DateTime createdAt = DateTime.newInstance(Long.valueOf(String.valueOf(caseResponse.get('createdAt'))));
+                                            String datetimeString = (String) caseResponse.get('createdAt');
+                                            if(datetimeString != null){
+                                                datetimeString = datetimeString.replace('Z', '');
+                                                DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                                System.debug('Parsed DateTime: ' + dt);
+                                                newResponse.put('tsanet_connect__CreatedAt__c', dt);
+                                            }
                                         } catch(Exception e){}
                                     }
                                 }
                                 newResponses.add(newResponse);
                             }
-                            caseToResponses.put((String) newCase.get('tsanet_connect__tsaNetCaseId__c'), newResponses);
+                            caseToResponses.put(externalId, newResponses);
                         }
-                    } else if(element.tsanet_connect__Type__c == 'ARRAY' && element.tsanet_connect__From__c == 'customFields'){
-                        List<Object> customerData = (List<Object>) record.get(element.tsanet_connect__From__c);
+                    } else if(element.Type__c == 'ARRAY' && element.From__c == 'customFields'){
+                        
+                        List<Object> customerData = (List<Object>) record.get(element.From__c);
+                        newCase.put('tsanet_connect__customFields__c', System.JSON.serialize(customerData));
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
@@ -192,11 +214,65 @@ global class TSANetScheduledJob implements Schedulable {
                                 
                                 if(fieldName == 'Customer Company'){
                                     newCase.put('tsanet_connect__EngineerCompany__c', value);
+                                } else if(fieldName == 'Customer Name'){
+                                    //newCase.put('EngineerName__c', value);
+                                } else if(fieldName == 'Customer Email'){
+                                    //newCase.put('EngineerEmail__c', value);
+                                } else if(fieldName == 'Customer Phone Including Country Code'){
+                                    //newCase.put('EngineerPhone__c', value);
                                 }
                             }
                         }
+                    } else if(element.tsanet_connect__Type__c == 'ARRAY' && element.tsanet_connect__From__c == 'caseNotes'){
+                        List<Object> notes = (List<Object>) record.get('caseNotes');
+                        
+                        if(notes.size() > 0){
+                            tsanet_connect__TSANetNote__c[] newNotes = new tsanet_connect__TSANetNote__c[]{};
+                            for(Object note : notes){
+                                Map<String, Object> noteResponse = ( Map<String, Object> ) note;
+                                
+                                tsanet_connect__TSANetNote__c newNote = new tsanet_connect__TSANetNote__c();
+                                
+                                newNote.tsanet_connect__isApiNote__c = TRUE;
+                                
+                                System.debug('note :' + noteResponse);
+                                for(String field : noteResponse.keySet()){
+                                    System.debug('field :' + field);
+                                    if(field == 'token'){
+                                        newNote.put('tsanet_connect__Token__c', String.valueOf(noteResponse.get('token')));
+                                    } else if(field == 'summary'){
+                                        newNote.put('tsanet_connect__Summary__c', (String) noteResponse.get('summary'));
+                                    } else if(field == 'description'){
+                                        newNote.put('tsanet_connect__Description__c',(String) noteResponse.get('description'));
+                                    } else if(field == 'priority'){
+                                        newNote.put('tsanet_connect__Priority__c',(String) noteResponse.get('priority'));
+                                    } else if(field == 'status'){
+                                        newNote.put('tsanet_connect__Status__c',(String) noteResponse.get('status'));
+                                    } else if(field == 'creatorUsername'){
+                                        newNote.put('tsanet_connect__CreatorUserName__c', (String) noteResponse.get('creatorUsername'));
+                                    } else if(field == 'creatorName'){
+                                        newNote.put('tsanet_connect__CreatorName__c', (String) noteResponse.get('creatorName'));
+                                    } else if(field == 'creatorEmail'){
+                                        newNote.put('tsanet_connect__CreatorEmail__c', (String) noteResponse.get('creatorEmail'));
+                                    } else if(field == 'createdAt'){
+                                        String datetimeString = (String) noteResponse.get('createdAt');
+                                        if(datetimeString != null){
+                                            datetimeString = datetimeString.replace('Z', '');
+                                            DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                            System.debug('Parsed DateTime: ' + dt);
+                                            newNote.put('tsanet_connect__CreatedAt__c', dt);
+                                        }
+                                        
+                                    }
+                                }
+                                newNotes.add(newNote);
+                            }
+                            caseToNotes.put(externalId, newNotes);
+                        }
+                        
                     }
                 }
+                
                 existedIds.add(externalId);
                 newCases.add(newCase);
             }
@@ -205,7 +281,6 @@ global class TSANetScheduledJob implements Schedulable {
         System.debug('newCases : ' + newCases);
 
         upsert newCases tsanet_connect__tsaNetCaseId__c;
-        
         
         tsanet_connect__TSANetResponse__c[] responsesToUpsert = new tsanet_connect__TSANetResponse__c[]{};
         for(tsanet_connect__TSANetCase__c tsaNetCase : newCases){
@@ -221,6 +296,21 @@ global class TSANetScheduledJob implements Schedulable {
         
         upsert responsesToUpsert tsanet_connect__tsaNetResponseId__c;
         
+        
+        tsanet_connect__TSANetNote__c[] notesToUpsert = new tsanet_connect__TSANetNote__c[]{};
+        for(tsanet_connect__TSANetCase__c tsaNetCase : newCases){
+            tsanet_connect__TSANetNote__c[] notes = caseToNotes.get(tsaNetCase.tsanet_connect__tsaNetCaseId__c);
+            if(notes != NULL){
+                for(tsanet_connect__TSANetNote__c note : notes){
+                    System.debug('response : ' + note);
+                    note.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
+                    notesToUpsert.add(note);
+                }
+            }
+        }
+        
+        upsert notesToUpsert tsanet_connect__Token__c;
+        
         if(existedCases.containsKey(caseId)){
             Case caseRec = existedCases.get(caseId);
             caseId = caseRec.Id;
@@ -229,10 +319,10 @@ global class TSANetScheduledJob implements Schedulable {
         }
         
         return [SELECT Id, Name, tsanet_connect__Name__c, tsanet_connect__customFields__c, tsanet_connect__TSANetContact__c, tsanet_connect__FirstName__c, tsanet_connect__LastName__c, tsanet_connect__Phone__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerEmail__c, tsanet_connect__TSANetEmail__c, tsanet_connect__EngineerPhone__c, tsanet_connect__Email__c, tsanet_connect__Case__c, tsanet_connect__Case__r.CaseNumber, Partner__c, tsanet_connect__SubmittedCompanyName__c, tsanet_connect__SubmittedCompanyId__c, tsanet_connect__receivedCompanyName__c, tsanet_connect__receivedCompanyId__c, tsanet_connect__Summary__c, tsanet_connect__Description__c, tsanet_connect__Status__c, tsanet_connect__Token__c, tsanet_connect__Responded__c, tsanet_connect__FeedbackRequested__c, tsanet_connect__ReminderSent__c, tsanet_connect__Priority__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__RequestDate__c, tsanet_connect__ResponseDate__c, tsanet_connect__PriorityNote__c, tsanet_connect__Type__c,
-                (SELECT Id, Name, tsanet_connect__TSANetCase__c, tsanet_connect__Type__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerPhone__c, tsanet_connect__EngineerEmail__c, tsanet_connect__Note__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__tsaNetResponseId__c FROM tsanet_connect__TSANetResponses__r ORDER BY tsanet_connect__CreatedAt__c DESC)
-                FROM tsanet_connect__TSANetCase__c 
-                WHERE tsanet_connect__Case__c =:caseId 
-                ORDER BY tsanet_connect__RequestDate__c DESC];
+                    (SELECT Id, Name, tsanet_connect__TSANetCase__c, tsanet_connect__Type__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerPhone__c, tsanet_connect__EngineerEmail__c, tsanet_connect__Note__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__tsaNetResponseId__c FROM tsanet_connect__TSANetResponses__r ORDER BY tsanet_connect__CreatedAt__c DESC)
+                    FROM tsanet_connect__TSANetCase__c 
+                    WHERE tsanet_connect__Case__c =:caseId 
+                    ORDER BY tsanet_connect__RequestDate__c DESC];
 
     }
     

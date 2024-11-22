@@ -1,0 +1,22 @@
+<aura:component controller="TSANetService" implements="force:hasRecordId,force:lightningQuickAction" access="global" >
+	
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="isLoading" type="Boolean" default="false" />
+    
+    <lightning:navigation aura:id="navService"/>
+
+	<aura:handler name="init" action="{!c.init}" value="{!this}" />
+    
+    <div>
+         <aura:if isTrue="{!v.isLoading}">
+            <div class="demo-only demo-only_viewport" style="height:200px;position:relative">
+              <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_brand">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+              </div>
+            </div>
+        </aura:if>
+    </div>
+    
+</aura:component>

@@ -11,6 +11,8 @@ public class TSANetUtils {
         public Case caseRecord;
         @AuraEnabled
         public tsanet_connect__TSANetCase__c[] relatedCases;
+        @AuraEnabled
+        public User currentUser = getCurrentUserInfo();
         
         public CaseInfo(Case caseRecord){
             this.caseRecord = caseRecord;
@@ -128,11 +130,18 @@ public class TSANetUtils {
         public tsanet_connect__TSANetCase__c record;
         @AuraEnabled
         public tsanet_connect__TSANetConfiguration__c config = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
+        @AuraEnabled
+        public User currentUser = getCurrentUserInfo();
         
         public TSANetCaseInfo(tsanet_connect__TSANetCase__c tsaNetCase, Case caseRecord){
             this.caseRecord = caseRecord;
             this.record = tsaNetCase;
         }
+    }
+    
+    @AuraEnabled
+    public static User getCurrentUserInfo(){
+        return [SELECT Id, Name, FirstName, LastName, Email, Phone FROM User WHERE Id =:UserInfo.getUserId() LIMIT 1];
     }
 
     @AuraEnabled

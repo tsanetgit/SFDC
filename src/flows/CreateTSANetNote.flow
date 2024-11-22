@@ -30,7 +30,7 @@
         <name>AssignNoteJSON</name>
         <label>Assign Note JSON</label>
         <locationX>571</locationX>
-        <locationY>537</locationY>
+        <locationY>538</locationY>
         <assignmentItems>
             <assignToReference>TSANetNote.summary</assignToReference>
             <operator>Assign</operator>
@@ -52,11 +52,36 @@
                 <elementReference>NoteDetails</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>TSANetNote.subbmitedBy.firstName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>CreatorFirstName</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>TSANetNote.subbmitedBy.lastName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>CreatorLastName</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>NoteValidation</targetReference>
         </connector>
     </assignments>
+    <formulas>
+        <name>CreatorFirstName</name>
+        <dataType>String</dataType>
+        <expression>IF({!TSANetCase.Case__r.OwnerId} != NULL, {!TSANetCase.Case__r.Owner:User.FirstName}, {!$User.FirstName})</expression>
+    </formulas>
+    <formulas>
+        <name>CreatorLastName</name>
+        <dataType>String</dataType>
+        <expression>IF({!TSANetCase.Case__r.OwnerId} != NULL, {!TSANetCase.Case__r.Owner:User.LastName}, {!$User.LastName})</expression>
+    </formulas>
     <interviewLabel>Create TSANet Note Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <isTemplate>true</isTemplate>
     <label>Create TSANet Note</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -141,7 +166,7 @@
         </connector>
         <fields>
             <name>CheckNoteDetails</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Summary&lt;/strong&gt;: &lt;span style=&quot;color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);&quot;&gt;{!TSANetNote.summary}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);&quot;&gt;Priority&lt;/strong&gt;&lt;span style=&quot;color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);&quot;&gt;: {!TSANetNote.priority}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);&quot;&gt;Description&lt;/strong&gt;&lt;span style=&quot;color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);&quot;&gt;: {!TSANetNote.description}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Summary&lt;/strong&gt;: &lt;span style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;{!TSANetNote.summary}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;Priority&lt;/strong&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;: {!TSANetNote.priority}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;Description&lt;/strong&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;: {!TSANetNote.description}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;Creator: &lt;/strong&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;{!CreatorFirstName} {!CreatorLastName}&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <nextOrFinishButtonLabel>Create Note</nextOrFinishButtonLabel>

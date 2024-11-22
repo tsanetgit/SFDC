@@ -7,9 +7,9 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>tsanet_connect__TSANetCase__c.Respond</value>
+                            <value>tsanet_connect__TSANetCase__c.Approve</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <booleanFilter>( 1 OR 4 )AND 2 AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>EQUAL</operator>
@@ -24,20 +24,42 @@
                                     <operator>CONTAINS</operator>
                                     <rightValue>Inbound</rightValue>
                                 </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>INFORMATION</rightValue>
+                                </criteria>
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>tsanet_connect__TSANetCase__c.Approve</value>
+                            <value>tsanet_connect__TSANetCase__c.Reject</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2 AND 3</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Type__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Inbound</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>REJECTED</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>ACCEPTED</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>tsanet_connect__TSANetCase__c.RequestInformation</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>OPEN</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.Case__r.CaseNumber}</leftValue>
-                                    <operator>NE</operator>
                                 </criteria>
                                 <criteria>
                                     <leftValue>{!Record.Type__c}</leftValue>
@@ -47,9 +69,25 @@
                             </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>tsanet_connect__TSANetCase__c.CreateNote</value>
+                            <value>tsanet_connect__TSANetCase__c.SendRequestedInformation</value>
                             <visibilityRule>
                                 <booleanFilter>1 AND 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>INFORMATION</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Type__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Outbound</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>tsanet_connect__TSANetCase__c.CreateNote</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2 AND 3</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>NE</operator>
@@ -59,6 +97,27 @@
                                     <leftValue>{!Record.Status__c}</leftValue>
                                     <operator>NE</operator>
                                     <rightValue>CLOSED</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>NE</operator>
+                                    <rightValue>REJECTED</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>tsanet_connect__TSANetCase__c.Close</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>ACCEPTED</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.Type__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Outbound</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>

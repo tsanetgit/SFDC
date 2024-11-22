@@ -6,5 +6,8 @@ global class TSANetNoteForm {
     global String description { get; set; }
     @AuraEnabled 
     global String priority { get; set; }
+    
+    @AuraEnabled 
+    global TSANetSubmittedBy subbmitedBy { get; set; }
 
 }

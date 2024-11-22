@@ -1,4 +1,4 @@
-global  class TSANetInvocableGetCompanyService {
+global class TSANetInvocableGetCompanyService {
     
     global  class TSANetCompanyResult {
         @InvocableVariable 

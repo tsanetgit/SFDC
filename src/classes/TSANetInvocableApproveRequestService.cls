@@ -31,9 +31,11 @@ global class TSANetInvocableApproveRequestService {
         }
 
         if(!Test.isRunningTest()){ TSANetUtils.futureRefresh(NULL); }
-        
+        System.debug('body : ' + body);
         TSANetInvocableApproveRequestResult result = new TSANetInvocableApproveRequestResult();
-        result.caseRecord = (TSANetCollaborationCase) System.JSON.deserialize(body, TSANetCollaborationCase.class);
+        if(body != ''){
+            result.caseRecord = (TSANetCollaborationCase) System.JSON.deserialize(body, TSANetCollaborationCase.class);
+        }
         return new TSANetInvocableApproveRequestResult[]{ result };
     }
     

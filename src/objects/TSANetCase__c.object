@@ -430,6 +430,11 @@
                     <default>false</default>
                     <label>CLOSED</label>
                 </value>
+                <value>
+                    <fullName>REJECTED</fullName>
+                    <default>false</default>
+                    <label>REJECTED</label>
+                </value>
             </valueSetDefinition>
         </valueSet>
     </fields>

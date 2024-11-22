@@ -7,6 +7,9 @@ import createCollaborationCase from '@salesforce/apex/TSANetService.createCollab
 import getAccessToken from '@salesforce/apex/TSANetService.getAccessToken'
 
 import approveIncomingRequest from '@salesforce/apex/TSANetService.approveIncomingRequest'
+import rejectTSANetCase from '@salesforce/apex/TSANetService.rejectTSANetCase'
+import requestAdditionalInformation from '@salesforce/apex/TSANetService.requestAdditionalInformation'
+import sendAdditionalInformation from '@salesforce/apex/TSANetService.sendAdditionalInformation'
 
 import getFormByCompanyId from '@salesforce/apex/TSANetService.getFormByCompanyId'
 
@@ -19,9 +22,9 @@ import getSFCaseInformation from '@salesforce/apex/TSANetUtils.getSFCaseInformat
 export const TYPING_INTERVAL = 300
 
 export const PRIORITIES = [
-    { label: 'Low', value: 'low' },
-    { label: 'Medium', value: 'medium' },
-    { label: 'High', value: 'high' },
+    { label: 'Low', value: 'LOW' },
+    { label: 'Medium', value: 'MEDIUM' },
+    { label: 'High', value: 'HIGH' },
 ]
 
 export const REQUIRED_FIELDS_WARNING = 'Please fill out all required fields!'
@@ -62,6 +65,14 @@ const prepareCaseData = (data) => {
 
         relatedCase.isNoteable = ( relatedCase.tsanet_connect__Status__c == 'ACCEPTED' || relatedCase.tsanet_connect__Status__c == 'INFORMATION' )
 
+        relatedCase.isRejectable = ( relatedCase.tsanet_connect__Status__c == 'OPEN' || relatedCase.tsanet_connect__Status__c == 'INFORMATION' ) && relatedCase.tsanet_connect__Type__c == 'Inbound'
+        relatedCase.isRequestable = ( relatedCase.tsanet_connect__Status__c == 'OPEN' && relatedCase.tsanet_connect__Type__c == 'Inbound' )
+        relatedCase.isCloseable = ( relatedCase.tsanet_connect__Status__c == 'ACCEPTED' && relatedCase.tsanet_connect__Type__c == 'Outbound' )
+        relatedCase.isResponseable = ( relatedCase.tsanet_connect__Status__c == 'INFORMATION' && relatedCase.tsanet_connect__Type__c == 'Outbound' )
+
+        relatedCase.isHideAction = ( relatedCase.isNoteable || relatedCase.isRejectable || relatedCase.isRequestable || relatedCase.isCloseable )
+        
+        console.log('relatedCase: ', relatedCase)
         if(relatedCase?.tsanet_connect__TSANetResponses__r && relatedCase?.tsanet_connect__TSANetResponses__r.length){
             relatedCase['agentEmail'] = relatedCase?.tsanet_connect__TSANetResponses__r[0]?.tsanet_connect__EngineerEmail__c
         }
@@ -99,6 +110,30 @@ export const createNewCollaborationCase = (caseId, json) => {
 export const approveRequest = (token, json) => {
     return new Promise((resolve, reject) => {
         approveIncomingRequest({ token, json})
+        .then(response => resolve(response))
+        .catch(error => reject(error))
+    })
+}
+
+export const rejectRequest = (tsaNetCaseId, json) => {
+    return new Promise((resolve, reject) => {
+        rejectTSANetCase({ tsaNetCaseId, json})
+        .then(response => resolve(response))
+        .catch(error => reject(error))
+    })
+}
+
+export const requestAdditionalInfo = (tsaNetCaseId, json) => {
+    return new Promise((resolve, reject) => {
+        requestAdditionalInformation({ tsaNetCaseId, json})
+        .then(response => resolve(response))
+        .catch(error => reject(error))
+    })
+}
+
+export const sendAdditionalInfo = (tsaNetCaseId, json) => {
+    return new Promise((resolve, reject) => {
+        sendAdditionalInformation({ tsaNetCaseId, json})
         .then(response => resolve(response))
         .catch(error => reject(error))
     })

@@ -65,11 +65,27 @@
                                         </h3>
                                         <div class="slds-shrink-none">
                                             <template if:false={isLogin}>
-                                                <template if:true={record.isNoteable}>
-                                                    <button class="slds-button slds-button_icon slds-button_icon-border-filled slds-button_icon-x-small" style="margin-top: 10px; margin-right: 20px;" data-id={record.tsanet_connect__tsaNetCaseId__c} onclick={addNewNote}>
-                                                        <lightning-icon icon-name="utility:note" size="x-small"></lightning-icon>
-                                                    </button>
-                                                </template>
+                                                <div style="margin-right: 20px;">
+                                                    <template if:true={record.isHideAction}>
+                                                        <lightning-button-menu icon-size="xx-small" menu-alignment="right" variant="bare" data-id={record.tsanet_connect__tsaNetCaseId__c} onselect={handleOnSelectAction}>
+                                                            <template if:true={record.isNoteable}>
+                                                                <lightning-menu-item value="note" label="Create Note"></lightning-menu-item>
+                                                            </template>
+                                                            <template if:true={record.isRejectable}>
+                                                                <lightning-menu-item value="reject" label="Reject"></lightning-menu-item>
+                                                            </template>
+                                                            <template if:true={record.isRequestable}>
+                                                                <lightning-menu-item value="request" label="Request Info"></lightning-menu-item>
+                                                            </template>
+                                                            <template if:true={record.isResponseable}>
+                                                                <lightning-menu-item value="response" label="Send Information"></lightning-menu-item>
+                                                            </template>
+                                                            <template if:true={record.isCloseable}>
+                                                                <lightning-menu-item value="close" label="Close"></lightning-menu-item>
+                                                            </template>
+                                                        </lightning-button-menu>
+                                                    </template>
+                                                </div>
                                             </template>
                                         </div>
                                     </div>
@@ -120,7 +136,47 @@
     </template>
 
     <template if:true={isNoteMode}>
-        <c-tsa-net-case-add-note case-id={externalCaseId} onclose={handleCloseNoteNode}></c-tsa-net-case-add-note>
+        <c-tsa-net-case-add-note 
+            case-id={externalCaseId} 
+            onclose={handleCloseNoteMode} 
+            current-user={currentUser}>
+        </c-tsa-net-case-add-note>
+    </template>
+
+    <template if:true={isRejectMode}>
+        <c-reject-incoming-request 
+            record-id={recordId}
+            config={config}
+            case-record={caseRecord}
+            record={record}
+            current-user={currentUser}
+            case-id={externalCaseId} 
+            onclose={handleCloseRejectMode}
+        ></c-reject-incoming-request>
+    </template>
+
+    <template if:true={isRequestMode}>
+        <c-request-additional-info 
+            record-id={recordId}
+            config={config}
+            case-record={caseRecord}
+            record={record}
+            current-user={currentUser}
+            case-id={externalCaseId} 
+            onclose={handleCloseRequestMode}
+        ></c-request-additional-info>
+    </template>
+
+    <template if:true={isResponseMode}>
+        <c-send-additional-info
+            record-id={recordId}
+            config={config}
+            case-record={caseRecord}
+            record={record}
+            current-user={currentUser}
+            case-id={externalCaseId} 
+            onclose={handleCloseResponseMode}
+        ></c-send-additional-info>
     </template>
 
 </template>

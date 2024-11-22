@@ -44,12 +44,27 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
         this.note = event.target.value
     }
 
+    validate(){
+        if(this.record?.tsanet_connect__tsaNetCaseId__c &&
+            this.caseRecord?.Owner?.Name && 
+            this.caseRecord?.Owner?.Email &&
+            this.caseRecord?.Owner?.Phone &&
+            this.note
+        ){ return true } 
+        else { return false }
+    }
+
     handleApprove(){
+
+        if(!this.validate()){
+            toast(this, 'Warning', 'warning', 'Please check if all the data has been filled out correctly!')
+            return;
+        }
 
         let requestData = {
             "caseNumber": this.record?.tsanet_connect__tsaNetCaseId__c,
             "engineerName": this.caseRecord.Owner.Name,
-            "engineerEmail": this.config?.tsanet_connect__Username__c,
+            "engineerEmail": this.caseRecord.Owner.Email,
             "engineerPhone": this.caseRecord.Owner.Phone,
             "nextSteps": this.note
         }

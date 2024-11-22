@@ -76,6 +76,7 @@
         <expression>{!TSANetCase.Case__r.Owner:User.FirstName} + &apos; &apos; + {!TSANetCase.Case__r.Owner:User.LastName}</expression>
     </formulas>
     <interviewLabel>Approve TSANet Collaboration Request {!$Flow.CurrentDateTime}</interviewLabel>
+    <isTemplate>true</isTemplate>
     <label>Approve TSANet Collaboration Request</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -180,7 +181,7 @@
             <targetReference>TSANetCase</targetReference>
         </connector>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
         <name>CaseRequest</name>
         <apexClass>tsanet_connect__TSANetCaseRequest</apexClass>

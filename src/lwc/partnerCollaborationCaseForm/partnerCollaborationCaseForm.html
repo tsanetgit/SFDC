@@ -1,4 +1,5 @@
 <template>
+
     <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open slds-modal_small">
         <div class="slds-modal__container">
           <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleClose}>
@@ -7,7 +8,7 @@
           <div class="slds-modal__header">
             <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Create Member Collaboration Case</h1>
           </div>
-          <div class="slds-modal__content slds-p-around_medium">
+          <div class="slds-modal__content slds-p-around_medium" style="height: 300px;">
             <div if:true={firstStep}>
                 <template if:true={company}>
                     <div class="slds-form-element">
@@ -42,7 +43,7 @@
                                     onchange={handleSearchKey}
                                 ></lightning-input>
                                 <template if:true={isLoading}>
-                                    <div class="slds-align_absolute-center" style="height:5rem">
+                                    <div class="slds-align_absolute-center" style="height: 300px;">
                                         <lightning-spinner variant="brand" size="medium"> </lightning-spinner>
                                     </div>
                                 </template>
@@ -77,7 +78,7 @@
             <div if:false={firstStep}>
                 <div class="slds-grid slds-wrap">
                     <template if:true={isLoading}>
-                        <div class="slds-align_absolute-center slds-is-relative" style="height:5rem">
+                        <div class="slds-align_absolute-center slds-is-relative" style="height: 300px;">
                             <lightning-spinner variant="brand" size="medium"> </lightning-spinner>
                         </div>
                     </template>
@@ -195,5 +196,7 @@
           </div>
         </div>
       </section>
-      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+      <template if:false={isQuickAction}>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+      </template>
 </template>

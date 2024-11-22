@@ -1,0 +1,54 @@
+<template>
+    <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open slds-modal_small">
+        <div class="slds-modal__container">
+          <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleClose}>
+            <lightning-icon icon-name="utility:close"></lightning-icon>
+          </button>
+          <div class="slds-modal__header">
+            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Collaboration Case Details</h1>
+          </div>
+          <div class="slds-modal__content slds-p-around_medium">
+            <div class="slds-grid slds-wrap">
+                <template if:true={isLoading}>
+                  <div class="slds-align_absolute-center slds-is-relative" style="height:250px">
+                      <lightning-spinner variant="brand" size="medium"> </lightning-spinner>
+                  </div>
+                </template>
+                <template if:false={isLoading}>
+                    <lightning-record-view-form
+                        object-api-name={objectApiName}
+                        record-id={record.Id}
+                    >
+                    <div class="slds-grid slds-wrap">
+                      <div class="slds-col slds-size_1-of-2">
+                        <lightning-output-field field-name='Name'> </lightning-output-field>
+                        <lightning-output-field field-name='SubmittedCompanyName__c'> </lightning-output-field>
+                        <lightning-output-field field-name='Summary__c'> </lightning-output-field>
+                        <lightning-output-field field-name='Description__c'> </lightning-output-field>
+                        <lightning-output-field field-name='Priority__c'> </lightning-output-field>
+                        <lightning-output-field field-name='Type__c'> </lightning-output-field>
+                        <lightning-output-field field-name='RequestDate__c'> </lightning-output-field>
+                      </div>
+                      <div class="slds-col slds-size_1-of-2">
+                        <lightning-output-field field-name='tsaNetCaseId__c'> </lightning-output-field>
+                        <lightning-output-field field-name='receivedCompanyName__c'> </lightning-output-field>
+                        <lightning-output-field field-name='Status__c'> </lightning-output-field>
+                        <lightning-output-field field-name='Responded__c'> </lightning-output-field>
+                        <lightning-output-field field-name='FeedbackRequested__c'> </lightning-output-field>
+                        <lightning-output-field field-name='ReminderSent__c'> </lightning-output-field>
+                        <lightning-output-field field-name='ResponseDate__c'> </lightning-output-field>
+                      </div>
+                      <lightning-output-field field-name='PriorityNote__c'> </lightning-output-field>
+                    </div>
+                
+                    </lightning-record-view-form>
+                </template>
+            </div>
+          </div>
+          <div class="slds-modal__footer">
+            <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+          </div>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</template>

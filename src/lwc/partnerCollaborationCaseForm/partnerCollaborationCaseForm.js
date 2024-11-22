@@ -63,11 +63,19 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
     }
 
     handleClose(){
-        this.clearState()
+        this.handleCloseWindow(this.isDone)
+    }
 
+    handleCloseWindow(isRefresh){
+        console.log('isRefresh: ', isRefresh)
+        this.clearState()
         if(!this.isQuickAction){
-            this.handleRefresh()
-            this.dispatchEvent(new CustomEvent('close'))
+            console.log('isRefresh: ', isRefresh)
+            this.dispatchEvent(new CustomEvent('close', {
+                detail: {
+                    refresh: isRefresh
+                }
+            }))
         } else {
             if(this.recordId){
                 this[NavigationMixin.Navigate]({
@@ -95,14 +103,14 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
 
     handleBack(){
 
-        this.isDone && this.handleClose()
+        this.isDone && this.handleCloseWindow()
 
         if(!this.firstStep){
             this.firstStep = true
             return
         }
 
-        this.handleClose()
+        this.handleCloseWindow(false)
     }
 
     handleSearchKey(event){
