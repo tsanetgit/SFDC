@@ -1,4 +1,5 @@
 SFDC Package for TSANet Connect 2.0
+To use or provide feedback contact contact membership@tsanet.org
 
 Install Guide:  https://paultocreatelink
 
