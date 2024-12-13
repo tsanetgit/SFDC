@@ -6,5 +6,5 @@ To use or provide feedback contact contact membership@tsanet.org
 <b>CURRENT PACKAGE VERSION:</b>
 Package Name	TSANet Connect	<br>
 By	Orest Vasylenko,   12/12/2024, 9:35 AM<br>
-Package Version: Beta 18<br>
-Package link: https://login.salesforce.com/packaging/installPackage.apexp?p0=04tbm00000052yr
+Package Version: Beta 19<br>
+Package link: https://login.salesforce.com/packaging/installPackage.apexp?p0=04tbm0000005325
