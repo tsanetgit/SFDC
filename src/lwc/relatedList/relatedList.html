@@ -68,6 +68,9 @@
                                                 <div style="margin-right: 20px;">
                                                     <template if:true={record.isHideAction}>
                                                         <lightning-button-menu icon-size="xx-small" menu-alignment="right" variant="bare" data-id={record.tsanet_connect__tsaNetCaseId__c} onselect={handleOnSelectAction}>
+                                                            <template if:true={record.isAcceptable}>
+                                                                <lightning-menu-item value="accept" label="Accept"></lightning-menu-item>
+                                                            </template>
                                                             <template if:true={record.isNoteable}>
                                                                 <lightning-menu-item value="note" label="Create Note"></lightning-menu-item>
                                                             </template>

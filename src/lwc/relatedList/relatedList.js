@@ -85,8 +85,14 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
         }
     }
 
-    handleSwitchApprove(){
+    handleSwitchApprove(event){
+        console.log('event handleSwitchApprove', JSON.stringify(event))
+        let isRefresh = event.detail.refresh;
+        console.log('isRefresh; ', isRefresh)
         this.isApprove = !this.isApprove
+        if(isRefresh){
+            this.handleRefresh()
+        } 
     }
 
     handleOnNote(event){
@@ -142,7 +148,9 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
             this.isRequestMode = true
         } else if(selectedItemValue == 'response'){
             this.isResponseMode = true
-        } else if('close'){
+        } if(selectedItemValue == 'accept'){
+            this.isApprove = true
+        } else if(selectedItemValue == 'close'){
             this.isLoading = true
             closeTSANetCase({ tsaNetCaseId: record.Id }).then(response => {
                 this.isLoading = false

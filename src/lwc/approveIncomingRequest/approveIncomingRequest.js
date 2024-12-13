@@ -17,9 +17,17 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
     note = 'Our assigned engineer will contact you.'
 
     handleClose(){
+        this.handleCloseWindow(false)
+    }
+
+    handleCloseWindow(isRefresh){
         this.clearState()
         if(!this.isQuickAction){
-            this.dispatchEvent(new CustomEvent('close'))
+            this.dispatchEvent(new CustomEvent('close', {
+                detail: {
+                    refresh: isRefresh
+                }
+            }))
         } else {
             this[NavigationMixin.Navigate]({    
                 type: "standard__recordPage",
@@ -28,7 +36,7 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
                     actionName: "view"
                 }
             })
-            location.reload()
+            //location.reload()
         }
     }
 
@@ -79,7 +87,7 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
             this.isDone = true
             toast(this, 'Success', 'success', 'The case have been submitted successfully!')
 
-            this.dispatchEvent(new CustomEvent('close'))
+            this.handleCloseWindow(true)
 
         }).catch(error => {
             if(error?.body?.message == 'Unauthorized'){
@@ -91,7 +99,7 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
                             this.isDone = true
                             toast(this, 'Success', 'success', 'The case have been submitted successfully!')
                 
-                            this.dispatchEvent(new CustomEvent('close'))
+                            this.handleCloseWindow(true)
                         })
                     } else {
                         console.log(error)
@@ -106,9 +114,6 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
                 toast(this, 'Error', 'error', error?.body?.message)
             }
             
-
-            
-
             getRelatedTSANetCases(undefined)
 
         })

@@ -2,7 +2,7 @@ global class TSANetScheduledJob implements Schedulable {
     
     public class TSANetScheduledJobException extends Exception {}
     
-    public static Map<String, Case> existedCases = getExistedCases();
+    //public static Map<String, Case> existedCases = getExistedCases();
     
     public static String endpoint = getEndpoint(); //'https://connect2.tsanet.us'; //https://connect2.renolab.us
     public static String get_cases_path = '/0.1.0/cases/';
@@ -28,9 +28,9 @@ global class TSANetScheduledJob implements Schedulable {
     
     public static String getEndpoint() {
         
-        tsanet_connect__TSANetCredentials__c creds = tsanet_connect__TSANetCredentials__c.getOrgDefaults();
+        tsanet_connect__TSANet_Credentials__c creds = TSANetService.getCredentials();
         System.debug('creds2 : ' + creds);
-        String environment = creds.tsanet_connect__environment__c + '_env';
+        String environment = creds.tsanet_connect__Environment__c + '_env';
         System.debug('environment2 : ' + environment);
         tsanet_connect__TSANetEnvironment__mdt[] environments =[SELECT Id, tsanet_connect__Endpoint__c FROM tsanet_connect__TSANetEnvironment__mdt WHERE DeveloperName =:environment];
         
@@ -85,6 +85,21 @@ global class TSANetScheduledJob implements Schedulable {
         Map<String, tsanet_connect__TSANetResponse__c[]> caseToResponses = new Map<String, tsanet_connect__TSANetResponse__c[]>();
         Map<String, tsanet_connect__TSANetNote__c[]> caseToNotes = new Map<String, tsanet_connect__TSANetNote__c[]>();  
             
+        String[] existedCaseNumbers = new String[]{};
+		for(Object caseRecord : cases){
+            Map<String, Object> record = (Map<String, Object>) caseRecord;
+            String externalId = String.valueOf(record.get('id'));
+            for(tsanet_connect__TSANetCaseMapping__mdt element : TSANET_MAPPING){
+                if(element.tsanet_connect__Type__c == 'REFERENCE'){
+                    String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
+                    existedCaseNumbers.add(parentCaseId);
+                }
+            }
+        }
+        
+        Map<String, Case> existedCases = getExistedCases(existedCaseNumbers);
+        
+        
         String[] existedIds = new String[]{};
         for(Object caseRecord : cases){
             Map<String, Object> record = (Map<String, Object>) caseRecord;
@@ -326,8 +341,8 @@ global class TSANetScheduledJob implements Schedulable {
 
     }
     
-    public static Map<String, Case> getExistedCases(){
-        Case[] cases = [SELECT Id, CaseNumber FROM Case ORDER BY CreatedDate DESC LIMIT 50000];
+    public static Map<String, Case> getExistedCases(String[] caseNumbers){
+        Case[] cases = [SELECT Id, CaseNumber FROM Case WHERE CaseNumber IN:caseNumbers ORDER BY CreatedDate DESC LIMIT 49999];
         Map<String, Case> numberToCase = new Map<String, Case>();
         for(Case caseRecord : cases){
             numberToCase.put(caseRecord.CaseNumber, caseRecord);

@@ -156,12 +156,14 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
     selectCompany(event){
 
         let departmentId = event?.currentTarget?.dataset?.department
-
+        console.log('departmentId :', departmentId)
         if(departmentId){
             this.company = this.companies.find(company => ( ( company.departmentId + '') == departmentId))
         } else{
             this.company = this.companies.find(company => ( ( company.companyId + '') == event?.currentTarget?.dataset?.value))
         }
+
+        console.log('company :', JSON.stringify(this.company))
 
         if(this.company){
             this.isLoading = true
@@ -175,9 +177,39 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
                 }
                 this.form = form && JSON.parse(form)
 
+                console.log('form :', JSON.stringify(this.form))
+
                 let customFields = []
+
+                this.form.customFields.forEach(field => {
+                    if(!this.skipCustomFields.includes(field.label)){
+                        //field['required'] = true // REMOVE 
+                        field['isSelect'] = field?.type == 'SELECT'
+                        field['isTierSelect'] = field?.type == 'TIERSELECT'
+                        field['isString'] = field?.type == 'STRING'
+
+                        if(field?.isSelect){
+                            let options = field?.options.split('\r\n')
+                            options = options.filter(value => value.trim() !== '');
+                            field['values'] = options.map(o => ({ label: o, value: o }))
+                        }
+
+                        if(field?.isTierSelect){
+                            let values = field.selections
+                            let mappedValues = values.map(o => ({ label: o.value, value: o.value, children: o.children }))
+                            field['values'] = mappedValues
+                            this.tierPicklistValues.set(field.label, undefined)
+                        }
+                        
+                        customFields.push(field)
+                    }
+                })
+
+                /*
+                
                 this.form?.customerData && this.form?.customerData.forEach(customField => {
                     getCustomFields({ documentId: this.form.documentId, fieldId: customField.id }).then(resp => {
+                        console.log('resp :', JSON.stringify(resp))
                         let field = JSON.parse(resp)
                         if(!this.skipCustomFields.includes(field.label)){
                             //field['required'] = true // REMOVE 
@@ -192,6 +224,7 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
 
                             if(field?.isTierSelect){
                                 getTierPickListValues({ documentId: this.form.documentId, fieldId: customField.id }).then(options => {
+                                    console.log('options : ', JSON.stringify(options))
                                     let values = options && JSON.parse(options)
                                     let mappedValues = values.map(o => ({ label: o.value, value: o.value, children: o.children }))
                                     field['values'] = mappedValues
@@ -204,6 +237,8 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
                         this.isLoading = false
                     })
                 })
+                */
+                console.log('customFields :', JSON.stringify(customFields))
 
                 this.customFields = customFields;
                 this.isLoading = false
@@ -303,41 +338,45 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
         let hasError = false
         let object = {}
 
-        let skipFields= ['readonlyAdminNote', 'readonlyEscalationInstructions']
+        let skipFields= ['adminNote', 'escalationInstructions']
         for (const [key, value] of Object.entries(this.form)) {
             if(!skipFields.includes(key)){
                 if(key == 'problemSummary'){
                     object[key] = this.subject
                 } else if(key == 'problemDescription'){
                     object[key] = this.problemInformation
-                } else if(key == 'casePriority'){
+                } else if(key == 'priority'){
                     object[key] = this.priority
                 } else if(key == 'internalCaseNumber'){
                     object[key] = this.caseRecord.CaseNumber
-                } else if(key == 'optionalRecieverInternalCaseNumber'){
+                } else if(key == 'recieverInternalCaseNumber'){
                     object[key] = this.parentCase
-                } else if(key == 'customerData'){
+                } else if(key == 'customFields'){ //customerData
                     let clonnedValue = JSON.parse(JSON.stringify(value))
 
+                    console.log('clonnedValue: ', JSON.stringify(clonnedValue))
+
                     clonnedValue.forEach(customField => {
-                        if(customField.fieldName == 'Customer Company'){
+                        
+                        
+                        if(customField.label == 'Customer Company'){
                             customField.value = this.caseRecord.Account.Name
-                        } else if(customField.fieldName == 'Customer Name') {
+                        } else if(customField.label == 'Customer Name') {
                             customField.value = this.caseRecord.Contact.Name
-                        } else if(customField.fieldName == 'Customer Email'){
+                        } else if(customField.label == 'Customer Email'){
                             customField.value = this.caseRecord.Contact.Email
-                        } else if(customField.fieldName == 'Customer Phone Including Country Code'){
+                        } else if(customField.label == 'Customer Phone Including Country Code'){
                             customField.value = this.caseRecord.Contact.Phone ? this.caseRecord.Contact.Phone : ''
                         } else {
-                            if(this.customFieldMap.has(customField.fieldName)){
-                                customField.value = this.customFieldMap.get(customField.fieldName)
+                            if(this.customFieldMap.has(customField.label)){
+                                customField.value = this.customFieldMap.get(customField.label)
                             } else {
                                 customField.value = ''
                             }
                         }
 
                         this.customFields.forEach(c => {
-                            if(c.label == customField.fieldName 
+                            if(c.label == customField.label
                                 && ( customField.value == '' || customField.value == undefined ) 
                                 && c.required){
                                 toast(this, 'Warning!', 'warning', REQUIRED_FIELDS_WARNING)
@@ -346,6 +385,7 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
                         })
                         
                     })
+                    console.log('clonnedValue LAST: ', JSON.stringify(clonnedValue))
                     object[key] = clonnedValue
                 } else {
                     object[key] = value

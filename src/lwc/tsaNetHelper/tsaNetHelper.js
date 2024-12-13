@@ -65,6 +65,7 @@ const prepareCaseData = (data) => {
 
         relatedCase.isNoteable = ( relatedCase.tsanet_connect__Status__c == 'ACCEPTED' || relatedCase.tsanet_connect__Status__c == 'INFORMATION' )
 
+        relatedCase.isAcceptable = ( relatedCase.tsanet_connect__Status__c == 'OPEN' || relatedCase.tsanet_connect__Status__c == 'INFORMATION' ) && relatedCase.tsanet_connect__Type__c == 'Inbound'
         relatedCase.isRejectable = ( relatedCase.tsanet_connect__Status__c == 'OPEN' || relatedCase.tsanet_connect__Status__c == 'INFORMATION' ) && relatedCase.tsanet_connect__Type__c == 'Inbound'
         relatedCase.isRequestable = ( relatedCase.tsanet_connect__Status__c == 'OPEN' && relatedCase.tsanet_connect__Type__c == 'Inbound' )
         relatedCase.isCloseable = ( relatedCase.tsanet_connect__Status__c == 'ACCEPTED' && relatedCase.tsanet_connect__Type__c == 'Outbound' )
@@ -94,6 +95,13 @@ export const getCompanies = (companyName, currentCompanyId) => {
 const prepareCompaniesData = (json, currentCompanyId) => {
     let companies = json && JSON.parse(json)
     console.log('companies: ', companies)
+
+    companies.forEach(c => {
+        c?.tags && c?.tags.length && c?.tags.forEach(tag => {
+            c['companyTags'] += tag + ' ';
+        })
+    })
+
     return companies.filter(c => ( c.companyId != currentCompanyId))
 }
 

@@ -7,11 +7,12 @@ public class TSANetNoteTriggerHelperTest {
         config.tsanet_connect__IntegrationUser__c = UserInfo.getUserId();
         upsert config;
         
-        tsanet_connect__TSANetCredentials__c credentials = tsanet_connect__TSANetCredentials__c.getOrgDefaults();
-        credentials.tsanet_connect__username__c = 'username@gmail.com';
-        credentials.tsanet_connect__password__c = 'password111';
-        credentials.tsanet_connect__environment__c = 'dev';
-        upsert credentials;
+        tsanet_connect__TSANet_Credentials__c credentials = new tsanet_connect__TSANet_Credentials__c();
+        credentials.tsanet_connect__UserName__c = 'username@gmail.com';
+        credentials.tsanet_connect__Password__c = 'password111';
+        credentials.tsanet_connect__Environment__c = 'dev';
+        credentials.tsanet_connect__isPrimary__c = true;
+        insert credentials;
 
         Account account = new Account(Name = 'Test Account');
         insert account;
@@ -34,16 +35,21 @@ public class TSANetNoteTriggerHelperTest {
 
     @isTest
     public static void createFeedItemsTest(){
-        tsanet_connect__TSANetNote__c note = new tsanet_connect__TSANetNote__c();
-        note.tsanet_connect__TSANetCase__c = [SELECT Id FROM tsanet_connect__TSANetCase__c LIMIT 1].Id;
-        note.tsanet_connect__Token__c = 'test_token';
-        note.tsanet_connect__Summary__c = 'Summary';
-        note.tsanet_connect__Description__c = '<strong>Description 1</strong>';
-        note.tsanet_connect__Priority__c = 'LOW';
-        note.tsanet_connect__Status__c = 'OPEN';
-        note.tsanet_connect__CreatorUserName__c = 'test_creator';
         
-        insert note;
-        update note;
+        String json = '{ "id": 2650, "caseId": 2793, "creatorUsername": null, "creatorEmail": "John.Smith@cisco.com", "creatorName": "Test User", "summary": "Note integration1", "description": "testing note 32", "priority": "LOW", "status": "ENTERED", "token": "UgchTc38fDLexCJ63F", "createdAt": "2024-11-25T14:32:06.244Z", "updatedAt": "2024-11-25T14:32:06.244Z" }';
+        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, json, null));
+        Test.startTest();
+        	tsanet_connect__TSANetNote__c note = new tsanet_connect__TSANetNote__c();
+            note.tsanet_connect__TSANetCase__c = [SELECT Id FROM tsanet_connect__TSANetCase__c LIMIT 1].Id;
+            note.tsanet_connect__Token__c = 'test_token';
+            note.tsanet_connect__Summary__c = 'Summary';
+            note.tsanet_connect__Description__c = '<strong>Description 1</strong>';
+            note.tsanet_connect__Priority__c = 'LOW';
+            note.tsanet_connect__Status__c = 'OPEN';
+            note.tsanet_connect__CreatorUserName__c = 'test_creator';
+            
+            insert note;
+        	update note;
+        Test.stopTest();
     }
 }

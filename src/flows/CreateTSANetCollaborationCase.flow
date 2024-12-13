@@ -76,7 +76,7 @@
             <assignToReference>CustomerDataList</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>GetCompanyFrom.form.customerData</elementReference>
+                <elementReference>GetCompanyFrom.form.customFields</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -86,20 +86,20 @@
     <assignments>
         <name>Assign_Vars</name>
         <label>Assign Vars</label>
-        <locationX>1036</locationX>
-        <locationY>871</locationY>
+        <locationX>1223</locationX>
+        <locationY>876</locationY>
         <assignmentItems>
-            <assignToReference>CustomerData.id</assignToReference>
+            <assignToReference>CustomerData.fieldId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>LoopPopulateCustomerData.id</elementReference>
+                <elementReference>LoopPopulateCustomerData.fieldId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>CustomerData.fieldName</assignToReference>
+            <assignToReference>CustomerData.label</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>LoopPopulateCustomerData.fieldName</elementReference>
+                <elementReference>LoopPopulateCustomerData.label</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -191,7 +191,7 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>CompanyForm.customerData</assignToReference>
+            <assignToReference>CompanyForm.customFields</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>CustomFields</elementReference>
@@ -212,7 +212,7 @@
     <formulas>
         <name>CustomerDataValue</name>
         <dataType>String</dataType>
-        <expression>Case({!LoopPopulateCustomerData.fieldName}, 
+        <expression>Case({!LoopPopulateCustomerData.label}, 
 &apos;Customer Name&apos;, {!CaseRecord.Contact.FirstName} + &apos; &apos; + {!CaseRecord.Contact.LastName}, 
 &apos;Customer Email&apos;, {!CaseRecord.Contact.Email},
 &apos;Customer Company&apos;, {!CaseRecord.Account.Name},
@@ -223,7 +223,7 @@
     <formulas>
         <name>FormattedCustomField</name>
         <dataType>String</dataType>
-        <expression>{!LoopPopulateCustomerData.fieldName} + &apos; : &apos; + {!CustomerDataValue} + &apos;; &apos;</expression>
+        <expression>{!LoopPopulateCustomerData.label} + &apos; : &apos; + {!CustomerDataValue} + &apos;; &apos;</expression>
     </formulas>
     <interviewLabel>Create TSANet Collaboration Case {!$Flow.CurrentDateTime}</interviewLabel>
     <isTemplate>true</isTemplate>
@@ -286,7 +286,7 @@
         <name>CollaborationForm</name>
         <label>Collaboration Form</label>
         <locationX>567</locationX>
-        <locationY>870</locationY>
+        <locationY>869</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>

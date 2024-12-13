@@ -16,13 +16,15 @@ global class TSANetInvocableNoteService {
     global static TSANetCollaborationCaseNoteResult[] createCollaborationCaseNote(TSANetInput[] data) {
         TSANetInput input = data[0];
         String json = JSON.serialize(input.note);
+        System.debug('json: ' + json);
         
         String body = TSANetService.createCaseNote(input.caseRecord.tsanet_connect__tsaNetCaseId__c, json);
         
         if(!Test.isRunningTest()){ TSANetUtils.futureRefresh(null); }
         
         TSANetCollaborationCaseNoteResult result = new TSANetCollaborationCaseNoteResult();
-        result.caseRecord = (TSANetCollaborationCase) System.JSON.deserialize(body, TSANetCollaborationCase.class);
+        
+        //result.caseRecord = [SELECT Id, Name, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE tsanet_connect__tsaNetCaseId__c =:input.caseRecord.tsanet_connect__tsaNetCaseId__c];
         return new TSANetCollaborationCaseNoteResult[]{ result };
     }
         

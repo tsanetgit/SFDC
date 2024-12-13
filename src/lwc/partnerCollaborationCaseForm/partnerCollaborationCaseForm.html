@@ -20,7 +20,14 @@
                                             <lightning-icon icon-name="standard:account"></lightning-icon>
                                         </span>
                                         <div role="combobox" tabindex="0" class="slds-input_faux slds-combobox__input slds-combobox__input-value" aria-labelledby="combobox-label-id-32 combobox-id-5-selected-value" id="combobox-id-5-selected-value" aria-controls="listbox-id-5" aria-expanded="false" aria-haspopup="listbox">
-                                            <span class="slds-truncate" id="combobox-value-id-19">{company.label}</span>
+                                            <span class="slds-truncate" id="combobox-value-id-19">
+                                                {company.label}
+                                                <template if:true={company.tags.length}>
+                                                    <template for:each={company.tags} for:item="t">
+                                                        <lightning-badge style="margin-left: 20px;" key={t.tag} label={t.tag}></lightning-badge>
+                                                    </template>
+                                                </template>
+                                            </span>
                                             <button class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" onclick={handleChangeCompany}>
                                                 <lightning-icon icon-name="utility:close" size="xx-small"></lightning-icon>
                                             </button>
@@ -58,6 +65,11 @@
                                                     <span class="slds-media__body">
                                                         <span class="slds-truncate">
                                                             {company.label}
+                                                            <template if:true={company.tags.length}>
+                                                                <template for:each={company.tags} for:item="t">
+                                                                    <lightning-badge style="margin-left: 20px;" key={t.tag} label={t.tag}></lightning-badge>
+                                                                </template>
+                                                            </template>
                                                         </span>
                                                     </span>
                                                 </div>
@@ -110,10 +122,20 @@
                                 </lightning-record-edit-form>
                             </template>
                             <template if:true={caseRecord}>
-                                <template if:true={form.readonlyAdminNote}>
+                                <template if:true={form.adminNote}>
                                     <div class="slds-col slds-size_1-of-1">
                                         <div style="width: 97%; border-style: double; margin: 10px; display: flex; height: 40px; justify-content: center; align-items: center;">
-                                            <lightning-formatted-rich-text value={form.readonlyAdminNote}></lightning-formatted-rich-text>
+                                            <lightning-formatted-rich-text value={form.adminNote}></lightning-formatted-rich-text>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <template if:true={form.internalNotes.length}>
+                                    <div class="slds-col slds-size_1-of-1">
+                                        <div style="width: 97%; border-style: double; margin: 10px; display: flex; height: 40px; justify-content: center; align-items: center;">
+                                            <template for:each={form.internalNotes} for:item="n">
+                                                <lightning-formatted-rich-text key={n.note} value={n.note}></lightning-formatted-rich-text>
+                                            </template>
                                         </div>
                                     </div>
                                 </template>

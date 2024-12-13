@@ -31,14 +31,14 @@ public class TSANetRefreshUtils {
     @AuraEnabled
     public static String getAccessToken(){
 
-        tsanet_connect__TSANetCredentials__c credentials = TSANetService.getCredentials();
+        tsanet_connect__TSANet_Credentials__c credentials = TSANetService.getCredentials();
         
         HttpRequest req = new HttpRequest();
         req.setEndpoint(TSANetService.endpoint + TSANetService.login_path);
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
         req.setBody('');
-        req.setBody('{"username": "' + credentials.tsanet_connect__username__c + '","password": "' + credentials.tsanet_connect__password__c + '"}');
+        req.setBody('{"username": "' + credentials.tsanet_connect__UserName__c + '","password": "' + credentials.tsanet_connect__Password__c + '"}');
         
         Http http = new Http();
         HTTPResponse res = http.send(req);

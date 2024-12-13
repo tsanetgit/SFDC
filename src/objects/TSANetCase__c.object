@@ -535,6 +535,28 @@
         <visibleLines>3</visibleLines>
     </fields>
     <fields>
+        <fullName>documentId__c</fullName>
+        <externalId>false</externalId>
+        <label>documentId</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>isApiCase__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>isApiCase</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
         <fullName>receivedCompanyId__c</fullName>
         <externalId>false</externalId>
         <label>Company Id ( Received )</label>

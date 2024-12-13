@@ -13,6 +13,7 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
     @api currentUser
 
     priority = 'MEDIUM'
+    
     priorities = [
         { label: 'Low', value: 'LOW' },
         { label: 'Medium', value: 'MEDIUM' },

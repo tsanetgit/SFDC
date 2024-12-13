@@ -96,11 +96,11 @@ public class TSANetUtils {
             
             upsert config;
             
-            tsanet_connect__TSANetCredentials__c credentials = tsanet_connect__TSANetCredentials__c.getOrgDefaults();
-            credentials.tsanet_connect__username__c = username;
-            credentials.tsanet_connect__password__c = password;
+            tsanet_connect__TSANet_Credentials__c credentials = TSANetService.getCredentials();
+            credentials.tsanet_connect__UserName__c = username;
+            credentials.tsanet_connect__Password__c = password;
             
-            upsert credentials;
+            update credentials;
             
         } else {
 
@@ -111,11 +111,11 @@ public class TSANetUtils {
             config.tsanet_connect__companyId__c = NULL;
             config.tsanet_connect__IntegrationUser__c = NULL;
             
-            tsanet_connect__TSANetCredentials__c credentials = tsanet_connect__TSANetCredentials__c.getOrgDefaults();
-            credentials.tsanet_connect__username__c = NULL;
-            credentials.tsanet_connect__password__c = NULL;
+            tsanet_connect__TSANet_Credentials__c credentials = TSANetService.getCredentials();
+            credentials.tsanet_connect__UserName__c = NULL;
+            credentials.tsanet_connect__Password__c = NULL;
             
-            upsert credentials;
+            update credentials;
             
             return Database.upsert(config).isSuccess();
         }

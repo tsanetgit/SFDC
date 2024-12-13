@@ -9,11 +9,12 @@ public class TSANetInvocableGetCompanyServiceTest {
         config.tsanet_connect__IntegrationUser__c = UserInfo.getUserId();
         upsert config;
         
-        tsanet_connect__TSANetCredentials__c credentials = tsanet_connect__TSANetCredentials__c.getOrgDefaults();
-        credentials.tsanet_connect__username__c = 'username@gmail.com';
-        credentials.tsanet_connect__password__c = 'password111';
-        credentials.tsanet_connect__environment__c = 'dev';
-        upsert credentials;
+        tsanet_connect__TSANet_Credentials__c credentials = new tsanet_connect__TSANet_Credentials__c();
+        credentials.tsanet_connect__UserName__c = 'username@gmail.com';
+        credentials.tsanet_connect__Password__c = 'password111';
+        credentials.tsanet_connect__Environment__c = 'dev';
+        credentials.tsanet_connect__isPrimary__c = true;
+        insert credentials;
         
         Account account = new Account(Name = 'Test Account');
         insert account;

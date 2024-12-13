@@ -5,8 +5,8 @@ public class TSANetService {
     public static String login_path = '/0.1.0/login';
     public static String companies_path = '/0.1.1/partners/';
     public static String get_cases_path =  '/0.1.0/cases/';
-    public static String get_form_path = '/0.1.0/form/company/';
-    public static String create_case_path = '/0.1.0/cases/create/';
+    public static String get_form_path = '/1.0.8/form/company/';
+    public static String create_case_path = '/1.0.8/collaboration-request/';
     public static String get_users_path = '/camel/users/';
     public static String approve_case_path = '';
     public static String me_path = '/camel/me';
@@ -15,13 +15,13 @@ public class TSANetService {
     
     public static tsanet_connect__TSANetConfiguration__c CONFIG = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
     public static tsanet_connect__TSANetCaseMapping__mdt[] TSANET_MAPPING = getTSANetMapping();
-    public static Map<String, Case> existedCases = getExistedCases();
+    //public static Map<String, Case> existedCases = getExistedCases();
     
         
     public static String getEndpoint() {
-        tsanet_connect__TSANetCredentials__c creds = getCredentials();
+        tsanet_connect__TSANet_Credentials__c creds = getCredentials();
         System.debug('creds : ' + creds);
-        String environment = creds.tsanet_connect__environment__c + '_env';
+        String environment = creds.tsanet_connect__Environment__c + '_env';
         System.debug('environment : ' + environment);
         tsanet_connect__TSANetEnvironment__mdt[] environments =[SELECT Id, tsanet_connect__Endpoint__c FROM tsanet_connect__TSANetEnvironment__mdt WHERE DeveloperName =:environment];
         
@@ -46,14 +46,16 @@ public class TSANetService {
     @AuraEnabled
     public static Boolean getAccessToken(){
 
-        tsanet_connect__TSANetCredentials__c credentials = getCredentials();
+        tsanet_connect__TSANet_Credentials__c credentials = getCredentials();
+        
+        SYstem.debug('credentials: ' + credentials);
         
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + login_path);
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
         req.setBody('');
-        req.setBody('{"username": "' + credentials.tsanet_connect__username__c + '","password": "' + credentials.tsanet_connect__password__c + '"}');
+        req.setBody('{"username": "' + credentials.tsanet_connect__UserName__c + '","password": "' + credentials.tsanet_connect__Password__c + '"}');
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
@@ -76,14 +78,14 @@ public class TSANetService {
     @AuraEnabled
     public static String getBearerAccessToken(){
 
-        tsanet_connect__TSANetCredentials__c credentials = getCredentials();
+        tsanet_connect__TSANet_Credentials__c credentials = getCredentials();
         
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + login_path);
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
         req.setBody('');
-        req.setBody('{"username": "' + credentials.tsanet_connect__username__c + '","password": "' + credentials.tsanet_connect__password__c + '"}');
+        req.setBody('{"username": "' + credentials.tsanet_connect__UserName__c + '","password": "' + credentials.tsanet_connect__Password__c + '"}');
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
@@ -97,10 +99,10 @@ public class TSANetService {
         return response.accessToken;
     }
     
-    public static void executeInternalProcess(tsanet_connect__TSANetCredentials__c credentials){
+    public static void executeInternalProcess(tsanet_connect__TSANet_Credentials__c credentials){
 
         if(CONFIG.tsanet_connect__IntegrationUser__c == NULL){
-            TSANetUtils.updateUserCredentials(credentials.tsanet_connect__username__c, credentials.tsanet_connect__password__c);
+            TSANetUtils.updateUserCredentials(credentials.tsanet_connect__UserName__c, credentials.tsanet_connect__Password__c);
         }
         
         if(CONFIG.tsanet_connect__companyId__c == NULL && !Test.isRunningTest()){
@@ -120,14 +122,22 @@ public class TSANetService {
     
 
     @AuraEnabled
-    public static tsanet_connect__TSANetCredentials__c getCredentials(){
+    public static tsanet_connect__TSANet_Credentials__c getCredentials(){
+        /*
         tsanet_connect__TSANetCredentials__c credentials = tsanet_connect__TSANetCredentials__c.getOrgDefaults();
         
         if(credentials == NULL || credentials.tsanet_connect__environment__c == NULL){
             throw new TSANetServiceException('Username and password can not be empty!');
         }
+        */
         
-        return credentials;
+        tsanet_connect__TSANet_Credentials__c[] credentials = [SELECT Id, Name, tsanet_connect__UserName__c, tsanet_connect__Password__c, tsanet_connect__Environment__c, tsanet_connect__isPrimary__c FROM tsanet_connect__TSANet_Credentials__c WHERE tsanet_connect__isPrimary__c = TRUE];
+        
+        if(!credentials.isEmpty()){
+            return credentials[0];
+        } else {
+            throw new TSANetServiceException('Username and password can not be empty!');
+        }
     }
     
     @AuraEnabled
@@ -290,7 +300,22 @@ public class TSANetService {
         tsanet_connect__TSANetCase__c[] newCases = new tsanet_connect__TSANetCase__c[]{};
         Map<String, tsanet_connect__TSANetResponse__c[]> caseToResponses = new Map<String, tsanet_connect__TSANetResponse__c[]>();
         Map<String, tsanet_connect__TSANetNote__c[]> caseToNotes = new Map<String, tsanet_connect__TSANetNote__c[]>();  
-            
+        
+
+        String[] existedCaseNumbers = new String[]{};
+		for(Object caseRecord : cases){
+            Map<String, Object> record = (Map<String, Object>) caseRecord;
+            String externalId = String.valueOf(record.get('id'));
+            for(tsanet_connect__TSANetCaseMapping__mdt element : TSANET_MAPPING){
+                if(element.tsanet_connect__Type__c == 'REFERENCE'){
+                    String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
+                    existedCaseNumbers.add(parentCaseId);
+                }
+            }
+        }
+        
+        Map<String, Case> existedCases = getExistedCases(existedCaseNumbers);
+        
         String[] existedIds = new String[]{};
         for(Object caseRecord : cases){
             Map<String, Object> record = (Map<String, Object>) caseRecord;
@@ -298,7 +323,7 @@ public class TSANetService {
 
             if(!existedIds.contains(externalId)){
                 tsanet_connect__TSANetCase__c newCase = new tsanet_connect__TSANetCase__c();
-                    
+                newCase.tsanet_connect__isApiCase__c = TRUE;
                 for(tsanet_connect__TSANetCaseMapping__mdt element : TSANET_MAPPING){
                     if(element.tsanet_connect__Type__c == 'DATETIME'){
                         try {
@@ -541,7 +566,7 @@ public class TSANetService {
         if(mode == 'company'){
             localEndpoint += get_form_path;
         } else {
-            localEndpoint += '/0.1.0/form/department/';
+            localEndpoint += '/1.0.8/form/department/';
         }
         
         localEndpoint += companyId;
@@ -565,7 +590,7 @@ public class TSANetService {
  
                 System.debug('work222');
                 HttpRequest req2 = new HttpRequest();
-                req2.setEndpoint(endpoint + '/0.1.0/form/department/' + companyId);
+                req2.setEndpoint(endpoint + '/1.0.8/form/department/' + companyId);
                 req2.setHeader('Authorization', getBearerToken());
                 //req.setHeader('User-Agent', 'PostmanRuntime/7.33.0');
                 req2.setMethod('GET');
@@ -586,6 +611,9 @@ public class TSANetService {
     
     @AuraEnabled
     public static String getCompaniesByName(String companyName){
+        System.debug('companyName: ' + companyName);
+        companyName = EncodingUtil.urlEncode(companyName, 'UTF-8');
+        System.debug('companyName: ' + companyName);
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + companies_path + companyName);
         req.setHeader('Authorization', getBearerToken());
@@ -634,6 +662,24 @@ public class TSANetService {
         createCaseFeedItem(caseId, response);
              
         return res.getBody();
+		
+        /*
+		Map<String, Object> data = (Map<String, Object>) System.JSON.deserializeUntyped(json);
+        
+        String caseNumber = (String) data.get('internalCaseNumber');
+        
+        Case caseRecord = [SELECT Id FROM Case WHERE CaseNumber =:caseNumber];
+        
+        tsanet_connect__TSANetCase__c tsaNetCase = new tsanet_connect__TSANetCase__c();
+        tsaNetCase.tsanet_connect__isApiCase__c = FALSE;
+        tsaNetCase.tsanet_connect__documentId__c = String.valueOf(data.get('documentId'));
+        tsaNetCase.tsanet_connect__Case__c = caseRecord.Id;
+        tsaNetCase.tsanet_connect__Priority__c = (String) data.get('priority');
+        tsaNetCase.tsanet_connect__Summary__c = (String) data.get('problemSummary');
+        tsaNetCase.tsanet_connect__Description__c = (String) data.get('problemDescription');
+        tsaNetCase.tsanet_connect__customFields__c = System.JSON.serialize(data.get('customFields'));
+        insert tsaNetCase;
+		*/
     }
     
     @AuraEnabled
@@ -807,8 +853,8 @@ public class TSANetService {
         getAccessToken();
     }
     
-    public static Map<String, Case> getExistedCases(){
-        Case[] cases = [SELECT Id, CaseNumber FROM Case ORDER BY CreatedDate DESC LIMIT 50000];
+    public static Map<String, Case> getExistedCases(String[] caseNumbers){
+        Case[] cases = [SELECT Id, CaseNumber FROM Case WHERE CaseNumber IN:caseNumbers ORDER BY CreatedDate DESC LIMIT 49999];
         Map<String, Case> numberToCase = new Map<String, Case>();
         for(Case caseRecord : cases){
             numberToCase.put(caseRecord.CaseNumber, caseRecord);
@@ -819,6 +865,21 @@ public class TSANetService {
     @AuraEnabled
     public static String createCaseNote(String caseId, String json){
         
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id FROM tsanet_connect__TSANetCase__c WHERE tsanet_connect__tsaNetCaseId__c =:caseId];
+        Map<String, Object> data = (Map<String, Object>) System.JSON.deserializeUntyped(json);
+        
+        tsanet_connect__TSANetNote__c note = new tsanet_connect__TSANetNote__c();
+        note.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
+        note.tsanet_connect__Summary__c = (String) data.get('summary');
+        note.tsanet_connect__Description__c = (String) data.get('description');
+        note.tsanet_connect__Priority__c = (String) data.get('priority');
+        note.tsanet_connect__isApiNote__c = false;
+        
+        insert note;
+        
+        return note.Id;
+        
+        /*
         System.debug('caseId : ' + caseId);
         System.debug('json : ' + json);
         HttpRequest req = new HttpRequest();
@@ -843,35 +904,7 @@ public class TSANetService {
         
         //createNoteCaseFeedItem(caseId, noteResponse);
                 
-        return res.getBody();
-    }
-    
-    public static void createNoteCaseFeedItem(String caseId, TSANetNoteResponse response){
-        
-        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__Case__c, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE tsanet_connect__tsaNetCaseId__c =:caseId];
- 
-        String summary = response.summary;
-        String description = response.description;
-        String priority = response.priority;
-        
-        if(description.contains('<strong>')){
-            description = description.replaceAll('<strong>', '<b>');
-            description = description.replaceAll('</strong>', '</b>');
-        }
-        
-        String refactoredDescription = stripHtmlTags(description);
-        
-        String message = '<p>Note Details:</p>' + 
-            '<p>Summary: ' + summary + '</p>' +
-            '<p>Description: ' + description + '</p>';
-        
-        insert new FeedItem(
-            ParentId = tsaNetCase.tsanet_connect__Case__c,
-            IsRichText = true,
-            Title = 'TSANet Note - ' + response.token,
-            Body = message
-        );
-        
+        return res.getBody();*/
     }
     
     @AuraEnabled

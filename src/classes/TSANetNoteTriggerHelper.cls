@@ -1,7 +1,7 @@
 public class TSANetNoteTriggerHelper {
     
     public static void handleAfterInsert(tsanet_connect__TSANetNote__c[] notes){
-        //createTSANetAPINote(notes);
+        createTSANetAPINote(notes);
         createFeedItems(notes);
     }
     
@@ -13,7 +13,7 @@ public class TSANetNoteTriggerHelper {
         Id[] tsaNetCaseIds = new Id[]{};
             
         for(tsanet_connect__TSANetNote__c note : notes){
-            if(note.tsanet_connect__isCaseFeed__c == true){
+            if(note.tsanet_connect__isCaseFeed__c == true && note.tsanet_connect__isApiNote__c == TRUE){
                 tsaNetCaseIds.add(note.tsanet_connect__TSANetCase__c);
             }
         }
@@ -79,7 +79,7 @@ public class TSANetNoteTriggerHelper {
     
     }
 
-	/*
+
     public static void createTSANetAPINote(tsanet_connect__TSANetNote__c[] notes) {
         
         String[] caseIds = new String[]{};
@@ -87,12 +87,32 @@ public class TSANetNoteTriggerHelper {
             caseIds.add(note.tsanet_connect__TSANetCase__c);
         }
         
-        Map<Id, tsanet_connect__TSANetCase__c> tsaNetCases = new Map<Id, tsanet_connect__TSANetCase__c>([SELECT Id, Name, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id IN:caseIds]);
+        Map<Id, tsanet_connect__TSANetCase__c> tsaNetCases = new Map<Id, tsanet_connect__TSANetCase__c>([SELECT Id, Name, tsanet_connect__Case__r.Owner.FirstName, tsanet_connect__Case__r.Owner.LastName, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id IN:caseIds]);
         
         for(tsanet_connect__TSANetNote__c note: notes){
             if(note.tsanet_connect__isApiNote__c == FALSE && note.tsanet_connect__TSANetCase__c != NULL){
-                String json = '{"summary": "' + note.tsanet_connect__Summary__c + '", "description": "' + note.tsanet_connect__Description__c + '", "priority":"' + note.tsanet_connect__Priority__c + '"}';
+                
                 tsanet_connect__TSANetCase__c tsaNetCase = tsaNetCases.get(note.tsanet_connect__TSANetCase__c);
+                
+                String creatorFirstName = '';
+                String creatorLastName = '';
+                
+                if(tsaNetCase.tsanet_connect__Case__r.Owner.FirstName != NULL && tsaNetCase.tsanet_connect__Case__r.Owner.LastName != NULL){
+                    creatorFirstName = tsaNetCase.tsanet_connect__Case__r.Owner.FirstName;
+                    creatorLastName = tsaNetCase.tsanet_connect__Case__r.Owner.LastName;
+                } else {
+                    User currentUser = [SELECT Id, FirstName, LastName FROM User WHERE Id =:UserInfo.getUserId()];
+                    creatorFirstName = currentUser.FirstName;
+                    creatorLastName = currentUser.LastName;
+                }
+                
+                String json = '{"summary": "' + 
+                    note.tsanet_connect__Summary__c + 
+                    '", "description": "' + note.tsanet_connect__Description__c + 
+                    '", "priority":"' + note.tsanet_connect__Priority__c + '", ' + 
+                    '"submittedBy": { "firstName": "' + creatorFirstName + '", "lastName": "' + creatorLastName + '" }}';
+                
+                
                 createTSANetAPINoteFuture(tsaNetCase.tsanet_connect__tsaNetCaseId__c, json, note.Id);
             }
         }
@@ -102,7 +122,7 @@ public class TSANetNoteTriggerHelper {
     public static void createTSANetAPINoteFuture(String caseId, String json, String noteId){
         System.debug('json: ' + json);
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(TSANetService.endpoint + '/0.1.0/cases/' + caseId + '/notes/create');
+        req.setEndpoint(TSANetService.endpoint + '/1.0.8/cases/' + caseId + '/notes/create');
         req.setHeader('Authorization', TSANetService.getBearerToken());
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
@@ -137,7 +157,7 @@ public class TSANetNoteTriggerHelper {
         String token = TSANetService.getBearerAccessToken();
         
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(TSANetService.endpoint + '/0.1.0/cases/' + caseId + '/notes/create');
+        req.setEndpoint(TSANetService.endpoint + '/1.0.8/cases/' + caseId + '/notes/create');
         req.setHeader('Authorization', 'Bearer ' + token);
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
@@ -151,15 +171,15 @@ public class TSANetNoteTriggerHelper {
         System.debug('noteId :' + noteId);
         System.debug('noteResponse.token :' + noteResponse.token);
         System.debug('noteResponse; ' + noteResponse);
-        upsert new tsanet_connect__TSANetNote__c(
+        update new tsanet_connect__TSANetNote__c(
             Id = noteId, 
             tsanet_connect__Token__c = noteResponse.token,
             tsanet_connect__Status__c = noteResponse.status,
             tsanet_connect__Priority__c = noteResponse.priority,
             tsanet_connect__CreatorName__c = noteResponse.creatorUsername
-        ) tsanet_connect__Token__c;
+        );
     }
-    */
+    
     public static String stripHtmlTags(String input) {
         if (String.isEmpty(input)) { return ''; }
         Pattern htmlPattern = Pattern.compile('<[^>]+>');

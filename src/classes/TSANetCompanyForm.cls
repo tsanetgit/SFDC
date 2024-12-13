@@ -20,6 +20,6 @@ global class TSANetCompanyForm {
     global Boolean testSubmission { get; set; }
     
     @AuraEnabled 
-    global TSANetCustomerData[] customerData { get; set; }
+    global TSANetCustomerData[] customFields { get; set; } //customerData
    
 }
