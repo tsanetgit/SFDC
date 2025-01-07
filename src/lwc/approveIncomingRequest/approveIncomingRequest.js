@@ -55,8 +55,8 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
     validate(){
         if(this.record?.tsanet_connect__tsaNetCaseId__c &&
             this.caseRecord?.Owner?.Name && 
-            this.caseRecord?.Owner?.Email &&
-            this.caseRecord?.Owner?.Phone &&
+            //this.caseRecord?.Owner?.Email &&
+            //this.caseRecord?.Owner?.Phone &&
             this.note
         ){ return true } 
         else { return false }

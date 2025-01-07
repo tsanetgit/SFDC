@@ -39,6 +39,9 @@
             
             $A.get('e.force:refreshView').fire()
         }
+        
+        var dismissActionPanel = $A.get("e.force:closeQuickAction");
+        dismissActionPanel.fire();
     },
     
     toast : function(title, type, message) {

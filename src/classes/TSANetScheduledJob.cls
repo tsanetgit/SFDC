@@ -280,7 +280,9 @@ global class TSANetScheduledJob implements Schedulable {
                                         
                                     }
                                 }
-                                newNotes.add(newNote);
+                                if(newNote.tsanet_connect__Summary__c != 'Note removed - Older than 30 days'){
+                                    newNotes.add(newNote);
+                                }
                             }
                             caseToNotes.put(externalId, newNotes);
                         }

@@ -13,6 +13,6 @@
 	},
             
     close : function(cmp, event){
- 
+        
     }        
 })

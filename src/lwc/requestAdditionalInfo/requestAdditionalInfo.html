@@ -28,15 +28,15 @@
                           <div class="slds-m-around_xx-small">
                             <template if:true={record}>
                                 <template if:true={caseRecord}>
-                                    <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only ></lightning-input>
-                                    <lightning-input type="text" label="Owner Name" value={caseRecord.Owner.Name} read-only ></lightning-input>
+                                    <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only required></lightning-input>
+                                    <lightning-input type="text" label="Owner Name" value={caseRecord.Owner.Name} read-only required></lightning-input>
                                     <lightning-input type="email" label="Owner Email" value={caseRecord.Owner.Email} read-only ></lightning-input>
                                     <lightning-input type="tel" label="Owner Phone" value={caseRecord.Owner.Phone} read-only ></lightning-input>
-                                    <lightning-input type="text" label="Case Number" value={caseRecord.CaseNumber} read-only ></lightning-input>
+                                    <lightning-input type="text" label="Case Number" value={caseRecord.CaseNumber} read-only required></lightning-input>
                               </template>
                               <template if:false={caseRecord}>
-                                    <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only ></lightning-input>
-                                    <lightning-input type="text" label="Owner Name" value={currentUser.Name} read-only ></lightning-input>
+                                    <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only required></lightning-input>
+                                    <lightning-input type="text" label="Owner Name" value={currentUser.Name} read-only required></lightning-input>
                                     <lightning-input type="email" label="Owner Email" value={currentUser.Email} read-only ></lightning-input>
                                     <lightning-input type="tel" label="Owner Phone" value={currentUser.Phone} read-only ></lightning-input>
                             </template>
@@ -63,7 +63,9 @@
           <div class="slds-modal__footer">
             <button class="slds-button slds-button_neutral" onclick={handleClose}>Close</button>
             <template if:false={isDone}>
+              <template if:false={isLoading}>
               <button type="submit" class="slds-button slds-button_brand" onclick={handleRequestAdditionalInfo}>Request</button>
+              </template>
             </template>
           </div>
         </div>

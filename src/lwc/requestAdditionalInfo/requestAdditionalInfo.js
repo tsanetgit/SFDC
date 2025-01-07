@@ -59,8 +59,8 @@ export default class RequestAdditionalInfo extends NavigationMixin(LightningElem
 
     validate(data){
         if(data?.engineerName &&
-            data?.engineerEmail && 
-            data?.engineerPhone &&
+            //data?.engineerEmail && 
+            //data?.engineerPhone &&
             this.additionalInfo
         ){ return true } 
         else { return false }

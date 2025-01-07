@@ -45,6 +45,7 @@ public class TSANetNoteTriggerHelper {
                 String summary = note.tsanet_connect__Summary__c;
                 String description = note.tsanet_connect__Description__c;
                 String priority = note.tsanet_connect__Priority__c;
+                String creatorName = note.tsanet_connect__CreatorName__c;
                 
                 if(description != NULL && description.contains('<strong>')){
                     description = description.replaceAll('<strong>', '<b>');
@@ -54,6 +55,7 @@ public class TSANetNoteTriggerHelper {
                 String refactoredDescription = stripHtmlTags(description);
                 
                 String message = '<p>Note Details:</p>' + 
+                    '<p>Created By: ' + creatorName + '</p>' +
                     '<p>Summary: ' + summary + '</p>' +
                     '<p>Description: ' + description + '</p>';
                 

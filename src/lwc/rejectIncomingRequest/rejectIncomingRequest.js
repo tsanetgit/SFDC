@@ -57,8 +57,8 @@ export default class RejectIncomingRequest extends NavigationMixin(LightningElem
 
     validate(data){
         if(data?.engineerName &&
-            data?.engineerEmail && 
-            data?.engineerPhone &&
+            //data?.engineerEmail && 
+            //data?.engineerPhone &&
             this.reason
         ){ return true } 
         else { return false }

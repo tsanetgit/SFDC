@@ -5,16 +5,20 @@ public class TSANetRefreshUtils {
     public PageReference refresh() {
         try {
             TSANetService.getRelatedCollaborationCases(null);
-            PageReference returnPage = new PageReference('/lightning/o/tsanet_connect__TSANetCase__c/list?filterName=tsanet_connect__Inbound_Open'); 
+            PageReference returnPage = goBack();
             System.debug('returnPage : ' + returnPage);
             return returnPage; 
             
         } catch(Exception e){
             System.debug('CATCH');
-            PageReference returnPage = new PageReference('/lightning/o/tsanet_connect__TSANetCase__c/list?filterName=tsanet_connect__Inbound_Open'); 
+            PageReference returnPage = goBack();
             futureRefresh();
             return returnPage; 
         }
+    }
+    
+    public PageReference goBack() {
+        return new PageReference('/lightning/o/tsanet_connect__TSANetCase__c/list'); 
     }
     
     @AuraEnabled

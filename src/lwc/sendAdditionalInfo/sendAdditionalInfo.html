@@ -43,7 +43,9 @@
           <div class="slds-modal__footer">
             <button class="slds-button slds-button_neutral" onclick={handleClose}>Close</button>
             <template if:false={isDone}>
+              <template if:false={isLoading}>
               <button type="submit" class="slds-button slds-button_brand" onclick={handleSendAdditionalInfo}>Send</button>
+              </template>
             </template>
           </div>
         </div>
