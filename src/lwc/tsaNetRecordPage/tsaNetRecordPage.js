@@ -101,6 +101,11 @@ export default class TsaNetRecordPage extends LightningElement {
                     }
                 })
             }
+            
+            this.customFields.sort(function(a,b) {
+                return a.displayOrder - b.displayOrder
+            })
+
             this.customFields = customFields
         })
     }
