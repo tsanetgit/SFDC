@@ -14,6 +14,9 @@ public class TSANetCredentialsHelper {
                 credential.tsanet_connect__isPrimary__c = false;
             }
             update credentials;
+            
+            tsanet_connect__TSANetConfiguration__c CONFIG = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
+            update new User(Id = CONFIG.tsanet_connect__IntegrationUser__c, tsanet_connect__tsaNetAccessToken__c = null);
         }
     }
     

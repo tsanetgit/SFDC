@@ -58,12 +58,15 @@ global class TSANetScheduledJob implements Schedulable {
     @AuraEnabled
     public static tsanet_connect__TSANetCase__c[] getRelatedCollaborationCases(String caseId){
         
+        String token = TSANetService.getBearerAccessToken();
+        
+        
         String path = endpoint + get_cases_path;
         if(caseId != NULL){ path += caseId; }
         
         HttpRequest req = new HttpRequest();
         req.setEndpoint(path);
-        req.setHeader('Authorization', getBearerToken());
+        req.setHeader('Authorization', 'Bearer ' + token);
         req.setMethod('GET');
         req.setHeader('Content-Type', 'application/json');
         

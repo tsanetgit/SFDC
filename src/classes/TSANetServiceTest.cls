@@ -3,7 +3,7 @@ public class TSANetServiceTest {
     
     @testSetup static void testSetup() {
         
-        update new User(Id = UserInfo.getUserId(), tsaNetAccessToken__c = 'test-token');
+        update new User(Id = UserInfo.getUserId(), tsanet_connect__tsaNetAccessToken__c = 'test-token');
         
         tsanet_connect__TSANetConfiguration__c config = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
         config.tsanet_connect__IntegrationUser__c = UserInfo.getUserId();
