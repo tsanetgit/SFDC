@@ -70,7 +70,7 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
         }
 
         let requestData = {
-            "caseNumber": this.record?.tsanet_connect__tsaNetCaseId__c,
+            "caseNumber": this.caseRecord.CaseNumber, //this.record?.tsanet_connect__tsaNetCaseId__c,
             "engineerName": this.caseRecord.Owner.Name,
             "engineerEmail": this.caseRecord.Owner.Email,
             "engineerPhone": this.caseRecord.Owner.Phone,

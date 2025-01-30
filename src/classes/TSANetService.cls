@@ -312,6 +312,10 @@ public class TSANetService {
                 if(element.tsanet_connect__Type__c == 'REFERENCE'){
                     String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
                     existedCaseNumbers.add(parentCaseId);
+                    
+                    if(record.get('receiverCaseNumber') != NULL){
+                        existedCaseNumbers.add(String.valueOf(record.get('receiverCaseNumber')));
+                    }
                 }
             }
         }
@@ -345,6 +349,7 @@ public class TSANetService {
                     } else if(element.tsanet_connect__Type__c == 'REFERENCE'){
                         System.debug('REFERENCE : ');
                         String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
+                        String receiverCaseId = String.valueOf(record.get('receiverCaseNumber'));
                         try {
                             System.debug('parentCaseId : ');
                             Boolean isInbound = String.valueOf(record.get('receiveCompanyId')) == String.valueOf(CONFIG.tsanet_connect__companyId__c);
@@ -358,6 +363,18 @@ public class TSANetService {
                                 } else {
                                     if(existedCases.containsKey(parentCaseId)){
                                         Case relatedCase = existedCases.get(parentCaseId);
+                                        newCase.put(element.tsanet_connect__To__c, relatedCase.Id);
+                                    }
+                                }
+                            } else {
+                                if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(receiverCaseId).matches() &&
+                                    Id.valueOf(receiverCaseId).getSObjectType() == Schema.Case.SObjectType &&
+                                    existedCases.containsKey(receiverCaseId)
+                                  ){
+                                    newCase.put(element.tsanet_connect__To__c, receiverCaseId);
+                                } else {
+                                    if(existedCases.containsKey(receiverCaseId)){
+                                        Case relatedCase = existedCases.get(receiverCaseId);
                                         newCase.put(element.tsanet_connect__To__c, relatedCase.Id);
                                     }
                                 }

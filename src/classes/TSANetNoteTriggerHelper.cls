@@ -55,7 +55,7 @@ public class TSANetNoteTriggerHelper {
                 String refactoredDescription = stripHtmlTags(description);
                 
                 String message = '<p>Note Details:</p>' + 
-                    '<p>Created By: T' + creatorName + '</p>' +
+                    '<p>Created By: ' + creatorName + '</p>' +
                     '<p>Summary: ' + summary + '</p>' +
                     '<p>Description: ' + refactoredDescription + '</p>';
                 

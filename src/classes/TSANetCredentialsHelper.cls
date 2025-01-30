@@ -10,13 +10,14 @@ public class TSANetCredentialsHelper {
         
         if(isPrimary == TRUE){
             tsanet_connect__TSANet_Credentials__c[] credentials = [SELECT Id, Name, tsanet_connect__UserName__c, tsanet_connect__Password__c, tsanet_connect__Environment__c, tsanet_connect__isPrimary__c FROM tsanet_connect__TSANet_Credentials__c];
+            tsanet_connect__TSANet_Credentials__c[] credentialsToUpdate = new tsanet_connect__TSANet_Credentials__c[]{};
             for(tsanet_connect__TSANet_Credentials__c credential : credentials){
-                credential.tsanet_connect__isPrimary__c = false;
+                if(credential.Id != NULL){
+                    credential.tsanet_connect__isPrimary__c = false;
+                    credentialsToUpdate.add(credential);
+                }
             }
-            update credentials;
-            
-            tsanet_connect__TSANetConfiguration__c CONFIG = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
-            update new User(Id = CONFIG.tsanet_connect__IntegrationUser__c, tsanet_connect__tsaNetAccessToken__c = null);
+            update credentialsToUpdate;
         }
     }
     
@@ -37,6 +38,9 @@ public class TSANetCredentialsHelper {
                 credential.tsanet_connect__isPrimary__c = false;
             }
             update credentials;
+            
+            tsanet_connect__TSANetConfiguration__c CONFIG = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
+            update new User(Id = CONFIG.tsanet_connect__IntegrationUser__c, tsanet_connect__tsaNetAccessToken__c = null);
         }
     }
     
