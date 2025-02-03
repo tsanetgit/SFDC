@@ -153,6 +153,7 @@
     <allowInChatterGroups>true</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>true</enableFeeds>
@@ -165,6 +166,7 @@
     <externalSharingModel>ReadWrite</externalSharingModel>
     <fields>
         <fullName>AdminNote__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Admin Note</label>
         <length>32768</length>
@@ -177,6 +179,7 @@
     <fields>
         <fullName>Case__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Case</label>
         <referenceTo>Case</referenceTo>
@@ -190,6 +193,7 @@
     </fields>
     <fields>
         <fullName>Description__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Description</label>
         <length>32768</length>
@@ -201,6 +205,7 @@
     </fields>
     <fields>
         <fullName>Email__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Email</label>
         <required>false</required>
@@ -212,6 +217,7 @@
     </fields>
     <fields>
         <fullName>EngineerCompany__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Engineer Company</label>
         <length>255</length>
@@ -224,6 +230,7 @@
     </fields>
     <fields>
         <fullName>EngineerEmail__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Engineer Email</label>
         <length>255</length>
@@ -236,6 +243,7 @@
     </fields>
     <fields>
         <fullName>EngineerName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Engineer Name</label>
         <length>255</length>
@@ -248,6 +256,7 @@
     </fields>
     <fields>
         <fullName>EngineerPhone__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Engineer Phone</label>
         <required>false</required>
@@ -258,6 +267,7 @@
     </fields>
     <fields>
         <fullName>EscalationInstructions__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Escalation Instructions</label>
         <length>32768</length>
@@ -270,6 +280,7 @@
     <fields>
         <fullName>FeedbackRequested__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Feedback Requested</label>
         <trackFeedHistory>false</trackFeedHistory>
@@ -279,6 +290,7 @@
     </fields>
     <fields>
         <fullName>FirstName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>FirstName</label>
         <length>255</length>
@@ -291,6 +303,7 @@
     </fields>
     <fields>
         <fullName>LastName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Last Name</label>
         <length>255</length>
@@ -303,6 +316,7 @@
     </fields>
     <fields>
         <fullName>Name__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <formula>FirstName__c + &apos; &apos; + LastName__c</formula>
         <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
@@ -315,6 +329,7 @@
     </fields>
     <fields>
         <fullName>Partner__c</fullName>
+        <deprecated>false</deprecated>
         <description>IF(TEXT(Status__c) == &apos;OPEN&apos;, IF(Type__c == &apos;Outbound&apos;, SubmittedCompanyName__c, receivedCompanyName__c), IF(Type__c == &apos;Outbound&apos;, receivedCompanyName__c, SubmittedCompanyName__c))</description>
         <externalId>false</externalId>
         <formula>IF(Type__c == &apos;Inbound&apos;, SubmittedCompanyName__c, receivedCompanyName__c)</formula>
@@ -328,6 +343,7 @@
     </fields>
     <fields>
         <fullName>Phone__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Phone</label>
         <required>false</required>
@@ -338,6 +354,7 @@
     </fields>
     <fields>
         <fullName>PriorityNote__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Priority Note</label>
         <length>32768</length>
@@ -349,6 +366,7 @@
     </fields>
     <fields>
         <fullName>Priority__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Priority</label>
         <length>32768</length>
@@ -361,6 +379,7 @@
     <fields>
         <fullName>ReminderSent__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Reminder Sent</label>
         <trackFeedHistory>true</trackFeedHistory>
@@ -370,6 +389,7 @@
     </fields>
     <fields>
         <fullName>RequestDate__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Request Date</label>
         <required>false</required>
@@ -381,6 +401,7 @@
     <fields>
         <fullName>Responded__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Responded</label>
         <trackFeedHistory>true</trackFeedHistory>
@@ -390,6 +411,7 @@
     </fields>
     <fields>
         <fullName>ResponseDate__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Response SLA</label>
         <required>false</required>
@@ -400,6 +422,7 @@
     </fields>
     <fields>
         <fullName>Status__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Status</label>
         <required>false</required>
@@ -440,6 +463,7 @@
     </fields>
     <fields>
         <fullName>SubmittedCompanyId__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Company Id ( Submitted )</label>
         <length>255</length>
@@ -452,6 +476,7 @@
     </fields>
     <fields>
         <fullName>SubmittedCompanyName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Company Name ( Submitted )</label>
         <length>255</length>
@@ -464,6 +489,7 @@
     </fields>
     <fields>
         <fullName>Summary__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Summary</label>
         <length>255</length>
@@ -476,6 +502,7 @@
     </fields>
     <fields>
         <fullName>TSANetContact__c</fullName>
+        <deprecated>false</deprecated>
         <description>IF(Type__c == &apos;Outbound&apos;, EngineerName__c, Name__c)</description>
         <externalId>false</externalId>
         <formula>IF(Type__c == &apos;Inbound&apos;, Name__c, EngineerName__c)</formula>
@@ -489,6 +516,7 @@
     </fields>
     <fields>
         <fullName>TSANetEmail__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <formula>IF(Type__c == &apos;Inbound&apos;, Email__c,IF(EngineerEmail__c != NULL, EngineerEmail__c, Email__c))</formula>
         <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
@@ -501,6 +529,7 @@
     </fields>
     <fields>
         <fullName>Token__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Token</label>
         <length>255</length>
@@ -513,6 +542,7 @@
     </fields>
     <fields>
         <fullName>Type__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <formula>IF(receivedCompanyId__c ==  $Setup.TSANetConfiguration__c.companyId__c , &apos;Inbound&apos;, &apos;Outbound&apos;)</formula>
         <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
@@ -525,6 +555,7 @@
     </fields>
     <fields>
         <fullName>customFields__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>customFields</label>
         <length>32768</length>
@@ -536,6 +567,7 @@
     </fields>
     <fields>
         <fullName>documentId__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>documentId</label>
         <length>255</length>
@@ -549,6 +581,7 @@
     <fields>
         <fullName>isApiCase__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>isApiCase</label>
         <trackFeedHistory>false</trackFeedHistory>
@@ -558,6 +591,7 @@
     </fields>
     <fields>
         <fullName>receivedCompanyId__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Company Id ( Received )</label>
         <length>255</length>
@@ -570,6 +604,7 @@
     </fields>
     <fields>
         <fullName>receivedCompanyName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Company Name ( Received )</label>
         <length>255</length>
@@ -582,6 +617,7 @@
     </fields>
     <fields>
         <fullName>tsaNetCaseId__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>true</externalId>
         <label>TSANet CaseId</label>
         <length>255</length>

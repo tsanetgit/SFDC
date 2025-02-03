@@ -149,6 +149,7 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
@@ -161,6 +162,7 @@
     <externalSharingModel>Private</externalSharingModel>
     <fields>
         <fullName>CreatedAt__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>CreatedAt</label>
         <required>false</required>
@@ -169,6 +171,7 @@
     </fields>
     <fields>
         <fullName>CreatorEmail__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Creator Email</label>
         <length>255</length>
@@ -179,6 +182,7 @@
     </fields>
     <fields>
         <fullName>CreatorName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Creator Name</label>
         <length>255</length>
@@ -189,6 +193,7 @@
     </fields>
     <fields>
         <fullName>CreatorUserName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Creator User Name</label>
         <length>255</length>
@@ -199,6 +204,7 @@
     </fields>
     <fields>
         <fullName>Description__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Description</label>
         <length>131072</length>
@@ -209,6 +215,7 @@
     <fields>
         <fullName>Priority__c</fullName>
         <defaultValue>&apos;Low&apos;</defaultValue>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Priority</label>
         <length>255</length>
@@ -219,6 +226,7 @@
     </fields>
     <fields>
         <fullName>Status__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Status</label>
         <length>255</length>
@@ -229,6 +237,7 @@
     </fields>
     <fields>
         <fullName>Summary__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Summary</label>
         <length>255</length>
@@ -240,6 +249,7 @@
     <fields>
         <fullName>TSANetCase__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>TSANet Case</label>
         <referenceTo>TSANetCase__c</referenceTo>
@@ -252,6 +262,7 @@
     <fields>
         <fullName>Token__c</fullName>
         <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
         <externalId>true</externalId>
         <label>Token</label>
         <length>255</length>
@@ -263,6 +274,7 @@
     <fields>
         <fullName>isApiNote__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>isApiNote</label>
         <trackTrending>false</trackTrending>
@@ -271,6 +283,7 @@
     <fields>
         <fullName>isCaseFeed__c</fullName>
         <defaultValue>true</defaultValue>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>isCaseFeed</label>
         <trackTrending>false</trackTrending>
@@ -279,6 +292,7 @@
     <fields>
         <fullName>isNotified__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>isNotified</label>
         <trackTrending>false</trackTrending>

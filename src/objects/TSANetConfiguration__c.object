@@ -4,6 +4,7 @@
     <enableFeeds>false</enableFeeds>
     <fields>
         <fullName>IntegrationUser__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Integration User</label>
         <length>255</length>
@@ -14,6 +15,7 @@
     </fields>
     <fields>
         <fullName>Username__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>User Name</label>
         <length>255</length>
@@ -24,6 +26,7 @@
     </fields>
     <fields>
         <fullName>companyId__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>companyId</label>
         <length>255</length>
@@ -34,6 +37,7 @@
     </fields>
     <fields>
         <fullName>companyName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Company Name</label>
         <length>255</length>

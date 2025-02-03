@@ -149,6 +149,7 @@
     <allowInChatterGroups>true</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
@@ -161,6 +162,7 @@
     <externalSharingModel>Private</externalSharingModel>
     <fields>
         <fullName>CreatedAt__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Created At</label>
         <required>false</required>
@@ -170,6 +172,7 @@
     </fields>
     <fields>
         <fullName>EngineerEmail__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Engineer Email</label>
         <length>80</length>
@@ -181,6 +184,7 @@
     </fields>
     <fields>
         <fullName>EngineerName__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Engineer Name</label>
         <length>255</length>
@@ -192,6 +196,7 @@
     </fields>
     <fields>
         <fullName>EngineerPhone__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Engineer Phone</label>
         <required>false</required>
@@ -201,6 +206,7 @@
     </fields>
     <fields>
         <fullName>Note__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Note</label>
         <length>32768</length>
@@ -212,6 +218,7 @@
     <fields>
         <fullName>TSANetCase__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>TSANet Case</label>
         <referenceTo>TSANetCase__c</referenceTo>
@@ -224,6 +231,7 @@
     </fields>
     <fields>
         <fullName>Type__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Type</label>
         <length>255</length>
@@ -235,6 +243,7 @@
     </fields>
     <fields>
         <fullName>tsaNetCaseId__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>true</externalId>
         <label>tsaNetCaseId</label>
         <length>255</length>
@@ -246,6 +255,7 @@
     </fields>
     <fields>
         <fullName>tsaNetResponseId__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>true</externalId>
         <label>tsaNetResponseId</label>
         <length>255</length>

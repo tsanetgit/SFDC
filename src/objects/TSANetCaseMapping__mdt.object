@@ -2,6 +2,7 @@
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <fields>
         <fullName>From__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <fieldManageability>DeveloperControlled</fieldManageability>
         <label>From</label>
@@ -12,6 +13,7 @@
     </fields>
     <fields>
         <fullName>To__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <fieldManageability>DeveloperControlled</fieldManageability>
         <label>To</label>
@@ -22,6 +24,7 @@
     </fields>
     <fields>
         <fullName>Type__c</fullName>
+        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <fieldManageability>DeveloperControlled</fieldManageability>
         <label>Type</label>
