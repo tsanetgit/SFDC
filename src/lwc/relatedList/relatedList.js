@@ -61,7 +61,7 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
             attributes: {
                 recordId: this.recordId,
                 objectApiName: 'Case',
-                relationshipApiName: 'TSANetCases__r',
+                relationshipApiName: 'tsanet_connect__TSANetCases__r',
                 actionName: 'view'
             }
         })

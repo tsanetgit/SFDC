@@ -1,4 +1,4 @@
-global class TSANetScheduledJob implements Schedulable {
+global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts {
     
     public class TSANetScheduledJobException extends Exception {}
     
@@ -11,13 +11,13 @@ global class TSANetScheduledJob implements Schedulable {
     
     public static tsanet_connect__TSANetConfiguration__c CONFIG = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
     
-    
     public class PaymentScheduledJobException extends Exception {}
     
     global void execute(SchedulableContext sc){
         updateTSANetCases();
     }
     
+    @future(callout=true)
     public static void updateTSANetCases() {  
         try {
             getRelatedCollaborationCases(NULL);
