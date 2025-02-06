@@ -1,10 +1,14 @@
-SFDC Managed Package for TSANet Connect 2.0
-To use or provide feedback contact contact membership@tsanet.org
+<b>SFDC Managed Package for TSANet Connect 2.0</b>
 
-<b>Install Guide:</b>  Download the install guide   
+To use contact, contact membership@tsanet.org
+Use Issues https://github.com/tsanetgit/SFDC/issues to log bugs and enhancements.
+
+<b>Install Guide:</b>  Download the install guide
+
 https://github.com/tsanetgit/SFDC/blob/main/Connect%202.0%20SFDC%20Package%20Install%20Guide%20v3.0.docx
 
-<b>User Guide:</b>  Download the user guide   
+<b>User Guide:</b>  Download the user guide  
+
 https://github.com/tsanetgit/SFDC/blob/main/TSANet%20Connect%20Salesforce%20User%20Guide.docx
 
 <b>CURRENT PACKAGE VERSION:</b>
