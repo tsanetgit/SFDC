@@ -42,7 +42,7 @@
             </value>
         </inputParameters>
     </actionCalls>
-    <apiVersion>62.0</apiVersion>
+    <apiVersion>61.0</apiVersion>
     <assignments>
         <name>Add_Recipient</name>
         <label>Add Recipient</label>
@@ -68,7 +68,8 @@
     <formulas>
         <name>recipientId</name>
         <dataType>String</dataType>
-        <expression>IF({!$Record.tsanet_connect__TSANetCase__r.tsanet_connect__Case__c} != NULL, {!$Record.tsanet_connect__TSANetCase__r.tsanet_connect__Case__r.Owner:User.Id}, {!$Record.tsanet_connect__TSANetCase__r.Owner:User.Id})</expression>
+        <expression>IF({!$Record.tsanet_connect__TSANetCase__r.tsanet_connect__Case__r.Owner:User.Id} != NULL, {!$Record.tsanet_connect__TSANetCase__r.tsanet_connect__Case__r.Owner:User.Id}, 
+IF({!$Record.tsanet_connect__TSANetCase__r.Owner:User.Id} != NULL, {!$Record.tsanet_connect__TSANetCase__r.Owner:User.Id} , {!$User.Id}))</expression>
     </formulas>
     <interviewLabel>TSANet Notification {!$Flow.CurrentDateTime}</interviewLabel>
     <isTemplate>true</isTemplate>

@@ -2,14 +2,17 @@ public class TSANetService {
     
     public class TSANetServiceException extends Exception {}
     
-    public static String login_path = '/0.1.0/login';
-    public static String companies_path = '/0.1.1/partners/';
-    public static String get_cases_path =  '/0.1.0/cases/';
-    public static String get_form_path = '/1.0.8/form/company/';
-    public static String create_case_path = '/1.0.8/collaboration-request/';
-    public static String get_users_path = '/camel/users/';
-    public static String approve_case_path = '';
-    public static String me_path = '/camel/me';
+    public static String login_path = '/v1/login'; //'/0.1.0/login/';
+    public static String case_path = '/v1/collaboration-requests/'; //'/1.0.8/collaboration-request/';
+    public static String companies_path = '/v1/partners/'; //'/0.1.0/partners/';
+    public static String get_form_company_path = '/v1/forms/company/'; //'/1.0.8/form/company/';
+    public static String get_form_department_path = '/v1/forms/department/';
+    public static String approve = '/approval'; //v1/collaboration-requests/{token}/approval
+    public static String reject = '/rejection'; ///v1/collaboration-requests/{token}/rejection
+    public static String informationRequest = '/information-request'; ///v1/collaboration-requests/{token}/information-request
+    public static String informationResponse = '/information-response'; ///v1/collaboration-requests/{token}/information-response
+    public static String close = '/closure'; ///v1/collaboration-requests/{token}/closure
+    public static String me_path = '/v1/me';
     
     public static String endpoint = getEndpoint(); //'https://connect2.renolab.us'; //'https://connect2.tsanet.us'; //https://connect2.renolab.us
     
@@ -218,9 +221,9 @@ public class TSANetService {
     @AuraEnabled
     public static tsanet_connect__TSANetCase__c[] getRelatedCollaborationCasesWithToken(String caseId, String token){
         
-        String path = endpoint + get_cases_path;
+        String path = endpoint + case_path;
         if(caseId != NULL){
-            path += caseId;
+            path += ( '?internalCaseNumber=' + caseId );
         }
         
         HttpRequest req = new HttpRequest();
@@ -257,9 +260,9 @@ public class TSANetService {
     @AuraEnabled
     public static tsanet_connect__TSANetCase__c[] getRelatedCollaborationCases(String caseId){
         
-        String path = endpoint + get_cases_path;
+        String path = endpoint + case_path;
         if(caseId != NULL){
-            path += caseId;
+            path += ( '?internalCaseNumber=' + caseId );
         }
         
         System.debug('path: ' + path);
@@ -583,9 +586,9 @@ public class TSANetService {
         String localEndpoint = endpoint;
         
         if(mode == 'company'){
-            localEndpoint += get_form_path;
+            localEndpoint += get_form_company_path;
         } else {
-            localEndpoint += '/1.0.8/form/department/';
+            localEndpoint += get_form_department_path;
         }
         
         localEndpoint += companyId;
@@ -657,7 +660,7 @@ public class TSANetService {
         System.debug('json : ' + json);
         
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(endpoint + create_case_path);
+        req.setEndpoint(endpoint + case_path);
         req.setHeader('Authorization', getBearerToken());
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
@@ -708,7 +711,7 @@ public class TSANetService {
         System.debug('json : ' + json);
         
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(endpoint + '/0.1.0/cases/' + token + '/approve');
+        req.setEndpoint(endpoint + case_path + token + approve);
         req.setHeader('Authorization', getBearerToken());
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
@@ -739,7 +742,7 @@ public class TSANetService {
         tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
         
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(endpoint + '/1.0.3/cases/' + tsaNetCase.tsanet_connect__tsaNetCaseId__c + '/reject');
+        req.setEndpoint(endpoint + case_path + tsaNetCase.tsanet_connect__tsaNetCaseId__c + reject);
         req.setHeader('Authorization', getBearerToken());
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
@@ -768,7 +771,7 @@ public class TSANetService {
         tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
         
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(endpoint + '/1.0.3/cases/' + tsaNetCase.tsanet_connect__tsaNetCaseId__c + '/request-information');
+        req.setEndpoint(endpoint + case_path + tsaNetCase.tsanet_connect__tsaNetCaseId__c + informationRequest);
         req.setHeader('Authorization', getBearerToken());
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
@@ -794,10 +797,10 @@ public class TSANetService {
         System.debug('tsaNetCaseId : ' + tsaNetCaseId);
         System.debug('json : ' + json);
         
-        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__Token__c, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
         
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(endpoint + '/1.0.3/cases/' + tsaNetCase.tsanet_connect__tsaNetCaseId__c + '/information-response');
+        req.setEndpoint(endpoint + case_path + tsaNetCase.tsanet_connect__Token__c + informationResponse);
         req.setHeader('Authorization', getBearerToken());
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
@@ -822,10 +825,10 @@ public class TSANetService {
         
         System.debug('tsaNetCaseId : ' + tsaNetCaseId);
         
-        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__Token__c, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
         
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(endpoint + '/1.0.3/cases/' + tsaNetCase.tsanet_connect__tsaNetCaseId__c + '/close');
+        req.setEndpoint(endpoint + case_path + tsaNetCase.tsanet_connect__tsaNetCaseId__c + close);
         req.setHeader('Authorization', getBearerToken());
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');

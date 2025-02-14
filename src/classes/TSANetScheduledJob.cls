@@ -5,7 +5,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
     //public static Map<String, Case> existedCases = getExistedCases();
     
     public static String endpoint = getEndpoint(); //'https://connect2.tsanet.us'; //https://connect2.renolab.us
-    public static String get_cases_path = '/0.1.0/cases/';
+    public static String get_cases_path = '/v1/collaboration-requests/'; //'/0.1.0/cases/'; //
     
     public static tsanet_connect__TSANetCaseMapping__mdt[] TSANET_MAPPING = [SELECT Id, tsanet_connect__Type__c, tsanet_connect__From__c, tsanet_connect__To__c FROM tsanet_connect__TSANetCaseMapping__mdt];
     
@@ -62,7 +62,9 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
         
         
         String path = endpoint + get_cases_path;
-        if(caseId != NULL){ path += caseId; }
+        if(caseId != NULL){ 
+        	path += ( '?internalCaseNumber=' + caseId );
+        }
         
         HttpRequest req = new HttpRequest();
         req.setEndpoint(path);

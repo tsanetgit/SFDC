@@ -67,9 +67,9 @@ public class TSANetRefreshUtils {
         String token = Test.isRunningTest() ? 'token' : getAccessToken();
         
         System.debug('token : ' + token);
-        String path = TSANetService.endpoint + TSANetService.get_cases_path;
+        String path = TSANetService.endpoint + TSANetService.case_path;
         if(caseId != NULL){
-            path += caseId;
+            path += ( '?internalCaseNumber=' + caseId );
         }
         
         HttpRequest req = new HttpRequest();
