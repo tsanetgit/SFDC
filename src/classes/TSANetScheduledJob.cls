@@ -82,6 +82,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
     }
     
     
+     
     public static tsanet_connect__TSANetCase__c[] parseTSANetCases(String json, String caseId){
         System.debug(json);
         List<Object> cases = (List<Object>) System.JSON.deserializeUntyped(json);
@@ -89,7 +90,8 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
         tsanet_connect__TSANetCase__c[] newCases = new tsanet_connect__TSANetCase__c[]{};
         Map<String, tsanet_connect__TSANetResponse__c[]> caseToResponses = new Map<String, tsanet_connect__TSANetResponse__c[]>();
         Map<String, tsanet_connect__TSANetNote__c[]> caseToNotes = new Map<String, tsanet_connect__TSANetNote__c[]>();  
-            
+        
+
         String[] existedCaseNumbers = new String[]{};
 		for(Object caseRecord : cases){
             Map<String, Object> record = (Map<String, Object>) caseRecord;
@@ -98,12 +100,34 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                 if(element.tsanet_connect__Type__c == 'REFERENCE'){
                     String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
                     existedCaseNumbers.add(parentCaseId);
+                    
+                    if(record.get('receiverCaseNumber') != NULL){
+                        existedCaseNumbers.add(String.valueOf(record.get('receiverCaseNumber')));
+                    }
+                } else if(element.Type__c == 'ARRAY' && element.From__c == 'customFields'){
+                        
+                        List<Object> customerData = (List<Object>) record.get(element.From__c);
+                        if(customerData != NULL && customerData.size() > 0){
+                            for(Object customerField : customerData){
+                                Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
+                                System.debug('customerFieldToValue :' + customerFieldToValue);
+                                
+                                String fieldName = (String) customerFieldToValue.get('fieldName');
+                                String value = (String) customerFieldToValue.get('value');
+                                
+                                if(fieldName.contains('Customer Case')){
+                                    System.debug('Customer Case Contains - value : ' + value);
+                                    if(value != NULL && value != ''){
+                                        existedCaseNumbers.add(value);
+                                    }
+                                }
+                            }
+                        }
                 }
             }
         }
         
         Map<String, Case> existedCases = getExistedCases(existedCaseNumbers);
-        
         
         String[] existedIds = new String[]{};
         for(Object caseRecord : cases){
@@ -112,7 +136,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
 
             if(!existedIds.contains(externalId)){
                 tsanet_connect__TSANetCase__c newCase = new tsanet_connect__TSANetCase__c();
-                    
+                newCase.tsanet_connect__isApiCase__c = TRUE;
                 for(tsanet_connect__TSANetCaseMapping__mdt element : TSANET_MAPPING){
                     if(element.tsanet_connect__Type__c == 'DATETIME'){
                         try {
@@ -247,13 +271,31 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                                 
                                 if(fieldName == 'Customer Company'){
                                     newCase.put('tsanet_connect__EngineerCompany__c', value);
+                                }  else if(fieldName.contains('Customer Case')){
+                                    System.debug('Customer Case Contains - value : ' + value);
+                                    if(value != NULL && value != ''){
+                                        if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(value).matches() &&
+                                            Id.valueOf(value).getSObjectType() == Schema.Case.SObjectType &&
+                                            existedCases.containsKey(value)
+                                          ){
+                                            newCase.put('tsanet_connect__Case__c', value);
+                                        } else {
+                                            if(existedCases.containsKey(value)){
+                                                Case relatedCase = existedCases.get(value);
+                                                newCase.put('tsanet_connect__Case__c', relatedCase.Id);
+                                            }
+                                        }
+                                    }
+                                    
+                                    System.debug('newCase : ' + newCase);
+                                    
                                 } else if(fieldName == 'Customer Name'){
                                     //newCase.put('EngineerName__c', value);
                                 } else if(fieldName == 'Customer Email'){
                                     //newCase.put('EngineerEmail__c', value);
                                 } else if(fieldName == 'Customer Phone Including Country Code'){
                                     //newCase.put('EngineerPhone__c', value);
-                                }
+                                } 
                             }
                         }
                     } else if(element.tsanet_connect__Type__c == 'ARRAY' && element.tsanet_connect__From__c == 'caseNotes'){
@@ -349,14 +391,12 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
         if(existedCases.containsKey(caseId)){
             Case caseRec = existedCases.get(caseId);
             caseId = caseRec.Id;
-        } else {
-            caseId = NULL;
         }
         
         return [SELECT Id, Name, tsanet_connect__Name__c, tsanet_connect__customFields__c, tsanet_connect__TSANetContact__c, tsanet_connect__FirstName__c, tsanet_connect__LastName__c, tsanet_connect__Phone__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerEmail__c, tsanet_connect__TSANetEmail__c, tsanet_connect__EngineerPhone__c, tsanet_connect__Email__c, tsanet_connect__Case__c, tsanet_connect__Case__r.CaseNumber, Partner__c, tsanet_connect__SubmittedCompanyName__c, tsanet_connect__SubmittedCompanyId__c, tsanet_connect__receivedCompanyName__c, tsanet_connect__receivedCompanyId__c, tsanet_connect__Summary__c, tsanet_connect__Description__c, tsanet_connect__Status__c, tsanet_connect__Token__c, tsanet_connect__Responded__c, tsanet_connect__FeedbackRequested__c, tsanet_connect__ReminderSent__c, tsanet_connect__Priority__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__RequestDate__c, tsanet_connect__ResponseDate__c, tsanet_connect__PriorityNote__c, tsanet_connect__Type__c,
                     (SELECT Id, Name, tsanet_connect__TSANetCase__c, tsanet_connect__Type__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerPhone__c, tsanet_connect__EngineerEmail__c, tsanet_connect__Note__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__tsaNetResponseId__c FROM tsanet_connect__TSANetResponses__r ORDER BY tsanet_connect__CreatedAt__c DESC)
                     FROM tsanet_connect__TSANetCase__c 
-                    WHERE tsanet_connect__Case__c =:caseId 
+                    WHERE tsanet_connect__Case__c != NULL AND tsanet_connect__Case__c =:caseId 
                     ORDER BY tsanet_connect__RequestDate__c DESC];
 
     }

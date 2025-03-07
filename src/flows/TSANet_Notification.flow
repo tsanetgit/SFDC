@@ -4,7 +4,7 @@
         <name>Send_Notification</name>
         <label>Send Notification</label>
         <locationX>655</locationX>
-        <locationY>687</locationY>
+        <locationY>827</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <connector>
@@ -56,9 +56,31 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Send_Notification</targetReference>
+            <targetReference>IsRecipients</targetReference>
         </connector>
     </assignments>
+    <decisions>
+        <name>IsRecipients</name>
+        <label>Is Recipients</label>
+        <locationX>745</locationX>
+        <locationY>688</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>recipientIds</leftValueReference>
+                <operator>IsEmpty</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Notification</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
     <formulas>
         <name>Body</name>
         <dataType>String</dataType>
@@ -118,7 +140,7 @@ IF({!$Record.tsanet_connect__TSANetCase__r.Owner:User.Id} != NULL, {!$Record.tsa
         <name>Update_Is_Notified</name>
         <label>Update Is Notified</label>
         <locationX>655</locationX>
-        <locationY>827</locationY>
+        <locationY>943</locationY>
         <inputAssignments>
             <field>isNotified__c</field>
             <value>

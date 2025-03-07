@@ -77,6 +77,7 @@
                                                             <template if:true={record.isRejectable}>
                                                                 <lightning-menu-item value="reject" label="Reject"></lightning-menu-item>
                                                             </template>
+                                                            <!--lightning-menu-item value="attachment" label="Send Attachment"></lightning-menu-item-->
                                                             <template if:true={record.isRequestable}>
                                                                 <lightning-menu-item value="request" label="Request Info"></lightning-menu-item>
                                                             </template>
@@ -168,6 +169,12 @@
             case-id={externalCaseId} 
             onclose={handleCloseRequestMode}
         ></c-request-additional-info>
+    </template>
+
+    <template if:true={isAttachmentMode}>
+        <c-upload-attachment 
+            onclose={handleCloseAttachmentMode}
+        ></c-upload-attachment>
     </template>
 
     <template if:true={isResponseMode}>

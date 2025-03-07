@@ -319,6 +319,25 @@ public class TSANetService {
                     if(record.get('receiverCaseNumber') != NULL){
                         existedCaseNumbers.add(String.valueOf(record.get('receiverCaseNumber')));
                     }
+                } else if(element.Type__c == 'ARRAY' && element.From__c == 'customFields'){
+                        
+                        List<Object> customerData = (List<Object>) record.get(element.From__c);
+                        if(customerData != NULL && customerData.size() > 0){
+                            for(Object customerField : customerData){
+                                Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
+                                System.debug('customerFieldToValue :' + customerFieldToValue);
+                                
+                                String fieldName = (String) customerFieldToValue.get('fieldName');
+                                String value = (String) customerFieldToValue.get('value');
+                                
+                                if(fieldName.contains('Customer Case')){
+                                    System.debug('Customer Case Contains - value : ' + value);
+                                    if(value != NULL && value != ''){
+                                        existedCaseNumbers.add(value);
+                                    }
+                                }
+                            }
+                        }
                 }
             }
         }
@@ -467,13 +486,31 @@ public class TSANetService {
                                 
                                 if(fieldName == 'Customer Company'){
                                     newCase.put('tsanet_connect__EngineerCompany__c', value);
+                                }  else if(fieldName.contains('Customer Case')){
+                                    System.debug('Customer Case Contains - value : ' + value);
+                                    if(value != NULL && value != ''){
+                                        if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(value).matches() &&
+                                            Id.valueOf(value).getSObjectType() == Schema.Case.SObjectType &&
+                                            existedCases.containsKey(value)
+                                          ){
+                                            newCase.put('tsanet_connect__Case__c', value);
+                                        } else {
+                                            if(existedCases.containsKey(value)){
+                                                Case relatedCase = existedCases.get(value);
+                                                newCase.put('tsanet_connect__Case__c', relatedCase.Id);
+                                            }
+                                        }
+                                    }
+                                    
+                                    System.debug('newCase : ' + newCase);
+                                    
                                 } else if(fieldName == 'Customer Name'){
                                     //newCase.put('EngineerName__c', value);
                                 } else if(fieldName == 'Customer Email'){
                                     //newCase.put('EngineerEmail__c', value);
                                 } else if(fieldName == 'Customer Phone Including Country Code'){
                                     //newCase.put('EngineerPhone__c', value);
-                                }
+                                } 
                             }
                         }
                     } else if(element.tsanet_connect__Type__c == 'ARRAY' && element.tsanet_connect__From__c == 'caseNotes'){
@@ -713,6 +750,37 @@ public class TSANetService {
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + case_path + token + approve);
         req.setHeader('Authorization', getBearerToken());
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setBody(json);
+        
+        Http http = new Http();
+        HTTPResponse res = http.send(req);
+        System.debug(res.getBody());
+        System.debug(res.getStatusCode());
+        
+        if(res.getStatusCode() != 200){
+            handleResponseErrors(res);
+        }
+        
+        if(!Test.isRunningTest()){
+            getRelatedCollaborationCases(null);
+        }
+        
+        return res.getBody();
+    }
+    
+    @AuraEnabled
+    public static String approveIncomingRequest2(String token, String json){
+        
+        System.debug('token : ' + token);
+        System.debug('json : ' + json);
+        
+        String accessToken = getBearerAccessToken();
+        
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(endpoint + case_path + token + approve);
+        req.setHeader('Authorization', 'Bearer ' + accessToken);
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
         req.setBody(json);

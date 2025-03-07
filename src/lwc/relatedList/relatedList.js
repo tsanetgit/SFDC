@@ -23,6 +23,7 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
     isRejectMode = false
     isRequestMode = false
     isResponseMode = false
+    isAttachmentMode = false
     externalCaseId 
 
     logo = TSANetLogo
@@ -148,8 +149,10 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
             this.isRequestMode = true
         } else if(selectedItemValue == 'response'){
             this.isResponseMode = true
-        } if(selectedItemValue == 'accept'){
+        } else if(selectedItemValue == 'accept'){
             this.isApprove = true
+        } else if(selectedItemValue == 'attachment'){
+            this.isAttachmentMode = true
         } else if(selectedItemValue == 'close'){
             this.isLoading = true
             closeTSANetCase({ tsaNetCaseId: record.Id }).then(response => {
@@ -222,6 +225,15 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
         let isRefresh = event.detail.refresh;
         console.log('isRefresh; ', isRefresh)
         this.isRequestMode = false
+        if(isRefresh){
+            this.handleRefresh()
+        }       
+    }
+
+    handleCloseAttachmentMode(event){
+        let isRefresh = event.detail.refresh;
+        console.log('isRefresh; ', isRefresh)
+        this.isAttachmentMode = false
         if(isRefresh){
             this.handleRefresh()
         }       

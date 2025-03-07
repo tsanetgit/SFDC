@@ -1,0 +1,39 @@
+<template>
+    <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open slds-modal_medium">
+        <div class="slds-modal__container">
+          <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleClose}>
+            <lightning-icon icon-name="utility:close"></lightning-icon>
+          </button>
+          <div class="slds-modal__header">
+            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Approve Request</h1>
+          </div>
+          <div class="slds-modal__content slds-p-around_medium">
+            <div class="slds-grid slds-wrap">
+                <template if:true={isLoading}>
+                  <div class="slds-align_absolute-center slds-is-relative" style="height:250px">
+                      <lightning-spinner variant="brand" size="medium"> </lightning-spinner>
+                  </div>
+                </template>
+                <template if:false={isLoading}>
+                    <lightning-card title="File Uploader">
+                        <lightning-input type="file" label="Choose File" onchange={handleFileChange}></lightning-input>
+                    </lightning-card>
+                </template>
+                </div>
+            </div>
+            <div class="slds-modal__footer">
+              <button class="slds-button slds-button_neutral" onclick={handleClose}>Close</button>
+              <template if:true={caseRecord}>
+              <template if:false={isDone}>
+                <template if:false={isLoading}>
+                    <lightning-button label="Upload" onclick={handleUpload} class="slds-m-top_medium"></lightning-button>
+                </template>
+              </template>
+              </template>
+            </div>
+          </div>
+        </section>
+        <template if:false={isQuickAction}>
+          <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+        </template>
+</template>
