@@ -83,6 +83,13 @@
                     <stringValue>New</stringValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>$Record.tsanet_connect__SubmittedCompanyId__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Setup.tsanet_connect__TSANetConfiguration__c.tsanet_connect__companyId__c</elementReference>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>AssignCaseRequestData</targetReference>
             </connector>
