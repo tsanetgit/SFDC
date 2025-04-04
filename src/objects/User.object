@@ -3,7 +3,6 @@
     <fields>
         <fullName>tsaNetAccessToken__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>tsaNetAccessToken</label>
         <length>1000</length>
         <trackFeedHistory>false</trackFeedHistory>

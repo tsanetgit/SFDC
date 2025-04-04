@@ -167,7 +167,6 @@
     <fields>
         <fullName>AdminNote__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Admin Note</label>
         <length>32768</length>
         <trackFeedHistory>false</trackFeedHistory>
@@ -180,7 +179,6 @@
         <fullName>Case__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Case</label>
         <referenceTo>Case</referenceTo>
         <relationshipLabel>TSANet Cases</relationshipLabel>
@@ -194,7 +192,6 @@
     <fields>
         <fullName>Description__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Description</label>
         <length>32768</length>
         <trackFeedHistory>true</trackFeedHistory>
@@ -257,7 +254,6 @@
     <fields>
         <fullName>EngineerPhone__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Engineer Phone</label>
         <required>false</required>
         <trackFeedHistory>false</trackFeedHistory>
@@ -268,7 +264,6 @@
     <fields>
         <fullName>EscalationInstructions__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Escalation Instructions</label>
         <length>32768</length>
         <trackFeedHistory>false</trackFeedHistory>
@@ -281,7 +276,6 @@
         <fullName>FeedbackRequested__c</fullName>
         <defaultValue>false</defaultValue>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Feedback Requested</label>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
@@ -344,7 +338,6 @@
     <fields>
         <fullName>Phone__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Phone</label>
         <required>false</required>
         <trackFeedHistory>false</trackFeedHistory>
@@ -355,7 +348,6 @@
     <fields>
         <fullName>PriorityNote__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Priority Note</label>
         <length>32768</length>
         <trackFeedHistory>true</trackFeedHistory>
@@ -367,7 +359,6 @@
     <fields>
         <fullName>Priority__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Priority</label>
         <length>32768</length>
         <trackFeedHistory>true</trackFeedHistory>
@@ -380,7 +371,6 @@
         <fullName>ReminderSent__c</fullName>
         <defaultValue>false</defaultValue>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Reminder Sent</label>
         <trackFeedHistory>true</trackFeedHistory>
         <trackHistory>false</trackHistory>
@@ -390,7 +380,6 @@
     <fields>
         <fullName>RequestDate__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Request Date</label>
         <required>false</required>
         <trackFeedHistory>true</trackFeedHistory>
@@ -402,7 +391,6 @@
         <fullName>Responded__c</fullName>
         <defaultValue>false</defaultValue>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Responded</label>
         <trackFeedHistory>true</trackFeedHistory>
         <trackHistory>true</trackHistory>
@@ -412,7 +400,6 @@
     <fields>
         <fullName>ResponseDate__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Response SLA</label>
         <required>false</required>
         <trackFeedHistory>true</trackFeedHistory>
@@ -423,7 +410,6 @@
     <fields>
         <fullName>Status__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Status</label>
         <required>false</required>
         <trackFeedHistory>true</trackFeedHistory>
@@ -556,7 +542,6 @@
     <fields>
         <fullName>customFields__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>customFields</label>
         <length>32768</length>
         <trackFeedHistory>false</trackFeedHistory>
@@ -582,7 +567,6 @@
         <fullName>isApiCase__c</fullName>
         <defaultValue>false</defaultValue>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>isApiCase</label>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>

@@ -63,7 +63,11 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
     }
     
     handleChangeField(event){
-        this.note[event.target.name] = event.target.value
+        let text = event.target.value
+        if(text.includes('class="')){
+            text = text.replace(/\s*class="[^"]*"/g, '');
+        }
+        this.note[event.target.name] = text
     }
 
     handleChangePriority(event){

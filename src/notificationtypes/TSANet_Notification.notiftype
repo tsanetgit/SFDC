@@ -4,4 +4,5 @@
     <desktop>true</desktop>
     <masterLabel>TSANet Notification</masterLabel>
     <mobile>true</mobile>
+    <slack>false</slack>
 </CustomNotificationType>

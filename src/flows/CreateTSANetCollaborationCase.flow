@@ -23,6 +23,8 @@
                 <elementReference>CompanyForm</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>TSANetInvocableCreateCollaborationCase</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <actionCalls>
@@ -42,6 +44,8 @@
                 <elementReference>SelectedCompany</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>TSANetInvocableGetFormService</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <actionCalls>
@@ -61,12 +65,15 @@
                 <elementReference>CompanyName</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>TSANetInvocableGetCompanyService</nameSegment>
+        <offset>0</offset>
         <outputParameters>
             <assignToReference>TSANetCompanies</assignToReference>
             <name>companies</name>
         </outputParameters>
     </actionCalls>
     <apiVersion>61.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Assign_customer_data_to_list</name>
         <label>Assign customer data to list</label>
@@ -209,6 +216,7 @@
         <object xsi:nil="true"/>
         <valueField>value</valueField>
     </dynamicChoiceSets>
+    <environments>Default</environments>
     <formulas>
         <name>CustomerDataValue</name>
         <dataType>String</dataType>
@@ -301,6 +309,7 @@
             </defaultValue>
             <fieldText>Subject</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
         </fields>
         <fields>
@@ -311,6 +320,7 @@
             </defaultValue>
             <fieldText>Description</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
         </fields>
         <fields>
@@ -321,6 +331,7 @@
             </defaultValue>
             <fieldText>Case Priority</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
         </fields>
         <fields>
@@ -331,6 +342,7 @@
             </defaultValue>
             <fieldText>Case Number</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
         </fields>
         <fields>
@@ -338,6 +350,7 @@
             <dataType>String</dataType>
             <fieldText>Customer Case # (Optional)</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
         </fields>
         <showFooter>true</showFooter>
@@ -376,6 +389,7 @@
             <dataType>String</dataType>
             <fieldText>Select Company</fieldText>
             <fieldType>DropdownBox</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
         </fields>
         <showFooter>true</showFooter>
@@ -397,6 +411,7 @@
             <dataType>String</dataType>
             <fieldText>Company Name</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
         </fields>
         <showFooter>true</showFooter>

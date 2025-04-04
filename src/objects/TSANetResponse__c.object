@@ -163,7 +163,6 @@
     <fields>
         <fullName>CreatedAt__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Created At</label>
         <required>false</required>
         <trackHistory>false</trackHistory>
@@ -197,7 +196,6 @@
     <fields>
         <fullName>EngineerPhone__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Engineer Phone</label>
         <required>false</required>
         <trackHistory>true</trackHistory>
@@ -207,7 +205,6 @@
     <fields>
         <fullName>Note__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Note</label>
         <length>32768</length>
         <trackHistory>false</trackHistory>
@@ -219,7 +216,6 @@
         <fullName>TSANetCase__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>TSANet Case</label>
         <referenceTo>TSANetCase__c</referenceTo>
         <relationshipLabel>TSANet Responses</relationshipLabel>

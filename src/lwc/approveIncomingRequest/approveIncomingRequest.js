@@ -37,6 +37,7 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
                 }
             })
             //location.reload()
+            this.dispatchEvent(new CustomEvent('close'))
         }
     }
 

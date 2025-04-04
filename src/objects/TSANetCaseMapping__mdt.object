@@ -25,7 +25,6 @@
     <fields>
         <fullName>Type__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <fieldManageability>DeveloperControlled</fieldManageability>
         <label>Type</label>
         <required>false</required>

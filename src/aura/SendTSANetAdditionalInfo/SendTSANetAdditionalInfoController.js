@@ -11,6 +11,7 @@
 	},
             
     close : function(cmp, event, helper){
- 		helper.navigateToRecord(cmp, event, helper)
+        $A.get('e.force:refreshView').fire();
+ 		//helper.navigateToRecord(cmp, event, helper)
     }    
 })

@@ -42,6 +42,7 @@ export default class RequestAdditionalInfo extends NavigationMixin(LightningElem
                 }
             })
             //location.reload()
+            this.dispatchEvent(new CustomEvent('close'))
         }
     }
 

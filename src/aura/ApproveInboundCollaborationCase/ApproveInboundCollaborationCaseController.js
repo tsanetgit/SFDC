@@ -9,10 +9,11 @@
             cmp.set('v.caseRecord', data.caseRecord)
             cmp.set('v.config', data.config)
             cmp.set('v.isLoaded', true)
+            
         })
 	},
             
     close : function(cmp, event){
-        
+        $A.get('e.force:refreshView').fire();
     }        
 })

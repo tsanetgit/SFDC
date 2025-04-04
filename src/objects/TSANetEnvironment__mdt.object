@@ -3,7 +3,6 @@
     <fields>
         <fullName>Endpoint__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <fieldManageability>DeveloperControlled</fieldManageability>
         <label>Endpoint</label>
         <required>false</required>

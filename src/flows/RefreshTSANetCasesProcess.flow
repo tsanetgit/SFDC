@@ -17,9 +17,12 @@
                 <elementReference>recordId</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>TSANetInvocableRefreshCasesService</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <apiVersion>62.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>CheckResult</name>
         <label>CheckResult</label>
@@ -57,6 +60,7 @@
             <label>isError</label>
         </rules>
     </decisions>
+    <environments>Default</environments>
     <interviewLabel>Refresh TSANet Cases Process {!$Flow.CurrentDateTime}</interviewLabel>
     <isTemplate>true</isTemplate>
     <label>Refresh TSANet Cases Process</label>

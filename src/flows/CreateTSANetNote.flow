@@ -23,9 +23,12 @@
                 <elementReference>TSANetNote</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>TSANetInvocableNoteService</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <apiVersion>61.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>AssignNoteJSON</name>
         <label>Assign Note JSON</label>
@@ -70,6 +73,7 @@
             <targetReference>NoteValidation</targetReference>
         </connector>
     </assignments>
+    <environments>Default</environments>
     <formulas>
         <name>CreatorFirstName</name>
         <dataType>String</dataType>
@@ -142,12 +146,14 @@
             </defaultValue>
             <fieldText>Summary</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
         </fields>
         <fields>
             <name>NoteDetails</name>
             <fieldText>Note Details</fieldText>
             <fieldType>LargeTextArea</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
         </fields>
         <showFooter>true</showFooter>

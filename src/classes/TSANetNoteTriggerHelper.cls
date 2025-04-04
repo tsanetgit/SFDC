@@ -52,6 +52,10 @@ public class TSANetNoteTriggerHelper {
                     description = description.replaceAll('</strong>', '</b>');
                 }
                 
+                if(description != NULL && description.contains('<br>')){
+                	description = description.replaceAll('<br>', '<p>&nbsp;</p>');
+                }
+                
                 String refactoredDescription = stripHtmlTags(description);
                 
                 String message = '<p>Note Details:</p>' + 
@@ -114,7 +118,8 @@ public class TSANetNoteTriggerHelper {
                     '", "priority":"' + note.tsanet_connect__Priority__c + '", ' + 
                     '"submittedBy": { "firstName": "' + creatorFirstName + '", "lastName": "' + creatorLastName + '" }}';
                 
-                
+                System.debug('json: ' + json);
+                System.debug('tsaNetCase.tsanet_connect__tsaNetCaseId__c: ' + tsaNetCase.tsanet_connect__tsaNetCaseId__c);
                 createTSANetAPINoteFuture(tsaNetCase.tsanet_connect__tsaNetCaseId__c, json, note.Id);
             }
         }
@@ -124,10 +129,11 @@ public class TSANetNoteTriggerHelper {
     public static void createTSANetAPINoteFuture(String caseId, String json, String noteId){
         System.debug('json: ' + json);
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(TSANetService.endpoint + '/1.0.8/cases/' + caseId + '/notes/create');
+        req.setEndpoint(TSANetService.endpoint + '/v1/collaboration-requests/' + caseId + '/notes');
         req.setHeader('Authorization', TSANetService.getBearerToken());
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
+        req.setTimeout(10000);
         req.setBody(json);
         
         Http http = new Http();
@@ -159,7 +165,7 @@ public class TSANetNoteTriggerHelper {
         String token = TSANetService.getBearerAccessToken();
         
         HttpRequest req = new HttpRequest();
-        req.setEndpoint(TSANetService.endpoint + '/1.0.8/cases/' + caseId + '/notes/create');
+        req.setEndpoint(TSANetService.endpoint + '/v1/collaboration-requests/' + caseId + '/notes');
         req.setHeader('Authorization', 'Bearer ' + token);
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');

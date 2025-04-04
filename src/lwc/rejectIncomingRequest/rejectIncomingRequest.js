@@ -40,6 +40,7 @@ export default class RejectIncomingRequest extends NavigationMixin(LightningElem
                 }
             })
             //location.reload()
+            this.dispatchEvent(new CustomEvent('close'))
         }
     }
 

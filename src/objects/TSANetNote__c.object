@@ -163,7 +163,6 @@
     <fields>
         <fullName>CreatedAt__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>CreatedAt</label>
         <required>false</required>
         <trackTrending>false</trackTrending>
@@ -205,7 +204,6 @@
     <fields>
         <fullName>Description__c</fullName>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>Description</label>
         <length>131072</length>
         <trackTrending>false</trackTrending>
@@ -250,7 +248,6 @@
         <fullName>TSANetCase__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>TSANet Case</label>
         <referenceTo>TSANetCase__c</referenceTo>
         <relationshipLabel>TSANet Notes</relationshipLabel>
@@ -275,7 +272,6 @@
         <fullName>isApiNote__c</fullName>
         <defaultValue>false</defaultValue>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>isApiNote</label>
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
@@ -284,7 +280,6 @@
         <fullName>isCaseFeed__c</fullName>
         <defaultValue>true</defaultValue>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>isCaseFeed</label>
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
@@ -293,7 +288,6 @@
         <fullName>isNotified__c</fullName>
         <defaultValue>false</defaultValue>
         <deprecated>false</deprecated>
-        <externalId>false</externalId>
         <label>isNotified</label>
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>

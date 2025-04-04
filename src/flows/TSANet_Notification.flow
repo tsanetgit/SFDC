@@ -41,8 +41,11 @@
                 <elementReference>$Record.Id</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <apiVersion>61.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Add_Recipient</name>
         <label>Add Recipient</label>
@@ -81,6 +84,7 @@
             <label>Yes</label>
         </rules>
     </decisions>
+    <environments>Default</environments>
     <formulas>
         <name>Body</name>
         <dataType>String</dataType>

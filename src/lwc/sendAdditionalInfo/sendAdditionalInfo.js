@@ -40,6 +40,7 @@ export default class SendAdditionalInfo extends NavigationMixin(LightningElement
                 }
             })
             //location.reload()
+            this.dispatchEvent(new CustomEvent('close'))
         }
     }
 

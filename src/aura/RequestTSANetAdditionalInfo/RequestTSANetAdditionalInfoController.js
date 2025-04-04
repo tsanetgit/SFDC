@@ -10,7 +10,8 @@
         })
 	},
             
-    close : function(cmp, event, helper){
- 		helper.navigateToRecord(cmp, event, helper)
+    close : function(cmp, event){
+        $A.get('e.force:refreshView').fire();
+ 		//helper.navigateToRecord(cmp, event, helper)
     }    
 })

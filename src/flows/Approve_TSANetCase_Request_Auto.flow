@@ -20,9 +20,12 @@
                 <elementReference>CaseRequest</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>TSANetInvocableApproveRequestService</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>AssignCaseRequestData</name>
         <label>Assign Case Request Data</label>
@@ -96,6 +99,7 @@
             <label>Approve</label>
         </rules>
     </decisions>
+    <environments>Default</environments>
     <interviewLabel>Approve TSANetCase Request ( Auto ) {!$Flow.CurrentDateTime}</interviewLabel>
     <isTemplate>true</isTemplate>
     <label>Approve TSANetCase Request ( Auto )</label>
