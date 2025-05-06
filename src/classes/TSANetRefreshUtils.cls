@@ -4,13 +4,12 @@ public class TSANetRefreshUtils {
 
     public PageReference refresh() {
         try {
-            TSANetService.getRelatedCollaborationCases(null);
+            //TSANetService.getRelatedCollaborationCases(null);
+            System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null));
             PageReference returnPage = goBack();
-            System.debug('returnPage : ' + returnPage);
             return returnPage; 
             
         } catch(Exception e){
-            System.debug('CATCH');
             PageReference returnPage = goBack();
             futureRefresh();
             return returnPage; 
@@ -46,12 +45,10 @@ public class TSANetRefreshUtils {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
         
         if(res.getStatusCode() != 200){ return null; }
         
         TSANetService.AccessTokenResponse response = (TSANetService.AccessTokenResponse) System.JSON.deserialize(res.getBody(), TSANetService.AccessTokenResponse.class);
-        System.debug(response.accessToken);
        
         return response.accessToken;
     }
@@ -66,7 +63,6 @@ public class TSANetRefreshUtils {
         
         String token = Test.isRunningTest() ? 'token' : getAccessToken();
         
-        System.debug('token : ' + token);
         String path = TSANetService.endpoint + TSANetService.case_path;
         if(caseId != NULL){
             path += ( '?internalCaseNumber=' + caseId );
@@ -80,8 +76,6 @@ public class TSANetRefreshUtils {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        
-        System.debug(res.getBody());
         
         String userId = TSANetService.CONFIG.tsanet_connect__IntegrationUser__c == NULL ? UserInfo.getUserId() : TSANetService.CONFIG.tsanet_connect__IntegrationUser__c;
         

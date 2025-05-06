@@ -16,7 +16,6 @@ global class TSANetInvocableNoteService {
     global static TSANetCollaborationCaseNoteResult[] createCollaborationCaseNote(TSANetInput[] data) {
         TSANetInput input = data[0];
         String json = JSON.serialize(input.note);
-        System.debug('json: ' + json);
         
         String body = TSANetService.createCaseNote(input.caseRecord.tsanet_connect__tsaNetCaseId__c, json);
         

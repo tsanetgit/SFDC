@@ -1,68 +1,75 @@
-global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts {
+public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
     
-    public class TSANetScheduledJobException extends Exception {}
+    public static Integer EXECUTE_LIMIT = 50;
     
-    //public static Map<String, Case> existedCases = getExistedCases();
+    public Map<String, tsanet_connect__TSANetCase__c> cases = new Map<String, tsanet_connect__TSANetCase__c>();
+    public Map<String, tsanet_connect__TSANetResponse__c> responses = new Map<String, tsanet_connect__TSANetResponse__c>();
+    public Map<String, tsanet_connect__TSANetNote__c> notes = new Map<String, tsanet_connect__TSANetNote__c>();
     
-    public static String endpoint = getEndpoint(); //'https://connect2.tsanet.us'; //https://connect2.renolab.us
-    public static String get_cases_path = '/v1/collaboration-requests/'; //'/0.1.0/cases/'; //
+    public String token;
+        
+    public Integer currentPage;
+    public Integer totalPages;
     
-    public static tsanet_connect__TSANetCaseMapping__mdt[] TSANET_MAPPING = [SELECT Id, tsanet_connect__Type__c, tsanet_connect__From__c, tsanet_connect__To__c FROM tsanet_connect__TSANetCaseMapping__mdt];
-    
-    public static tsanet_connect__TSANetConfiguration__c CONFIG = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
-    
-    public class PaymentScheduledJobException extends Exception {}
-    
-    global void execute(SchedulableContext sc){
-        updateTSANetCases();
+    public TSANetQueueableJob(Integer currentPage,
+                              Integer totalPages,
+                              Map<String, tsanet_connect__TSANetCase__c> cases, 
+                              Map<String, tsanet_connect__TSANetResponse__c> responses, 
+                              Map<String, tsanet_connect__TSANetNote__c> notes){
+                                  
+        this.currentPage = currentPage;
+        this.totalPages = totalPages != NULL ? totalPages : 1;
+        this.cases = cases != NULL ? cases : new Map<String, tsanet_connect__TSANetCase__c>();
+        this.responses = responses != NULL ? responses : new Map<String, tsanet_connect__TSANetResponse__c>();
+        this.notes = notes != NULL ? notes : new Map<String, tsanet_connect__TSANetNote__c>();
+        this.token = TSANetService.getBearerAccessToken();
     }
     
-    //@future(callout=true)
-    public static void updateTSANetCases() {  
-        try {
-            Id jobId = System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null));
-        } catch(Exception e){}
-    } 
     
-    public static String getEndpoint() {
-        
-        tsanet_connect__TSANet_Credentials__c creds = TSANetService.getCredentials();
-        String environment = creds.tsanet_connect__Environment__c + '_env';
-        tsanet_connect__TSANetEnvironment__mdt[] environments =[SELECT Id, tsanet_connect__Endpoint__c FROM tsanet_connect__TSANetEnvironment__mdt WHERE DeveloperName =:environment];
-        
-        if(environments.size() > 0){
-            return environments[0].tsanet_connect__Endpoint__c;
-        } else { return 'https://connect2.renolab.us'; }
-    }
-    
-    @AuraEnabled
-    public static String getAccessTokenByUser(){
-        if(CONFIG.tsanet_connect__IntegrationUser__c == NULL){
-            throw new TSANetScheduledJobException('Unauthorized');
+    public void execute(QueueableContext qc) {
+        Boolean stopProcessing = false;
+        Integer count = 0;
+
+        while (count < EXECUTE_LIMIT) {
+            try {
+                TSANetData data = getTSANetCollaborationCases(this.token, this.currentPage);
+
+                if (data.cases.isEmpty()) {
+                    stopProcessing = true;
+                    break;
+                }
+
+                for(tsanet_connect__TSANetCase__c caseRecord : data.cases){
+                    this.cases.put(caseRecord.tsanet_connect__tsaNetCaseId__c, caseRecord);
+                }
+                for(tsanet_connect__TSANetResponse__c response : data.responses){
+                    this.responses.put(response.tsanet_connect__tsaNetResponseId__c, response);
+                }
+                for(tsanet_connect__TSANetNote__c note : data.notes){
+                    this.notes.put(note.tsanet_connect__Token__c, note);
+                }
+                
+                currentPage++;
+                count++;
+            } catch (Exception e) {
+                stopProcessing = true;
+                break;
+            }
         }
-        return [SELECT Id, tsanet_connect__tsaNetAccessToken__c FROM User WHERE Id =:CONFIG.tsanet_connect__IntegrationUser__c ].tsanet_connect__tsaNetAccessToken__c;
+        
+        if (!stopProcessing && !Test.isRunningTest()) {
+            System.enqueueJob(new TSANetQueueableJob(currentPage, totalPages, cases, responses, notes));
+        } else {
+            upsert cases.values() tsanet_connect__tsaNetCaseId__c;
+            upsert responses.values() tsanet_connect__tsaNetResponseId__c;
+            upsert notes.values() tsanet_connect__Token__c;
+        }
     }
     
-    public static String getBearerToken(){
-        String token = getAccessTokenByUser();
-        if(token == NULL){
-			throw new TSANetScheduledJobException('Unauthorized');
-        }
-        return 'Bearer ' + token;
-    }
-    
-    @AuraEnabled
-    public static TSANetData getRelatedCollaborationCases(String caseId, String createdAfter){
+    public TSANetData getTSANetCollaborationCases(String token, Integer page){
+ 
         
-        String token = TSANetService.getBearerAccessToken();
-        
-        
-        String path = endpoint + get_cases_path;
-        if(caseId != NULL){ 
-        	path += ( '?internalCaseNumber=' + caseId );
-        } else if(createdAfter != NULL) {
-            path += '?createdAfter=' + createdAfter;
-        }
+        String path = TSANetService.endpoint + '/v1/collaboration-requests?paginated=true&page=' + page + '&size=50';
         
         HttpRequest req = new HttpRequest();
         req.setEndpoint(path);
@@ -72,12 +79,13 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
+
+        TSANetCaseDataResponse data = TSANetCaseDataResponse.parse(res.getBody());
         
-        return parseTSANetCases(res.getBody(), caseId);
+		this.totalPages = data.totalPages;
         
-        //return res.getBody();
+        return parseTSANetCases(System.JSON.serialize(data.content), null);
     }
-    
     
      
     public static TSANetData parseTSANetCases(String json, String caseId){
@@ -91,7 +99,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
 		for(Object caseRecord : cases){
             Map<String, Object> record = (Map<String, Object>) caseRecord;
             String externalId = String.valueOf(record.get('id'));
-            for(tsanet_connect__TSANetCaseMapping__mdt element : TSANET_MAPPING){
+            for(tsanet_connect__TSANetCaseMapping__mdt element : TSANetService.TSANET_MAPPING){
                 if(element.tsanet_connect__Type__c == 'REFERENCE'){
                     String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
                     existedCaseNumbers.add(parentCaseId);
@@ -105,7 +113,6 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
-
                                 String fieldName = (String) customerFieldToValue.get('fieldName');
                                 String value = (String) customerFieldToValue.get('value');
                                 
@@ -120,7 +127,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
             }
         }
         
-        Map<String, Case> existedCases = getExistedCases(existedCaseNumbers);
+        Map<String, Case> existedCases = TSANetService.getExistedCases(existedCaseNumbers);
         
         String[] existedIds = new String[]{};
         for(Object caseRecord : cases){
@@ -130,7 +137,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
             if(!existedIds.contains(externalId)){
                 tsanet_connect__TSANetCase__c newCase = new tsanet_connect__TSANetCase__c();
                 newCase.tsanet_connect__isApiCase__c = TRUE;
-                for(tsanet_connect__TSANetCaseMapping__mdt element : TSANET_MAPPING){
+                for(tsanet_connect__TSANetCaseMapping__mdt element : TSANetService.TSANET_MAPPING){
                     if(element.tsanet_connect__Type__c == 'DATETIME'){
                         try {
                             String datetimeString = (String) record.get(element.tsanet_connect__From__c);
@@ -149,7 +156,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                         String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
                         String receiverCaseId = String.valueOf(record.get('receiverCaseNumber'));
                         try {
-                            Boolean isInbound = String.valueOf(record.get('receiveCompanyId')) == String.valueOf(CONFIG.tsanet_connect__companyId__c);
+                            Boolean isInbound = String.valueOf(record.get('receiveCompanyId')) == String.valueOf(TSANetService.CONFIG.tsanet_connect__companyId__c);
                             if(!isInbound){
                                 if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(parentCaseId).matches() &&
                                     Id.valueOf(parentCaseId).getSObjectType() == Schema.Case.SObjectType &&
@@ -222,7 +229,6 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                                         newResponse.put('tsanet_connect__Type__c',(String) caseResponse.get('type'));
                                     } else if(field == 'createdAt'){
                                         try {
-                                            //DateTime createdAt = DateTime.newInstance(Long.valueOf(String.valueOf(caseResponse.get('createdAt'))));
                                             String datetimeString = (String) caseResponse.get('createdAt');
                                             if(datetimeString != null){
                                                 datetimeString = datetimeString.replace('Z', '');
@@ -243,7 +249,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
-            
+                                
                                 String fieldName = (String) customerFieldToValue.get('fieldName');
                                 String value = (String) customerFieldToValue.get('value');
                                 
@@ -342,7 +348,6 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
         
         //upsert responsesToUpsert tsanet_connect__tsaNetResponseId__c;
         
-        
         tsanet_connect__TSANetNote__c[] notesToUpsert = new tsanet_connect__TSANetNote__c[]{};
         for(tsanet_connect__TSANetCase__c tsaNetCase : newCases){
             tsanet_connect__TSANetNote__c[] notes = caseToNotes.get(tsaNetCase.tsanet_connect__tsaNetCaseId__c);
@@ -384,12 +389,4 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
         public tsanet_connect__TSANetNote__c[] notes;
     }
     
-    public static Map<String, Case> getExistedCases(String[] caseNumbers){
-        Case[] cases = [SELECT Id, CaseNumber FROM Case WHERE CaseNumber IN:caseNumbers ORDER BY CreatedDate DESC LIMIT 49999];
-        Map<String, Case> numberToCase = new Map<String, Case>();
-        for(Case caseRecord : cases){
-            numberToCase.put(caseRecord.CaseNumber, caseRecord);
-        }
-        return numberToCase;
-    }
 }

@@ -23,15 +23,12 @@ public class TSANetService {
         
     public static String getEndpoint() {
         tsanet_connect__TSANet_Credentials__c creds = getCredentials();
-        System.debug('creds : ' + creds);
         String environment = creds.tsanet_connect__Environment__c + '_env';
-        System.debug('environment : ' + environment);
         tsanet_connect__TSANetEnvironment__mdt[] environments =[SELECT Id, tsanet_connect__Endpoint__c FROM tsanet_connect__TSANetEnvironment__mdt WHERE DeveloperName =:environment];
         
         if(environments.size() > 0){
             return environments[0].tsanet_connect__Endpoint__c;
         } else {
-            System.debug('NOT FOUND ENVIROMENTS !');
             return 'https://connect2.renolab.us';
         }
     }
@@ -51,8 +48,6 @@ public class TSANetService {
 
         tsanet_connect__TSANet_Credentials__c credentials = getCredentials();
         
-        SYstem.debug('credentials: ' + credentials);
-        
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + login_path);
         req.setMethod('POST');
@@ -62,13 +57,11 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        
+
         if(res.getStatusCode() != 200){ return null; }
         
         AccessTokenResponse response = (AccessTokenResponse) System.JSON.deserialize(res.getBody(), AccessTokenResponse.class);
-        System.debug(response.accessToken);
-        
+
         if(response.accessToken == NULL){ return false; }
         
         String userId = CONFIG.tsanet_connect__IntegrationUser__c == NULL ? UserInfo.getUserId() : CONFIG.tsanet_connect__IntegrationUser__c;
@@ -92,13 +85,11 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        
+
         if(res.getStatusCode() != 200){ return null; }
         
         AccessTokenResponse response = (AccessTokenResponse) System.JSON.deserialize(res.getBody(), AccessTokenResponse.class);
-        System.debug(response.accessToken);
-        
+
         return response.accessToken;
     }
     
@@ -182,8 +173,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        
+
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
@@ -201,8 +191,6 @@ public class TSANetService {
     
     @AuraEnabled
     public static String getCustomFields(String documentId, String fieldId){
-        System.debug('documentId : ' + documentId);
-        System.debug('fieldId : ' + fieldId);
         String path = endpoint + '/0.1.1/form/' + documentId + '/field/' + fieldId;
         
         HttpRequest req = new HttpRequest();
@@ -213,8 +201,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        
+
         return res.getBody();   
     }
     
@@ -240,8 +227,7 @@ public class TSANetService {
              res = http.send(req);
             
             //HTTPResponse res = http.send(req);
-            System.debug(res.getBody());
-            
+
             if(res.getStatusCode() != 200){
                 handleResponseErrors(res);
                 
@@ -265,8 +251,6 @@ public class TSANetService {
             path += ( '?internalCaseNumber=' + caseId );
         }
         
-        System.debug('path: ' + path);
-        
         HttpRequest req = new HttpRequest();
         req.setEndpoint(path);
         req.setHeader('Authorization', getBearerToken());
@@ -281,8 +265,7 @@ public class TSANetService {
              res = http.send(req);
             
             //HTTPResponse res = http.send(req);
-            System.debug(res.getBody());
-            
+
             if(res.getStatusCode() != 200){
                 handleResponseErrors(res);
                 
@@ -299,9 +282,8 @@ public class TSANetService {
     }
  
     public static tsanet_connect__TSANetCase__c[] parseTSANetCases(String json, String caseId){
-        System.debug(json);
+
         List<Object> cases = (List<Object>) System.JSON.deserializeUntyped(json);
-        System.debug('cases : ' + cases);
         tsanet_connect__TSANetCase__c[] newCases = new tsanet_connect__TSANetCase__c[]{};
         Map<String, tsanet_connect__TSANetResponse__c[]> caseToResponses = new Map<String, tsanet_connect__TSANetResponse__c[]>();
         Map<String, tsanet_connect__TSANetNote__c[]> caseToNotes = new Map<String, tsanet_connect__TSANetNote__c[]>();  
@@ -325,13 +307,11 @@ public class TSANetService {
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
-                                System.debug('customerFieldToValue :' + customerFieldToValue);
-                                
+
                                 String fieldName = (String) customerFieldToValue.get('fieldName');
                                 String value = (String) customerFieldToValue.get('value');
                                 
                                 if(fieldName.contains('Customer Case')){
-                                    System.debug('Customer Case Contains - value : ' + value);
                                     if(value != NULL && value != ''){
                                         existedCaseNumbers.add(value);
                                     }
@@ -359,7 +339,6 @@ public class TSANetService {
                             if(datetimeString != null){
                                 datetimeString = datetimeString.replace('Z', '');
                                 DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
-                                System.debug('Parsed DateTime: ' + dt);
                                 newCase.put(element.tsanet_connect__To__c, dt);
                             }
                         } catch(Exception e){}
@@ -369,13 +348,10 @@ public class TSANetService {
                     } else if(element.tsanet_connect__Type__c == 'STRING'){
                         newCase.put(element.tsanet_connect__To__c, String.valueOf(record.get(element.tsanet_connect__From__c)));
                     } else if(element.tsanet_connect__Type__c == 'REFERENCE'){
-                        System.debug('REFERENCE : ');
                         String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
                         String receiverCaseId = String.valueOf(record.get('receiverCaseNumber'));
                         try {
-                            System.debug('parentCaseId : ');
                             Boolean isInbound = String.valueOf(record.get('receiveCompanyId')) == String.valueOf(CONFIG.tsanet_connect__companyId__c);
-                            System.debug('isInbound : ' + isInbound);
                             if(!isInbound){
                                 if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(parentCaseId).matches() &&
                                     Id.valueOf(parentCaseId).getSObjectType() == Schema.Case.SObjectType &&
@@ -402,18 +378,13 @@ public class TSANetService {
                                 }
                             }
                             
-                        } catch(Exception e){
-                            System.debug(e.getMessage());
-                        }
+                        } catch(Exception e){}
                         
                     } else if(element.tsanet_connect__Type__c == 'OBJECT'){
-                        System.debug('OBJECT');
                         try {
                         	Map<String, Object> submittedBy = (Map<String, Object>) record.get(element.tsanet_connect__From__c);
                             
-                            System.debug('submittedBy :' + submittedBy);
                             for(String field : submittedBy.keySet()){
-                                System.debug('field :' + field);
                                 if(field == 'firstName'){
                                     newCase.put('tsanet_connect__FirstName__c', (String) submittedBy.get('firstName'));
                                 } else if(field == 'lastName'){
@@ -425,9 +396,7 @@ public class TSANetService {
                                 }
                             }
                             
-						} catch(Exception e){
-                            System.debug('Error ->> ' + e.getMessage());
-                        }                        
+						} catch(Exception e){}                        
                     } else if(element.tsanet_connect__Type__c == 'ARRAY' && element.tsanet_connect__From__c == 'caseResponses'){
                         List<Object> caseResponses = (List<Object>) record.get(element.tsanet_connect__From__c);
                         if(caseResponses.size() > 0){
@@ -435,9 +404,7 @@ public class TSANetService {
                             for(Object response : caseResponses){
                                 Map<String, Object> caseResponse = ( Map<String, Object> ) response;
                                 tsanet_connect__TSANetResponse__c newResponse = new tsanet_connect__TSANetResponse__c();
-                                System.debug('caseResponse :' + caseResponse);
                                 for(String field : caseResponse.keySet()){
-                                    System.debug('field :' + field);
                                     if(field == 'id'){
                                         newResponse.put('tsanet_connect__tsaNetResponseId__c', String.valueOf(caseResponse.get('id')));
                                     } else if(field == 'engineerName'){
@@ -462,7 +429,6 @@ public class TSANetService {
                                             if(datetimeString != null){
                                                 datetimeString = datetimeString.replace('Z', '');
                                                 DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
-                                                System.debug('Parsed DateTime: ' + dt);
                                                 newResponse.put('tsanet_connect__CreatedAt__c', dt);
                                             }
                                         } catch(Exception e){}
@@ -479,7 +445,6 @@ public class TSANetService {
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
-                                System.debug('customerFieldToValue :' + customerFieldToValue);
                                 
                                 String fieldName = (String) customerFieldToValue.get('fieldName');
                                 String value = (String) customerFieldToValue.get('value');
@@ -487,7 +452,6 @@ public class TSANetService {
                                 if(fieldName == 'Customer Company'){
                                     newCase.put('tsanet_connect__EngineerCompany__c', value);
                                 }  else if(fieldName.contains('Customer Case')){
-                                    System.debug('Customer Case Contains - value : ' + value);
                                     if(value != NULL && value != ''){
                                         if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(value).matches() &&
                                             Id.valueOf(value).getSObjectType() == Schema.Case.SObjectType &&
@@ -501,8 +465,6 @@ public class TSANetService {
                                             }
                                         }
                                     }
-                                    
-                                    System.debug('newCase : ' + newCase);
                                     
                                 } else if(fieldName == 'Customer Name'){
                                     //newCase.put('EngineerName__c', value);
@@ -525,9 +487,7 @@ public class TSANetService {
                                 
                                 newNote.tsanet_connect__isApiNote__c = TRUE;
                                 
-                                System.debug('note :' + noteResponse);
                                 for(String field : noteResponse.keySet()){
-                                    System.debug('field :' + field);
                                     if(field == 'token'){
                                         newNote.put('tsanet_connect__Token__c', String.valueOf(noteResponse.get('token')));
                                     } else if(field == 'summary'){
@@ -549,7 +509,6 @@ public class TSANetService {
                                         if(datetimeString != null){
                                             datetimeString = datetimeString.replace('Z', '');
                                             DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
-                                            System.debug('Parsed DateTime: ' + dt);
                                             newNote.put('tsanet_connect__CreatedAt__c', dt);
                                         }
                                         
@@ -570,8 +529,6 @@ public class TSANetService {
             }
         }
         
-        System.debug('newCases : ' + newCases);
-
         upsert newCases tsanet_connect__tsaNetCaseId__c;
         
         tsanet_connect__TSANetResponse__c[] responsesToUpsert = new tsanet_connect__TSANetResponse__c[]{};
@@ -579,7 +536,6 @@ public class TSANetService {
             tsanet_connect__TSANetResponse__c[] responses = caseToResponses.get(tsaNetCase.tsanet_connect__tsaNetCaseId__c);
             if(responses != NULL){
                 for(tsanet_connect__TSANetResponse__c response : responses){
-                    System.debug('response : ' + response);
                     response.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
                     responsesToUpsert.add(response);
                 }
@@ -594,7 +550,6 @@ public class TSANetService {
             tsanet_connect__TSANetNote__c[] notes = caseToNotes.get(tsaNetCase.tsanet_connect__tsaNetCaseId__c);
             if(notes != NULL){
                 for(tsanet_connect__TSANetNote__c note : notes){
-                    System.debug('response : ' + note);
                     note.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
                     notesToUpsert.add(note);
                 }
@@ -618,8 +573,7 @@ public class TSANetService {
     
     @AuraEnabled
     public static String getFormByCompanyId(String companyId, String mode){
-        System.debug('work');
-        
+
         String localEndpoint = endpoint;
         
         if(mode == 'company'){
@@ -630,8 +584,6 @@ public class TSANetService {
         
         localEndpoint += companyId;
         
-        System.debug('endpoint : ' + localEndpoint);
-        
         HttpRequest req = new HttpRequest();
         req.setEndpoint(localEndpoint);
         req.setHeader('Authorization', getBearerToken());
@@ -640,14 +592,11 @@ public class TSANetService {
 
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-        
+
         if(res.getStatusCode() != 200){
             
             if(res.getBody() == 'This company does not have a company form, try getting the form for one of the company\'s departments'){
  
-                System.debug('work222');
                 HttpRequest req2 = new HttpRequest();
                 req2.setEndpoint(endpoint + '/1.0.8/form/department/' + companyId);
                 req2.setHeader('Authorization', getBearerToken());
@@ -656,7 +605,6 @@ public class TSANetService {
         
                 Http http2 = new Http();
                 HTTPResponse res2 = http2.send(req2);
-                System.debug(res2.getBody());
                 
                 return res2.getBody();
                     
@@ -670,9 +618,10 @@ public class TSANetService {
     
     @AuraEnabled
     public static String getCompaniesByName(String companyName){
-        System.debug('companyName: ' + companyName);
         companyName = EncodingUtil.urlEncode(companyName, 'UTF-8');
-        System.debug('companyName: ' + companyName);
+        if(companyName.contains('+')){
+            companyName = companyName.replace('+', '%20');
+        }
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + companies_path + companyName);
         req.setHeader('Authorization', getBearerToken());
@@ -681,7 +630,6 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
         
         /*if(res.getStatusCode() != 200){
             handleResponseErrors(res);
@@ -693,9 +641,6 @@ public class TSANetService {
     @AuraEnabled
     public static String createCollaborationCase(Id caseId, String json){
         
-        System.debug('caseId : ' + caseId);
-        System.debug('json : ' + json);
-        
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + case_path);
         req.setHeader('Authorization', getBearerToken());
@@ -705,9 +650,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-
+  
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
@@ -717,7 +660,6 @@ public class TSANetService {
 		}
         
         Map<String, Object> response = (Map<String, Object>) System.JSON.deserializeUntyped(res.getBody());
-        System.debug('response 1111: ' + response);
         createCaseFeedItem(caseId, response);
              
         return res.getBody();
@@ -743,10 +685,7 @@ public class TSANetService {
     
     @AuraEnabled
     public static String approveIncomingRequest(String token, String json){
-        
-        System.debug('token : ' + token);
-        System.debug('json : ' + json);
-        
+ 
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + case_path + token + approve);
         req.setHeader('Authorization', getBearerToken());
@@ -756,9 +695,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-        
+
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
@@ -772,10 +709,7 @@ public class TSANetService {
     
     @AuraEnabled
     public static String approveIncomingRequest2(String token, String json){
-        
-        System.debug('token : ' + token);
-        System.debug('json : ' + json);
-        
+
         String accessToken = getBearerAccessToken();
         
         HttpRequest req = new HttpRequest();
@@ -787,9 +721,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-        
+
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
@@ -804,9 +736,6 @@ public class TSANetService {
     @AuraEnabled
     public static String rejectTSANetCase(String tsaNetCaseId, String json){
         
-        System.debug('tsaNetCaseId : ' + tsaNetCaseId);
-        System.debug('json : ' + json);
-        
         tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
         
         HttpRequest req = new HttpRequest();
@@ -818,9 +747,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-        
+
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
@@ -832,10 +759,7 @@ public class TSANetService {
     
     @AuraEnabled
     public static String requestAdditionalInformation(String tsaNetCaseId, String json){
-        
-        System.debug('tsaNetCaseId : ' + tsaNetCaseId);
-        System.debug('json : ' + json);
-        
+ 
         tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
         
         HttpRequest req = new HttpRequest();
@@ -847,9 +771,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-        
+
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
@@ -861,10 +783,7 @@ public class TSANetService {
     
     @AuraEnabled
     public static String sendAdditionalInformation(String tsaNetCaseId, String json){
-        
-        System.debug('tsaNetCaseId : ' + tsaNetCaseId);
-        System.debug('json : ' + json);
-        
+    
         tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__Token__c, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
         
         HttpRequest req = new HttpRequest();
@@ -876,9 +795,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-        
+
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
@@ -891,8 +808,6 @@ public class TSANetService {
     @AuraEnabled
     public static String closeTSANetCase(String tsaNetCaseId){
         
-        System.debug('tsaNetCaseId : ' + tsaNetCaseId);
-        
         tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__Token__c, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:tsaNetCaseId];
         
         HttpRequest req = new HttpRequest();
@@ -904,9 +819,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-        
+
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }
@@ -918,9 +831,7 @@ public class TSANetService {
     
     @future(callout=true)
     public static void approveIncomingRequestFuture(String caseId, String json){
-        System.debug('caseId : ' + caseId);
-        System.debug('json : ' + json);
-        
+
         HttpRequest req = new HttpRequest();
         req.setEndpoint(endpoint + '/0.1.1/cases/' + caseId + '/update/approval');
         req.setHeader('Authorization', getBearerToken());
@@ -930,9 +841,7 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
-        
+
         if(res.getStatusCode() != 200){
             handleResponseErrors(res);
         }        
@@ -970,8 +879,6 @@ public class TSANetService {
         return note.Id;
         
         /*
-        System.debug('caseId : ' + caseId);
-        System.debug('json : ' + json);
         HttpRequest req = new HttpRequest();
         req.setEndpoint(TSANetService.endpoint + '/0.1.0/cases/' + caseId + '/notes/create');
         req.setHeader('Authorization', TSANetService.getBearerToken());
@@ -981,16 +888,12 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
 
         if(!Test.isRunningTest()){ TSANetService.getRelatedCollaborationCases(NULL); }
              
         Map<String, Object> response = (Map<String, Object>) System.JSON.deserializeUntyped(json);
         
         TSANetNoteResponse noteResponse = TSANetNoteResponse.parseOneRecord(res.getBody());
-        
-        System.debug('respon : ' + noteResponse);
         
         //createNoteCaseFeedItem(caseId, noteResponse);
                 
@@ -1008,8 +911,6 @@ public class TSANetService {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        System.debug(res.getStatusCode());
 
         return res.getBody();     
     }
@@ -1032,8 +933,6 @@ public class TSANetService {
         String phoneCountryCode = (String) submittedByMap.get('phoneCountryCode');
         String priorityNote = (String) response.get('priorityNote');
         String city = (String) submittedByMap.get('city');
-        
-        System.debug('priorityNote: ' + priorityNote);
         
         priorityNote = stripHtmlTags(priorityNote);
         
@@ -1069,8 +968,6 @@ public class TSANetService {
     }
     
     public static void handleResponseErrors(HTTPResponse response){
-        System.debug('response.getStatusCode() : ' + response.getStatusCode());
-        System.debug('response.getStatusCode() : ' + response.getBody());
         if(response.getStatusCode() != 200){
             if(response.getBody().contains('The authorization token provided was invalid.')){
                 Database.update(new User(Id = CONFIG.tsanet_connect__IntegrationUser__c, tsanet_connect__tsaNetAccessToken__c = NULL));

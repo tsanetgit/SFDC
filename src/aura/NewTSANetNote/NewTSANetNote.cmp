@@ -5,9 +5,8 @@
     
     <aura:handler name="init" action="{!c.init}" value="{!this}" />
     
-    
     <aura:if isTrue="{!v.externalCaseId}">
-        <c:tsaNetCaseAddNote caseId="{!v.externalCaseId}" tsaNetCaseId="{!v.recordId}" isQuickAction="true">
+        <c:tsaNetCaseAddNote caseId="{!v.externalCaseId}" tsaNetCaseId="{!v.recordId}" isQuickAction="true" onclose="{!c.close}">
         </c:tsaNetCaseAddNote>
     </aura:if>
     

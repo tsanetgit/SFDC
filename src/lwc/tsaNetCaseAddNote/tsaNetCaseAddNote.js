@@ -80,6 +80,7 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
 
     handleCloseWindow(isRefresh){
         console.log('isRefresh: ', isRefresh)
+        console.log('this.tsaNetCaseId : ', this.tsaNetCaseId)
         if(!this.isQuickAction){
             console.log('isRefresh: ', isRefresh)
             this.dispatchEvent(new CustomEvent('close', {
@@ -88,11 +89,12 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
                 }
             }))
         } else {
+            console.log('here')
             this[NavigationMixin.Navigate]({
                 type: 'standard__recordPage',
                 attributes: {
                     recordId: this.tsaNetCaseId,
-                    //objectApiName: 'Case',
+                    objectApiName: 'tsanet_connect__TSANetCase__c',
                     actionName: 'view'
                 }
             })

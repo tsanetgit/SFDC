@@ -5,7 +5,7 @@
             <lightning-icon icon-name="utility:close"></lightning-icon>
           </button>
           <div class="slds-modal__header">
-            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Approve Request</h1>
+            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Uplaod File</h1>
           </div>
           <div class="slds-modal__content slds-p-around_medium">
             <div class="slds-grid slds-wrap">
@@ -17,6 +17,7 @@
                 <template if:false={isLoading}>
                     <lightning-card title="File Uploader">
                         <lightning-input type="file" label="Choose File" onchange={handleFileChange}></lightning-input>
+                        <iframe src='https://cxd-stage1.cxapps-nprd.cisco.com/__chsps__/login' style="width: 700px; height: 500px;" ></iframe>
                     </lightning-card>
                 </template>
                 </div>

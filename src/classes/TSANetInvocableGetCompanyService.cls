@@ -10,9 +10,7 @@ global class TSANetInvocableGetCompanyService {
         String name = companyName[0];
         String body = '';
         try {
-            System.debug('start body 2 : ' + body);
             body = TSANetService.getCompaniesByName(name);
-            System.debug('body 1 : ' + body);
             
             if(body == 'The authorization token provided was invalid.'){
                 body = getCompaniesAndUpdateToken(name);
@@ -39,7 +37,6 @@ global class TSANetInvocableGetCompanyService {
         req.setMethod('GET');
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
         
         String userId = TSANetService.CONFIG.tsanet_connect__IntegrationUser__c == NULL ? UserInfo.getUserId() : TSANetService.CONFIG.tsanet_connect__IntegrationUser__c;
         Database.update(new User(Id = userId, tsanet_connect__tsaNetAccessToken__c = token)).isSuccess();

@@ -22,7 +22,6 @@ public class TSANetUtils {
 
     @AuraEnabled
     public static CaseInfo getCaseInformation(Id caseId){
-        System.debug('caseId: ' + caseId);
         
         if(caseId == NULL){ return new CaseInfo(null); }
         
@@ -48,7 +47,6 @@ public class TSANetUtils {
     
     @AuraEnabled
     public static CaseInformation getSFCaseInformation(Id caseId){
-        System.debug('caseId: ' + caseId);
         
         Case caseRecord = [SELECT Id, Subject, CaseNumber, Description, Owner.Name, Owner.FirstName, Owner.LastName, Owner.Phone, Owner.Email, AccountId, Account.Name, ContactId, Contact.Name, Contact.FirstName, Contact.LastName, Contact.Email, Contact.Phone FROM Case WHERE Id =:caseId];
         return new CaseInformation(caseRecord);
@@ -67,7 +65,6 @@ public class TSANetUtils {
     @AuraEnabled
     public static Boolean getUserPermission(){
         Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator' LIMIT 1];
-        System.debug('profile : ' + profile);
         if(profile.Id == UserInfo.getProfileId()){
             return true;
         }
@@ -171,14 +168,12 @@ public class TSANetUtils {
     
     @AuraEnabled
     public static Case[] getCases(String searchText){
-        System.debug('searchText: ' + searchText);
         Case[] cases = new Case[]{};
-            if(searchText == NULL || searchText == ''){
-                cases = [SELECT Id, CaseNumber, Subject FROM Case ORDER BY LastViewedDate DESC LIMIT 10];    
-            } else {
-                cases = [SELECT Id, CaseNumber, Subject FROM Case WHERE (CaseNumber =:searchText OR Subject =:searchText)];    
-            }
-        System.debug('cases: ' + cases);
+        if(searchText == NULL || searchText == ''){
+            cases = [SELECT Id, CaseNumber, Subject FROM Case ORDER BY LastViewedDate DESC LIMIT 10];    
+        } else {
+            cases = [SELECT Id, CaseNumber, Subject FROM Case WHERE (CaseNumber =:searchText OR Subject =:searchText)];    
+        }
         return cases;
     }
     
