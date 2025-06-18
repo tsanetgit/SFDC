@@ -5,36 +5,100 @@
             <lightning-icon icon-name="utility:close"></lightning-icon>
           </button>
           <div class="slds-modal__header">
-            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Uplaod File</h1>
+            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Upload File - {receivedCompanyName}</h1>
           </div>
           <div class="slds-modal__content slds-p-around_medium">
-            <div class="slds-grid slds-wrap">
+            <lightning-card title="File Uploader" icon-name="doctype:attachment">
+
+              <lightning-input slot="actions" type="file" label="Choose File" multiple onchange={handleFileChange}></lightning-input>
+
+              <template if:true={isLoading}>
+                <div class="slds-is-relative">
+                    <lightning-spinner variant="brand" size="medium"> </lightning-spinner>
+                </div>
+              </template>
+              <template if:false={hasConfig}>
                 <template if:true={isLoading}>
-                  <div class="slds-align_absolute-center slds-is-relative" style="height:250px">
-                      <lightning-spinner variant="brand" size="medium"> </lightning-spinner>
+                  <div style="height:5rem"></div>
+                </template>
+                <template if:false={isLoading}>
+                  <div class="slds-align_absolute-center" style="height:5rem">
+                    <div class="slds-text-title_caps">No config found!</div>
                   </div>
                 </template>
-                <template if:false={isLoading}>
-                    <lightning-card title="File Uploader">
-                        <lightning-input type="file" label="Choose File" onchange={handleFileChange}></lightning-input>
-                        <iframe src='https://cxd-stage1.cxapps-nprd.cisco.com/__chsps__/login' style="width: 700px; height: 500px;" ></iframe>
-                    </lightning-card>
+              </template>
+              <template if:true={hasConfig}>
+
+                <template if:true={files.length}>
+                  <lightning-card title={selectedFilesTitle}>
+                    <div style="margin-left: 30px; width: 100%; display: flex;">
+                      <template for:each={files} for:item="file">
+                        <div key={file.filename} style="margin:10px;">
+                          <div>
+                            <template if:true={file.resultIconName}>
+                              <lightning-icon icon-name={file.resultIconName} size="large"></lightning-icon>
+                            </template>
+                            <template if:false={file.resultIconName}>
+                              <template if:false={isLoading}>
+                                <div style="margin-left: 50px; cursor: pointer;">
+                                  <lightning-icon data-file-id={file.fileId} icon-name="utility:close" size="xx-small" onclick={handleDeleteFile}></lightning-icon>
+                                </div>
+                              </template>
+                              <lightning-icon icon-name="doctype:word" size="large"></lightning-icon>
+                            </template>
+                            <div>{file.filename}</div>
+                            <template if:true={file.resultMessage}>
+                              <div style="font-size:6px;">{file.resultMessage}</div>
+                            </template>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </lightning-card>
                 </template>
-                </div>
-            </div>
-            <div class="slds-modal__footer">
-              <button class="slds-button slds-button_neutral" onclick={handleClose}>Close</button>
-              <template if:true={caseRecord}>
-              <template if:false={isDone}>
-                <template if:false={isLoading}>
-                    <lightning-button label="Upload" onclick={handleUpload} class="slds-m-top_medium"></lightning-button>
+
+                <template if:true={unSelectedFiles.length}>
+                  <lightning-card title={relatedFilesTitle}>
+                    <div style="margin: 5px 20px;">
+                      <div class="slds-text-title">Select the files related to the TSANet or Salesforce Case by simply clicking on them.</div>
+                    </div>
+                    <div style="margin-left: 30px; width: 100%; display: flex;">
+                      <template for:each={unSelectedFiles} for:item="contentVersion">
+                        <div key={contentVersion.Id} style="margin:10px;">
+                          <div data-id={contentVersion.Id} style="cursor: pointer;" onclick={handleSelectContentVersion}>
+                            <template if:true={contentVersion.isSelected}>
+                              <lightning-icon icon-name="action:approval" size="medium"></lightning-icon>
+                            </template>
+                            <template if:false={contentVersion.isSelected}>
+                              <lightning-icon icon-name="doctype:word" size="large"></lightning-icon>
+                            </template>
+                            <div>{contentVersion.Title}</div>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </lightning-card>
+                </template>
+                
+              </template>
+          </lightning-card>
+        </div>
+        <div class="slds-modal__footer">
+          
+          <lightning-button-group>
+            <lightning-button label={closeButtonLabel} onclick={handleClose} class="slds-m-top_medium"></lightning-button>
+            <template if:false={isDone}>
+              <template if:false={isLoading}>
+                <template if:true={files.length}>
+                  <lightning-button label="Upload" variant="brand" onclick={handleUpload} class="slds-m-top_medium"></lightning-button>
                 </template>
               </template>
-              </template>
-            </div>
-          </div>
-        </section>
-        <template if:false={isQuickAction}>
-          <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-        </template>
+            </template>
+          </lightning-button-group>
+        </div>
+      </div>
+    </section>
+    <template if:false={isQuickAction}>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
 </template>

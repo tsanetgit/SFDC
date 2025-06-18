@@ -127,6 +127,12 @@
                 <identifier>Recordtsanet_connect__isCaseFeed__cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.CompanyName__c</fieldItem>
+                <identifier>Recordtsanet_connect__CompanyName__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-9bfead85-7c95-477a-b75f-7b6df4220d7a</name>
         <type>Facet</type>
     </flexiPageRegions>

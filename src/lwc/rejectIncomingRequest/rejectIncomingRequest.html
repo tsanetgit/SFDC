@@ -15,47 +15,54 @@
                   </div>
                 </template>
                 <template if:false={isLoading}>
-                  <template if:true={isDone}>
+                  <template if:false={caseRecord}>
                     <div class="slds-align_absolute-center" style="width: 100%; height:250px">
-                      <div class="slds-align_absolute-center">
-                        <lightning-icon icon-name="action:approval" ></lightning-icon>
-                        <div class="slds-text-heading_medium slds-m-left_xx-small">Case has been rejected succesfully!</div>
-                      </div>
+                      Please attach the TSANet Case to an existing Salesforce Case or create a new one!
                     </div>
                   </template>
-                  <template if:false={isDone}>
-                    <div class="slds-col slds-size_1-of-2">
-                          <div class="slds-m-around_xx-small">
-                            <template if:true={record}>
-                                <template if:true={caseRecord}>
-                                    <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only required ></lightning-input>
-                                    <lightning-input type="text" label="Owner Name" value={caseRecord.Owner.Name} read-only required ></lightning-input>
-                                    <lightning-input type="email" label="Owner Email" value={caseRecord.Owner.Email} read-only ></lightning-input>
-                                    <lightning-input type="tel" label="Owner Phone" value={caseRecord.Owner.Phone} read-only ></lightning-input>
-                                    <lightning-input type="text" label="Case Number" value={caseRecord.CaseNumber} read-only required></lightning-input>
-                              </template>
-                              <template if:false={caseRecord}>
-                                    <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only required ></lightning-input>
-                                    <lightning-input type="text" label="Owner Name" value={currentUser.Name} read-only required ></lightning-input>
-                                    <lightning-input type="email" label="Owner Email" value={currentUser.Email} read-only ></lightning-input>
-                                    <lightning-input type="tel" label="Owner Phone" value={currentUser.Phone} read-only ></lightning-input>
-                              </template>
-                            </template>
-                          </div>
-                          
-                    </div>
-                    <div class="slds-col slds-size_1-of-2">
-                        <div class="slds-m-around_xx-small">
-                            <lightning-textarea 
-                                label="Reject Reason"
-                                class="slds-m-around_xx-small textAreaBody"
-                                value={reason}
-                                onchange={handleChangeNote} 
-                                field-level-help="Change the default reject reason if needed!"
-                                required
-                            ></lightning-textarea>
+                  <template if:true={caseRecord}>
+                    <template if:true={isDone}>
+                      <div class="slds-align_absolute-center" style="width: 100%; height:250px">
+                        <div class="slds-align_absolute-center">
+                          <lightning-icon icon-name="action:approval" ></lightning-icon>
+                          <div class="slds-text-heading_medium slds-m-left_xx-small">Case has been rejected succesfully!</div>
                         </div>
-                    </div>
+                      </div>
+                    </template>
+                    <template if:false={isDone}>
+                      <div class="slds-col slds-size_1-of-2">
+                            <div class="slds-m-around_xx-small">
+                              <template if:true={record}>
+                                  <template if:true={caseRecord}>
+                                      <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only required ></lightning-input>
+                                      <lightning-input type="text" label="Owner Name" value={caseRecord.Owner.Name} read-only required ></lightning-input>
+                                      <lightning-input type="email" label="Owner Email" value={caseRecord.Owner.Email} read-only ></lightning-input>
+                                      <lightning-input type="tel" label="Owner Phone" value={caseRecord.Owner.Phone} read-only ></lightning-input>
+                                      <lightning-input type="text" label="Case Number" value={caseRecord.CaseNumber} read-only required></lightning-input>
+                                </template>
+                                <template if:false={caseRecord}>
+                                      <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only required ></lightning-input>
+                                      <lightning-input type="text" label="Owner Name" value={currentUser.Name} read-only required ></lightning-input>
+                                      <lightning-input type="email" label="Owner Email" value={currentUser.Email} read-only ></lightning-input>
+                                      <lightning-input type="tel" label="Owner Phone" value={currentUser.Phone} read-only ></lightning-input>
+                                </template>
+                              </template>
+                            </div>
+                            
+                      </div>
+                      <div class="slds-col slds-size_1-of-2">
+                          <div class="slds-m-around_xx-small">
+                              <lightning-textarea 
+                                  label="Reject Reason"
+                                  class="slds-m-around_xx-small textAreaBody"
+                                  value={reason}
+                                  onchange={handleChangeNote} 
+                                  field-level-help="Change the default reject reason if needed!"
+                                  required
+                              ></lightning-textarea>
+                          </div>
+                      </div>
+                    </template>
                   </template>
                 </template>
             </div>
@@ -64,7 +71,9 @@
             <button class="slds-button slds-button_neutral" onclick={handleClose}>Close</button>
             <template if:false={isDone}>
               <template if:false={isLoading}>
-              <button type="submit" class="slds-button slds-button_brand" onclick={handleReject}>Reject</button>
+                <template if:true={caseRecord}>
+                  <button type="submit" class="slds-button slds-button_brand" onclick={handleReject}>Reject</button>
+                </template>
               </template>
             </template>
           </div>

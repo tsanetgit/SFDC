@@ -31,6 +31,7 @@ public class TSANetCaseTriggerHelper {
                 }
                 
                 String json = JSON.serialize(TSANetCaseForm.getFormByTSANetCaseId(tsaNetCase.Id));
+                System.debug('TRIGGER JSON: ' + json);
                 createTSANetCaseFuture(tsaNetCase.Id, json, caseRecord.Id);
             }
         }
@@ -48,14 +49,21 @@ public class TSANetCaseTriggerHelper {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
+        System.debug(res.getBody());
+        System.debug(res.getStatusCode());
 
         
         if(res.getBody() == 'The authorization token provided was invalid.'){
             //updateAccessTokenAndCreateNote(caseId, json, noteId);
         } else {
+            System.debug(res.getStatusCode());
+            System.debug(res.getBody());
       
             Map<String, Object> response = (Map<String, Object>) System.JSON.deserializeUntyped(res.getBody());
+            System.debug('response 1111: ' + response);
             //TSANetService.createCaseFeedItem(caseId, response);
+        	System.debug('tsaNetCaseId :' + tsaNetCaseId);
+            System.debug('tsaNetCaseId :' + response.get('token'));
              
             
             update new tsanet_connect__TSANetCase__c(
@@ -78,8 +86,12 @@ public class TSANetCaseTriggerHelper {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
+        System.debug(res.getBody());
+        
         TSANetNoteResponse noteResponse = TSANetNoteResponse.parseOneRecord(res.getBody());
-
+        System.debug('noteId :' + noteId);
+        System.debug('noteResponse.token :' + noteResponse.token);
+        System.debug('noteResponse; ' + noteResponse);
         update new tsanet_connect__TSANetNote__c(
             Id = noteId, 
             tsanet_connect__Token__c = noteResponse.token,
@@ -108,13 +120,16 @@ public class TSANetCaseTriggerHelper {
                 caseToResponses.put(res.tsanet_connect__TSANetCase__c, new tsanet_connect__TSANetResponse__c[]{ res });
             }
         }
+        System.debug('caseResponse:  WORK ');
         Id[] tsaNetCaseIds = new String[]{};
             for(tsanet_connect__TSANetCase__c caseRecord : cases){
                 if(caseRecord.tsanet_connect__Case__c != oldCases.get(caseRecord.Id).tsanet_connect__Case__c){
                     
                     tsanet_connect__TSANetResponse__c[] caseResponses = caseToResponses.get(caseRecord.Id);
+                    System.debug('caseResponses ' + caseResponses);
                     if(caseResponses != NULL && caseResponses.size() > 0){
                         tsanet_connect__TSANetResponse__c caseResponse = caseResponses[0];
+                        System.debug('caseResponse:  WORK ');
                         String json = '{ "caseNumber": "' + caseRecord.tsanet_connect__tsaNetCaseId__c + 
                             '", "engineerName": "' + caseResponse.tsanet_connect__TSANetCase__r.Case__r.Owner.Name + 
                             '", "engineerPhone": "' + caseResponse.tsanet_connect__TSANetCase__r.Case__r.Owner.Phone + 

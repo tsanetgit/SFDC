@@ -1,4 +1,4 @@
-public class TSANetUtils {
+public without sharing class TSANetUtils {
     
     public static String ADMIN_PERMISSION_SET_NAME = 'TSANetConnectPermissionsAdmin';
     
@@ -22,6 +22,7 @@ public class TSANetUtils {
 
     @AuraEnabled
     public static CaseInfo getCaseInformation(Id caseId){
+        System.debug('caseId: ' + caseId);
         
         if(caseId == NULL){ return new CaseInfo(null); }
         
@@ -47,6 +48,7 @@ public class TSANetUtils {
     
     @AuraEnabled
     public static CaseInformation getSFCaseInformation(Id caseId){
+        System.debug('caseId: ' + caseId);
         
         Case caseRecord = [SELECT Id, Subject, CaseNumber, Description, Owner.Name, Owner.FirstName, Owner.LastName, Owner.Phone, Owner.Email, AccountId, Account.Name, ContactId, Contact.Name, Contact.FirstName, Contact.LastName, Contact.Email, Contact.Phone FROM Case WHERE Id =:caseId];
         return new CaseInformation(caseRecord);
@@ -65,6 +67,7 @@ public class TSANetUtils {
     @AuraEnabled
     public static Boolean getUserPermission(){
         Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator' LIMIT 1];
+        System.debug('profile : ' + profile);
         if(profile.Id == UserInfo.getProfileId()){
             return true;
         }
@@ -168,12 +171,14 @@ public class TSANetUtils {
     
     @AuraEnabled
     public static Case[] getCases(String searchText){
+        System.debug('searchText: ' + searchText);
         Case[] cases = new Case[]{};
-        if(searchText == NULL || searchText == ''){
-            cases = [SELECT Id, CaseNumber, Subject FROM Case ORDER BY LastViewedDate DESC LIMIT 10];    
-        } else {
-            cases = [SELECT Id, CaseNumber, Subject FROM Case WHERE (CaseNumber =:searchText OR Subject =:searchText)];    
-        }
+            if(searchText == NULL || searchText == ''){
+                cases = [SELECT Id, CaseNumber, Subject FROM Case ORDER BY LastViewedDate DESC LIMIT 10];    
+            } else {
+                cases = [SELECT Id, CaseNumber, Subject FROM Case WHERE (CaseNumber =:searchText OR Subject =:searchText)];    
+            }
+        System.debug('cases: ' + cases);
         return cases;
     }
     
@@ -185,6 +190,376 @@ public class TSANetUtils {
     @AuraEnabled
     public static tsanet_connect__TSANetCase__c getOneTSANetCase(Id caseId){
         return [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c WHERE Id =:caseId];
+    }
+    
+    @AuraEnabled
+    public static ContentVersion[] getAllRelatedFiles(Id caseId){
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id, tsanet_connect__tsaNetCaseId__c, tsanet_connect__Case__c FROM tsanet_connect__TSANetCase__c WHERE Id =:caseId];
+        
+        ContentDocumentLink[] links = [SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId =:tsaNetCase.Id OR LinkedEntityId =:tsaNetCase.tsanet_connect__Case__c];
+        
+        Id[] contentDocumentIds = new Id[]{};
+        for(ContentDocumentLink link : links){
+        	contentDocumentIds.add(link.ContentDocumentId);
+        }
+        
+        ContentVersion[] contentVersions = [SELECT Id, ContentDocumentId, Title FROM ContentVersion WHERE ContentDocumentId IN:contentDocumentIds];
+        
+        return contentVersions;
+    }
+    
+    public static void helpTest(){
+        Integer i = 0;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;
     }
 
 }

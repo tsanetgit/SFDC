@@ -21,13 +21,18 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
     public static void updateTSANetCases() {  
         try {
             Id jobId = System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null));
-        } catch(Exception e){}
-    } 
+			System.debug('jobId : ' + jobId);
+        } catch(Exception e){
+            System.debug(e.getMessage());
+        }
+    }
     
     public static String getEndpoint() {
         
         tsanet_connect__TSANet_Credentials__c creds = TSANetService.getCredentials();
+        System.debug('creds2 : ' + creds);
         String environment = creds.tsanet_connect__Environment__c + '_env';
+        System.debug('environment2 : ' + environment);
         tsanet_connect__TSANetEnvironment__mdt[] environments =[SELECT Id, tsanet_connect__Endpoint__c FROM tsanet_connect__TSANetEnvironment__mdt WHERE DeveloperName =:environment];
         
         if(environments.size() > 0){
@@ -72,6 +77,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
+        System.debug(res.getBody());
         
         return parseTSANetCases(res.getBody(), caseId);
         
@@ -81,7 +87,9 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
     
      
     public static TSANetData parseTSANetCases(String json, String caseId){
+        System.debug(json);
         List<Object> cases = (List<Object>) System.JSON.deserializeUntyped(json);
+        System.debug('cases : ' + cases);
         tsanet_connect__TSANetCase__c[] newCases = new tsanet_connect__TSANetCase__c[]{};
         Map<String, tsanet_connect__TSANetResponse__c[]> caseToResponses = new Map<String, tsanet_connect__TSANetResponse__c[]>();
         Map<String, tsanet_connect__TSANetNote__c[]> caseToNotes = new Map<String, tsanet_connect__TSANetNote__c[]>();  
@@ -105,11 +113,13 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
-
+                                System.debug('customerFieldToValue :' + customerFieldToValue);
+                                
                                 String fieldName = (String) customerFieldToValue.get('fieldName');
                                 String value = (String) customerFieldToValue.get('value');
                                 
                                 if(fieldName.contains('Customer Case')){
+                                    System.debug('Customer Case Contains - value : ' + value);
                                     if(value != NULL && value != ''){
                                         existedCaseNumbers.add(value);
                                     }
@@ -137,6 +147,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                             if(datetimeString != null){
                                 datetimeString = datetimeString.replace('Z', '');
                                 DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                System.debug('Parsed DateTime: ' + dt);
                                 newCase.put(element.tsanet_connect__To__c, dt);
                             }
                         } catch(Exception e){}
@@ -146,10 +157,13 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                     } else if(element.tsanet_connect__Type__c == 'STRING'){
                         newCase.put(element.tsanet_connect__To__c, String.valueOf(record.get(element.tsanet_connect__From__c)));
                     } else if(element.tsanet_connect__Type__c == 'REFERENCE'){
+                        System.debug('REFERENCE : ');
                         String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
                         String receiverCaseId = String.valueOf(record.get('receiverCaseNumber'));
                         try {
+                            System.debug('parentCaseId : ');
                             Boolean isInbound = String.valueOf(record.get('receiveCompanyId')) == String.valueOf(CONFIG.tsanet_connect__companyId__c);
+                            System.debug('isInbound : ' + isInbound);
                             if(!isInbound){
                                 if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(parentCaseId).matches() &&
                                     Id.valueOf(parentCaseId).getSObjectType() == Schema.Case.SObjectType &&
@@ -176,13 +190,18 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                                 }
                             }
                             
-                        } catch(Exception e){}
+                        } catch(Exception e){
+                            System.debug(e.getMessage());
+                        }
                         
                     } else if(element.tsanet_connect__Type__c == 'OBJECT'){
+                        System.debug('OBJECT');
                         try {
                         	Map<String, Object> submittedBy = (Map<String, Object>) record.get(element.tsanet_connect__From__c);
                             
+                            System.debug('submittedBy :' + submittedBy);
                             for(String field : submittedBy.keySet()){
+                                System.debug('field :' + field);
                                 if(field == 'firstName'){
                                     newCase.put('tsanet_connect__FirstName__c', (String) submittedBy.get('firstName'));
                                 } else if(field == 'lastName'){
@@ -194,7 +213,9 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                                 }
                             }
                             
-						} catch(Exception e){}                        
+						} catch(Exception e){
+                            System.debug('Error ->> ' + e.getMessage());
+                        }                        
                     } else if(element.tsanet_connect__Type__c == 'ARRAY' && element.tsanet_connect__From__c == 'caseResponses'){
                         List<Object> caseResponses = (List<Object>) record.get(element.tsanet_connect__From__c);
                         if(caseResponses.size() > 0){
@@ -202,7 +223,9 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                             for(Object response : caseResponses){
                                 Map<String, Object> caseResponse = ( Map<String, Object> ) response;
                                 tsanet_connect__TSANetResponse__c newResponse = new tsanet_connect__TSANetResponse__c();
+                                System.debug('caseResponse :' + caseResponse);
                                 for(String field : caseResponse.keySet()){
+                                    System.debug('field :' + field);
                                     if(field == 'id'){
                                         newResponse.put('tsanet_connect__tsaNetResponseId__c', String.valueOf(caseResponse.get('id')));
                                     } else if(field == 'engineerName'){
@@ -227,6 +250,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                                             if(datetimeString != null){
                                                 datetimeString = datetimeString.replace('Z', '');
                                                 DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                                System.debug('Parsed DateTime: ' + dt);
                                                 newResponse.put('tsanet_connect__CreatedAt__c', dt);
                                             }
                                         } catch(Exception e){}
@@ -243,13 +267,15 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
-            
+                                System.debug('customerFieldToValue :' + customerFieldToValue);
+                                
                                 String fieldName = (String) customerFieldToValue.get('fieldName');
                                 String value = (String) customerFieldToValue.get('value');
                                 
                                 if(fieldName == 'Customer Company'){
                                     newCase.put('tsanet_connect__EngineerCompany__c', value);
                                 }  else if(fieldName.contains('Customer Case')){
+                                    System.debug('Customer Case Contains - value : ' + value);
                                     if(value != NULL && value != ''){
                                         if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(value).matches() &&
                                             Id.valueOf(value).getSObjectType() == Schema.Case.SObjectType &&
@@ -263,6 +289,8 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                                             }
                                         }
                                     }
+                                    
+                                    System.debug('newCase : ' + newCase);
                                     
                                 } else if(fieldName == 'Customer Name'){
                                     //newCase.put('EngineerName__c', value);
@@ -285,7 +313,9 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                                 
                                 newNote.tsanet_connect__isApiNote__c = TRUE;
                                 
+                                System.debug('note :' + noteResponse);
                                 for(String field : noteResponse.keySet()){
+                                    System.debug('field :' + field);
                                     if(field == 'token'){
                                         newNote.put('tsanet_connect__Token__c', String.valueOf(noteResponse.get('token')));
                                     } else if(field == 'summary'){
@@ -307,6 +337,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
                                         if(datetimeString != null){
                                             datetimeString = datetimeString.replace('Z', '');
                                             DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                            System.debug('Parsed DateTime: ' + dt);
                                             newNote.put('tsanet_connect__CreatedAt__c', dt);
                                         }
                                         
@@ -327,6 +358,8 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
             }
         }
         
+        System.debug('newCases : ' + newCases);
+
         //upsert newCases tsanet_connect__tsaNetCaseId__c;
         
         tsanet_connect__TSANetResponse__c[] responsesToUpsert = new tsanet_connect__TSANetResponse__c[]{};
@@ -334,6 +367,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
             tsanet_connect__TSANetResponse__c[] responses = caseToResponses.get(tsaNetCase.tsanet_connect__tsaNetCaseId__c);
             if(responses != NULL){
                 for(tsanet_connect__TSANetResponse__c response : responses){
+                    System.debug('response : ' + response);
                     response.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
                     responsesToUpsert.add(response);
                 }
@@ -348,6 +382,7 @@ global class TSANetScheduledJob implements Schedulable, Database.AllowsCallouts 
             tsanet_connect__TSANetNote__c[] notes = caseToNotes.get(tsaNetCase.tsanet_connect__tsaNetCaseId__c);
             if(notes != NULL){
                 for(tsanet_connect__TSANetNote__c note : notes){
+                    System.debug('response : ' + note);
                     note.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
                     notesToUpsert.add(note);
                 }

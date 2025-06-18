@@ -11,6 +11,7 @@ trigger TSANetCredentialsTrigger on tsanet_connect__TSANet_Credentials__c (befor
         	Map<Id, tsanet_connect__TSANet_Credentials__c> oldCredentials = (Map<Id, tsanet_connect__TSANet_Credentials__c>) Trigger.oldMap;
             
             TSANetCredentialsHelper.turnOfPrimaryTSANetCredentialsOnUpdate(newCredentials, oldCredentials);
+            TSANetCredentialsHelper.changePrimaryUser(newCredentials, oldCredentials);
         }
         
         if(Trigger.isDelete) {

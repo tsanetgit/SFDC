@@ -71,6 +71,8 @@ const prepareCaseData = (data) => {
         relatedCase.isCloseable = ( relatedCase.tsanet_connect__Status__c == 'ACCEPTED' && relatedCase.tsanet_connect__Type__c == 'Outbound' )
         relatedCase.isResponseable = ( relatedCase.tsanet_connect__Status__c == 'INFORMATION' && relatedCase.tsanet_connect__Type__c == 'Outbound' )
 
+        relatedCase.isAttachmentable = relatedCase.tsanet_connect__receivedCompanyName__c.includes('Cisco')
+
         relatedCase.isHideAction = ( relatedCase.isNoteable || relatedCase.isRejectable || relatedCase.isRequestable || relatedCase.isCloseable )
         
         console.log('relatedCase: ', relatedCase)

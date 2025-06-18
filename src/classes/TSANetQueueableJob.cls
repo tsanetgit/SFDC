@@ -2,6 +2,8 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
     
     public static Integer EXECUTE_LIMIT = 50;
     
+    public static tsanet_connect__TSANetConfiguration__c CONFIG = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
+    
     public Map<String, tsanet_connect__TSANetCase__c> cases = new Map<String, tsanet_connect__TSANetCase__c>();
     public Map<String, tsanet_connect__TSANetResponse__c> responses = new Map<String, tsanet_connect__TSANetResponse__c>();
     public Map<String, tsanet_connect__TSANetNote__c> notes = new Map<String, tsanet_connect__TSANetNote__c>();
@@ -27,14 +29,18 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
     
     
     public void execute(QueueableContext qc) {
+        System.debug('Start execution - Page: ' + this.currentPage + ' / ' + this.totalPages);
+
         Boolean stopProcessing = false;
         Integer count = 0;
 
         while (count < EXECUTE_LIMIT) {
             try {
                 TSANetData data = getTSANetCollaborationCases(this.token, this.currentPage);
+                System.debug('Page ' + currentPage + ' → cases: ' + data.cases.size());
 
                 if (data.cases.isEmpty()) {
+                    System.debug('Empty response. Stopping further processing.');
                     stopProcessing = true;
                     break;
                 }
@@ -48,24 +54,98 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                 for(tsanet_connect__TSANetNote__c note : data.notes){
                     this.notes.put(note.tsanet_connect__Token__c, note);
                 }
-                
+                //this.cases.addAll(data.cases);
+                //this.responses.addAll(data.responses);
+                //this.notes.addAll(data.notes);
+
                 currentPage++;
                 count++;
             } catch (Exception e) {
+                System.debug('Callout error on page ' + currentPage + ' : ' + e.getMessage());
                 stopProcessing = true;
                 break;
             }
         }
         
+        System.debug('stopProcessing : ' + stopProcessing);
+
         if (!stopProcessing && !Test.isRunningTest()) {
+            System.debug('Queueing next batch. CurrentPage: ' + currentPage);
             System.enqueueJob(new TSANetQueueableJob(currentPage, totalPages, cases, responses, notes));
         } else {
+            System.debug('Final step: Upserting data');
+            System.debug('CASES: ' + cases.values().size());
+            System.debug('RESPONSES: ' + responses.values().size());
+            System.debug('NOTES: ' + notes.values().size());
+            
             upsert cases.values() tsanet_connect__tsaNetCaseId__c;
             upsert responses.values() tsanet_connect__tsaNetResponseId__c;
             upsert notes.values() tsanet_connect__Token__c;
+            
+            if(CONFIG.tsanet_connect__IntegrationUser__c != NULL){
+                User user = new User(Id = CONFIG.tsanet_connect__IntegrationUser__c, 
+                                     tsanet_connect__tsaNetAccessToken__c = token);
+                Boolean result = Database.update(user).isSuccess();
+                System.debug('result : ' + result);
+            }
         }
     }
     
+    /*
+    public void execute(QueueableContext qc){
+        
+        System.debug('currentPage : ' + this.currentPage);
+        System.debug('totalPages : ' + this.totalPages);
+        System.debug('cases : ' + this.cases.size());
+        System.debug('responses : ' + this.responses.size());
+        System.debug('notes : ' + this.notes.size());
+        System.debug('token : ' + this.token);
+        
+        Boolean hasMore = this.currentPage <= this.totalPages;
+        System.debug('hasMore : ' + hasMore);
+        if(hasMore){
+            Integer count = 0;
+            System.debug('count : ' + count);
+            while(hasMore && count < EXECUTE_LIMIT){
+                	System.debug('EXECUTE : ' + this.currentPage);
+                    try {
+                        TSANetData data = getTSANetCollaborationCases(this.token, this.currentPage);
+                        System.debug('data : ' + data);
+                        
+                        if(data.cases.isEmpty()){ 
+                            System.debug('BREAK : ');
+                            break; 
+                        }
+                        
+                        this.cases.addAll(data.cases);
+                        this.responses.addAll(data.responses);
+                        this.notes.addAll(data.notes);
+                        
+                    } catch(Exception e){
+                        System.debug('ERROR : ' + e.getMessage());
+                    }
+                count++;
+            }
+            
+            if(!Test.isRunningTest()){
+                System.enqueueJob(new TSANetQueueableJob(currentPage, this.totalPages, cases, responses, notes));
+            }
+            
+        } else {
+            System.debug('FINISH');
+            
+            System.debug('cases : ' + cases);
+            System.debug('responses : ' + responses);
+            System.debug('notes : ' + notes);
+            
+            upsert cases tsanet_connect__tsaNetCaseId__c;
+            upsert responses tsanet_connect__tsaNetResponseId__c;
+            upsert notes tsanet_connect__Token__c;
+            
+        }
+
+    }
+    */
     public TSANetData getTSANetCollaborationCases(String token, Integer page){
  
         
@@ -79,9 +159,12 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
         
         Http http = new Http();
         HTTPResponse res = http.send(req);
-
+        System.debug('BODYYYY : ' + res.getBody());
+        
         TSANetCaseDataResponse data = TSANetCaseDataResponse.parse(res.getBody());
         
+        System.debug(data.totalPages);
+
 		this.totalPages = data.totalPages;
         
         return parseTSANetCases(System.JSON.serialize(data.content), null);
@@ -89,7 +172,9 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
     
      
     public static TSANetData parseTSANetCases(String json, String caseId){
+        System.debug(json);
         List<Object> cases = (List<Object>) System.JSON.deserializeUntyped(json);
+        System.debug('cases : ' + cases);
         tsanet_connect__TSANetCase__c[] newCases = new tsanet_connect__TSANetCase__c[]{};
         Map<String, tsanet_connect__TSANetResponse__c[]> caseToResponses = new Map<String, tsanet_connect__TSANetResponse__c[]>();
         Map<String, tsanet_connect__TSANetNote__c[]> caseToNotes = new Map<String, tsanet_connect__TSANetNote__c[]>();  
@@ -113,10 +198,13 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
+                                System.debug('customerFieldToValue :' + customerFieldToValue);
+                                
                                 String fieldName = (String) customerFieldToValue.get('fieldName');
                                 String value = (String) customerFieldToValue.get('value');
                                 
                                 if(fieldName.contains('Customer Case')){
+                                    System.debug('Customer Case Contains - value : ' + value);
                                     if(value != NULL && value != ''){
                                         existedCaseNumbers.add(value);
                                     }
@@ -144,6 +232,7 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                             if(datetimeString != null){
                                 datetimeString = datetimeString.replace('Z', '');
                                 DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                //System.debug('Parsed DateTime: ' + dt);
                                 newCase.put(element.tsanet_connect__To__c, dt);
                             }
                         } catch(Exception e){}
@@ -153,10 +242,13 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                     } else if(element.tsanet_connect__Type__c == 'STRING'){
                         newCase.put(element.tsanet_connect__To__c, String.valueOf(record.get(element.tsanet_connect__From__c)));
                     } else if(element.tsanet_connect__Type__c == 'REFERENCE'){
+                        //System.debug('REFERENCE : ');
                         String parentCaseId = String.valueOf(record.get(element.tsanet_connect__From__c));
                         String receiverCaseId = String.valueOf(record.get('receiverCaseNumber'));
                         try {
+                            //System.debug('parentCaseId : ');
                             Boolean isInbound = String.valueOf(record.get('receiveCompanyId')) == String.valueOf(TSANetService.CONFIG.tsanet_connect__companyId__c);
+                            //System.debug('isInbound : ' + isInbound);
                             if(!isInbound){
                                 if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(parentCaseId).matches() &&
                                     Id.valueOf(parentCaseId).getSObjectType() == Schema.Case.SObjectType &&
@@ -183,13 +275,18 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                 }
                             }
                             
-                        } catch(Exception e){}
+                        } catch(Exception e){
+                            System.debug(e.getMessage());
+                        }
                         
                     } else if(element.tsanet_connect__Type__c == 'OBJECT'){
+                        //System.debug('OBJECT');
                         try {
                         	Map<String, Object> submittedBy = (Map<String, Object>) record.get(element.tsanet_connect__From__c);
                             
+                            //System.debug('submittedBy :' + submittedBy);
                             for(String field : submittedBy.keySet()){
+                                //System.debug('field :' + field);
                                 if(field == 'firstName'){
                                     newCase.put('tsanet_connect__FirstName__c', (String) submittedBy.get('firstName'));
                                 } else if(field == 'lastName'){
@@ -201,7 +298,9 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                 }
                             }
                             
-						} catch(Exception e){}                        
+						} catch(Exception e){
+                            System.debug('Error ->> ' + e.getMessage());
+                        }                        
                     } else if(element.tsanet_connect__Type__c == 'ARRAY' && element.tsanet_connect__From__c == 'caseResponses'){
                         List<Object> caseResponses = (List<Object>) record.get(element.tsanet_connect__From__c);
                         if(caseResponses.size() > 0){
@@ -209,7 +308,9 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                             for(Object response : caseResponses){
                                 Map<String, Object> caseResponse = ( Map<String, Object> ) response;
                                 tsanet_connect__TSANetResponse__c newResponse = new tsanet_connect__TSANetResponse__c();
+                                //System.debug('caseResponse :' + caseResponse);
                                 for(String field : caseResponse.keySet()){
+                                    //System.debug('field :' + field);
                                     if(field == 'id'){
                                         newResponse.put('tsanet_connect__tsaNetResponseId__c', String.valueOf(caseResponse.get('id')));
                                     } else if(field == 'engineerName'){
@@ -229,10 +330,12 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                         newResponse.put('tsanet_connect__Type__c',(String) caseResponse.get('type'));
                                     } else if(field == 'createdAt'){
                                         try {
+                                            //DateTime createdAt = DateTime.newInstance(Long.valueOf(String.valueOf(caseResponse.get('createdAt'))));
                                             String datetimeString = (String) caseResponse.get('createdAt');
                                             if(datetimeString != null){
                                                 datetimeString = datetimeString.replace('Z', '');
                                                 DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                                System.debug('Parsed DateTime: ' + dt);
                                                 newResponse.put('tsanet_connect__CreatedAt__c', dt);
                                             }
                                         } catch(Exception e){}
@@ -249,6 +352,7 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                         if(customerData != NULL && customerData.size() > 0){
                             for(Object customerField : customerData){
                                 Map<String, Object> customerFieldToValue = ( Map<String, Object> ) customerField;
+                                //System.debug('customerFieldToValue :' + customerFieldToValue);
                                 
                                 String fieldName = (String) customerFieldToValue.get('fieldName');
                                 String value = (String) customerFieldToValue.get('value');
@@ -256,6 +360,7 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                 if(fieldName == 'Customer Company'){
                                     newCase.put('tsanet_connect__EngineerCompany__c', value);
                                 }  else if(fieldName.contains('Customer Case')){
+                                    //System.debug('Customer Case Contains - value : ' + value);
                                     if(value != NULL && value != ''){
                                         if(Pattern.compile( '[a-zA-Z0-9]{15}|[a-zA-Z0-9]{18}' ).matcher(value).matches() &&
                                             Id.valueOf(value).getSObjectType() == Schema.Case.SObjectType &&
@@ -269,6 +374,8 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                             }
                                         }
                                     }
+                                    
+                                    //System.debug('newCase : ' + newCase);
                                     
                                 } else if(fieldName == 'Customer Name'){
                                     //newCase.put('EngineerName__c', value);
@@ -291,7 +398,9 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                 
                                 newNote.tsanet_connect__isApiNote__c = TRUE;
                                 
+                                //System.debug('note :' + noteResponse);
                                 for(String field : noteResponse.keySet()){
+                                    //System.debug('field :' + field);
                                     if(field == 'token'){
                                         newNote.put('tsanet_connect__Token__c', String.valueOf(noteResponse.get('token')));
                                     } else if(field == 'summary'){
@@ -313,9 +422,12 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                         if(datetimeString != null){
                                             datetimeString = datetimeString.replace('Z', '');
                                             DateTime dt = DateTime.valueOf(datetimeString.replace('T', ' '));
+                                            //System.debug('Parsed DateTime: ' + dt);
                                             newNote.put('tsanet_connect__CreatedAt__c', dt);
                                         }
                                         
+                                    } else if(field == 'companyName'){
+                                        newNote.put('tsanet_connect__CompanyName__c', (String) noteResponse.get('companyName'));
                                     }
                                 }
                                 if(newNote.tsanet_connect__Summary__c != 'Note removed - Older than 30 days'){
@@ -333,6 +445,8 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
             }
         }
         
+        System.debug('newCases : ' + newCases);
+
         //upsert newCases tsanet_connect__tsaNetCaseId__c;
         
         tsanet_connect__TSANetResponse__c[] responsesToUpsert = new tsanet_connect__TSANetResponse__c[]{};
@@ -340,6 +454,7 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
             tsanet_connect__TSANetResponse__c[] responses = caseToResponses.get(tsaNetCase.tsanet_connect__tsaNetCaseId__c);
             if(responses != NULL){
                 for(tsanet_connect__TSANetResponse__c response : responses){
+                    //System.debug('response : ' + response);
                     response.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
                     responsesToUpsert.add(response);
                 }
@@ -353,6 +468,7 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
             tsanet_connect__TSANetNote__c[] notes = caseToNotes.get(tsaNetCase.tsanet_connect__tsaNetCaseId__c);
             if(notes != NULL){
                 for(tsanet_connect__TSANetNote__c note : notes){
+                    //System.debug('note : ' + note);
                     note.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
                     notesToUpsert.add(note);
                 }

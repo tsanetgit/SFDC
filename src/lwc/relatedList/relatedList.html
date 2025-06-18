@@ -77,7 +77,9 @@
                                                             <template if:true={record.isRejectable}>
                                                                 <lightning-menu-item value="reject" label="Reject"></lightning-menu-item>
                                                             </template>
-                                                            <!--lightning-menu-item value="attachment" label="Send Attachment"></lightning-menu-item-->
+                                                            <!--template if:true={record.isAttachmentable}></template-->
+                                                                <lightning-menu-item value="attachment" label="Send Attachment"></lightning-menu-item>
+                                                            
                                                             <template if:true={record.isRequestable}>
                                                                 <lightning-menu-item value="request" label="Request Info"></lightning-menu-item>
                                                             </template>
@@ -173,6 +175,8 @@
 
     <template if:true={isAttachmentMode}>
         <c-upload-attachment 
+            record-id={recordId}
+            record={record}
             onclose={handleCloseAttachmentMode}
         ></c-upload-attachment>
     </template>

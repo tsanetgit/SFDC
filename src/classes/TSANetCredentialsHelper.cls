@@ -44,6 +44,22 @@ public class TSANetCredentialsHelper {
         }
     }
     
+    public static void changePrimaryUser(tsanet_connect__TSANet_Credentials__c[] newCredentials, Map<Id, tsanet_connect__TSANet_Credentials__c> oldCredentials){
+		Id integrationUser;
+        for(tsanet_connect__TSANet_Credentials__c newCredential : newCredentials){
+            if(newCredential.tsanet_connect__IntegrationUser__c != NULL &&
+               oldCredentials.get(newCredential.Id).tsanet_connect__IntegrationUser__c != newCredential.tsanet_connect__IntegrationUser__c ){
+               integrationUser = newCredential.tsanet_connect__IntegrationUser__c;
+            }
+        }
+        
+        if(integrationUser != NULL){
+            tsanet_connect__TSANetConfiguration__c config = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
+            config.tsanet_connect__IntegrationUser__c = integrationUser;
+            update config;
+        }
+    }
+    
     public static void checkPrimaryTSANetCredentialsOnDelete(tsanet_connect__TSANet_Credentials__c[] credentials){
         for(tsanet_connect__TSANet_Credentials__c credential : credentials){
             if(credential.tsanet_connect__isPrimary__c == TRUE){

@@ -233,10 +233,10 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
     handleCloseAttachmentMode(event){
         let isRefresh = event.detail.refresh;
         console.log('isRefresh; ', isRefresh)
-        this.isAttachmentMode = false
+        this.isAttachmentMode = !this.isAttachmentMode
         if(isRefresh){
             this.handleRefresh()
-        }       
+        } 
     }
 
     handleCloseResponseMode(event){

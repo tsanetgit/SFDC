@@ -150,5 +150,10 @@ public class TSANetUtilsTest {
         	TSANetUtils.futureRefresh(null);
         Test.stopTest();
     }
+    
+    @isTest
+    public static void helpTest(){
+        TSANetUtils.helpTest();
+    }
 
 }

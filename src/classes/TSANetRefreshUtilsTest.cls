@@ -60,6 +60,7 @@ public class TSANetRefreshUtilsTest {
             TSANetRefreshUtils controller = new TSANetRefreshUtils(new ApexPages.StandardController(new tsanet_connect__TSANetCase__c()));
     		controller.refresh();
         } catch(Exception e){
+            System.debug('ERRRR 1' + e.getMessage());
             System.assertEquals(true, e.getMessage() != NULL);
         }
         Test.stopTest();
