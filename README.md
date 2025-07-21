@@ -12,5 +12,5 @@ https://github.com/tsanetgit/SFDC/blob/main/Connect%202.0%20SFDC%20Package%20Ins
 https://github.com/tsanetgit/SFDC/blob/main/TSANet%20Connect%20Salesforce%20User%20Guide.docx
 
 <b>CURRENT PACKAGE VERSION:</b>
-View the latest release for the package link
+View the latest release https://github.com/tsanetgit/SFDC/releases for the package link
 
