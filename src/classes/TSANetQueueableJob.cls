@@ -404,7 +404,7 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                     if(field == 'token'){
                                         newNote.put('tsanet_connect__Token__c', String.valueOf(noteResponse.get('token')));
                                     } else if(field == 'summary'){
-                                        newNote.put('tsanet_connect__Summary__c', (String) noteResponse.get('summary'));
+                                        newNote.put('tsanet_connect__FullSummary__c', (String) noteResponse.get('summary'));
                                     } else if(field == 'description'){
                                         newNote.put('tsanet_connect__Description__c',(String) noteResponse.get('description'));
                                     } else if(field == 'priority'){
@@ -430,7 +430,7 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
                                         newNote.put('tsanet_connect__CompanyName__c', (String) noteResponse.get('companyName'));
                                     }
                                 }
-                                if(newNote.tsanet_connect__Summary__c != 'Note removed - Older than 30 days'){
+                                if(newNote.tsanet_connect__FullSummary__c != 'Note removed - Older than 30 days'){
                                     newNotes.add(newNote);
                                 }
                             }
@@ -490,7 +490,7 @@ public class TSANetQueueableJob implements Queueable, Database.AllowsCallouts {
             caseId = caseRec.Id;
         }
         
-        return [SELECT Id, Name, tsanet_connect__Name__c, tsanet_connect__customFields__c, tsanet_connect__TSANetContact__c, tsanet_connect__FirstName__c, tsanet_connect__LastName__c, tsanet_connect__Phone__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerEmail__c, tsanet_connect__TSANetEmail__c, tsanet_connect__EngineerPhone__c, tsanet_connect__Email__c, tsanet_connect__Case__c, tsanet_connect__Case__r.CaseNumber, Partner__c, tsanet_connect__SubmittedCompanyName__c, tsanet_connect__SubmittedCompanyId__c, tsanet_connect__receivedCompanyName__c, tsanet_connect__receivedCompanyId__c, tsanet_connect__Summary__c, tsanet_connect__Description__c, tsanet_connect__Status__c, tsanet_connect__Token__c, tsanet_connect__Responded__c, tsanet_connect__FeedbackRequested__c, tsanet_connect__ReminderSent__c, tsanet_connect__Priority__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__RequestDate__c, tsanet_connect__ResponseDate__c, tsanet_connect__PriorityNote__c, tsanet_connect__Type__c,
+        return [SELECT Id, Name, tsanet_connect__Name__c, tsanet_connect__customFields__c, tsanet_connect__TSANetContact__c, tsanet_connect__FirstName__c, tsanet_connect__LastName__c, tsanet_connect__Phone__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerEmail__c, tsanet_connect__TSANetEmail__c, tsanet_connect__EngineerPhone__c, tsanet_connect__Email__c, tsanet_connect__Case__c, tsanet_connect__Case__r.CaseNumber, Partner__c, tsanet_connect__SubmittedCompanyName__c, tsanet_connect__SubmittedCompanyId__c, tsanet_connect__receivedCompanyName__c, tsanet_connect__receivedCompanyId__c, tsanet_connect__FullSummary__c, tsanet_connect__Description__c, tsanet_connect__Status__c, tsanet_connect__Token__c, tsanet_connect__Responded__c, tsanet_connect__FeedbackRequested__c, tsanet_connect__ReminderSent__c, tsanet_connect__Priority__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__RequestDate__c, tsanet_connect__ResponseDate__c, tsanet_connect__PriorityNote__c, tsanet_connect__Type__c,
                     (SELECT Id, Name, tsanet_connect__TSANetCase__c, tsanet_connect__Type__c, tsanet_connect__EngineerName__c, tsanet_connect__EngineerPhone__c, tsanet_connect__EngineerEmail__c, tsanet_connect__Note__c, tsanet_connect__tsaNetCaseId__c, tsanet_connect__tsaNetResponseId__c FROM tsanet_connect__TSANetResponses__r ORDER BY tsanet_connect__CreatedAt__c DESC)
                     FROM tsanet_connect__TSANetCase__c 
                     WHERE tsanet_connect__Case__c != NULL AND tsanet_connect__Case__c =:caseId 

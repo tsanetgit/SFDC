@@ -222,6 +222,15 @@
         <visibleLines>10</visibleLines>
     </fields>
     <fields>
+        <fullName>FullSummary__c</fullName>
+        <deprecated>false</deprecated>
+        <label>Summary</label>
+        <length>32768</length>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
         <fullName>Priority__c</fullName>
         <defaultValue>&apos;Low&apos;</defaultValue>
         <deprecated>false</deprecated>

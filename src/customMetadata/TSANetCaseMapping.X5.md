@@ -8,7 +8,7 @@
     </values>
     <values>
         <field>To__c</field>
-        <value xsi:type="xsd:string">tsanet_connect__Summary__c</value>
+        <value xsi:type="xsd:string">tsanet_connect__FullSummary__c</value>
     </values>
     <values>
         <field>Type__c</field>

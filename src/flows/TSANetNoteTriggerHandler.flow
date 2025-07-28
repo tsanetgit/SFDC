@@ -1,7 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>CreateTSANetNote</name>
+        <label>Create TSANetNote</label>
+        <locationX>499</locationX>
+        <locationY>1056</locationY>
+        <actionName>TSANetInvocableNoteService</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseRecord</name>
+            <value>
+                <elementReference>Get_TSANetCase</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>note</name>
+            <value>
+                <elementReference>NoteForm</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>TSANetInvocableNoteService</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
     <apiVersion>61.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>AssignNoteDetails</name>
+        <label>Assign Note Details</label>
+        <locationX>499</locationX>
+        <locationY>740</locationY>
+        <assignmentItems>
+            <assignToReference>NoteForm.summary</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>test summary</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>NoteForm.description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>test desc</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>NoteForm.priority</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>LOW</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>NoteForm.subbmitedBy.firstName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Orest</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>NoteForm.subbmitedBy.lastName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Vasylenko</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_TSANetCase</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>Response</name>
         <label>Response</label>
@@ -59,11 +127,35 @@ IF({!$Record.tsanet_connect__TSANetCase__r.Owner:User.Id} != NULL, {!$Record.tsa
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_TSANetCase</name>
+        <label>Get TSANetCase</label>
+        <locationX>499</locationX>
+        <locationY>898</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>CreateTSANetNote</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.TSANetCase__r.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>TSANetCase__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <name>UpdateRelatedCase</name>
         <label>Update Related Case</label>
         <locationX>499</locationX>
         <locationY>553</locationY>
+        <connector>
+            <targetReference>AssignNoteDetails</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -98,7 +190,23 @@ IF({!$Record.tsanet_connect__TSANetCase__r.Owner:User.Id} != NULL, {!$Record.tsa
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
+    <variables>
+        <name>caseRecord</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>TSANetCase__c</objectType>
+    </variables>
+    <variables>
+        <name>NoteForm</name>
+        <apexClass>tsanet_connect__TSANetNoteForm</apexClass>
+        <dataType>Apex</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
     <variables>
         <name>recipientIds</name>
         <dataType>String</dataType>

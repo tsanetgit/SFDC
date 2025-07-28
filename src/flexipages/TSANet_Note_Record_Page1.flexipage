@@ -51,8 +51,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Summary__c</fieldItem>
-                <identifier>Recordtsanet_connect_Summary_cField</identifier>
+                <fieldItem>Record.FullSummary__c</fieldItem>
+                <identifier>Recordtsanet_connect__FullSummary__cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>

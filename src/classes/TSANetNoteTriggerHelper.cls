@@ -42,7 +42,7 @@ public class TSANetNoteTriggerHelper {
         FeedItem[] feedItems = new FeedItem[]{};
         for(tsanet_connect__TSANetNote__c note : notes){
             if(!sortedItems.containsKey(note.tsanet_connect__Token__c)){
-                String summary = note.tsanet_connect__Summary__c;
+                String summary = note.tsanet_connect__FullSummary__c;
                 String description = note.tsanet_connect__Description__c;
                 String priority = note.tsanet_connect__Priority__c;
                 String creatorName = note.tsanet_connect__CreatorName__c;
@@ -57,7 +57,8 @@ public class TSANetNoteTriggerHelper {
                 	description = description.replaceAll('<br>', '<p>&nbsp;</p>');
                 }
                 
-                String refactoredDescription = stripHtmlTags(description);
+                String refactoredSummary = stripAllHtml(summary);
+                String refactoredDescription = stripAllHtml(description);
                 
                 tsanet_connect__TSANetCase__c tsaNetCase = tsaNetCases.get(note.tsanet_connect__TSANetCase__c);
                 
@@ -65,7 +66,7 @@ public class TSANetNoteTriggerHelper {
                     '<p>Note Details:</p>' + 
                     '<p>Company Name: ' + companyName + '</p>' + 
                     '<p>Created By: ' + creatorName + '</p>' +
-                    '<p>Summary: ' + summary + '</p>' +
+                    '<p>Summary: ' + refactoredSummary + '</p>' +
                     '<p>Description: ' + refactoredDescription + '</p>';
                 
                 
@@ -87,7 +88,17 @@ public class TSANetNoteTriggerHelper {
         
         System.debug('feedItems : ' + feedItems);
         
-        insert feedItems;
+        Database.SaveResult[] results = Database.insert(feedItems, false); // false = partial success
+
+        for (Integer i = 0; i < results.size(); i++) {
+            if (!results[i].isSuccess()) {
+                FeedItem failedItem = feedItems[i];
+                System.debug('Failed FeedItem: ' + failedItem);
+                for (Database.Error err : results[i].getErrors()) {
+                    System.debug('Error: ' + err.getMessage());
+                }
+            }
+        }
     
     }
 
@@ -119,7 +130,7 @@ public class TSANetNoteTriggerHelper {
                 }
                 
                 String json = '{"summary": "' + 
-                    note.tsanet_connect__Summary__c + 
+                    note.tsanet_connect__FullSummary__c + 
                     '", "description": "' + note.tsanet_connect__Description__c + 
                     '", "priority":"' + note.tsanet_connect__Priority__c + '", ' + 
                     '"submittedBy": { "firstName": "' + creatorFirstName + '", "lastName": "' + creatorLastName + '" }}';
@@ -200,5 +211,18 @@ public class TSANetNoteTriggerHelper {
         Matcher htmlMatcher = htmlPattern.matcher(input);
         String sanitizedString = htmlMatcher.replaceAll('');
         return sanitizedString;
+    }
+    
+    public static String stripAllHtml(String input) {
+        if (String.isEmpty(input)) return '';
+        // remove tags, including broken ones like <img src>
+        //input = input.replaceAll('<img\\b[^>]*>', '');
+        //input = input.replaceAll('<[^>]*>', '');'
+        System.debug('NOTEBODY input: ' + input);
+        String finalBody = input.unescapeHtml4();
+        System.debug('NOTEBODY unescapeHtml4: ' + finalBody);
+        finalBody = stripHtmlTags(finalBody);
+        System.debug('NOTEBODY FINAL: ' + finalBody);
+        return finalBody;
     }
 }

@@ -10,7 +10,7 @@ import NAME_FIELD from '@salesforce/schema/TSANetCase__c.Name'
 import CASE_FIELD from '@salesforce/schema/TSANetCase__c.Case__c'
 import PRIORITY_NOTE_FIELD from '@salesforce/schema/TSANetCase__c.PriorityNote__c'
 import TYPE_FIELD from '@salesforce/schema/TSANetCase__c.Type__c'
-import SUMMARY_FIELD from '@salesforce/schema/TSANetCase__c.Summary__c'
+import SUMMARY_FIELD from '@salesforce/schema/TSANetCase__c.FullSummary__c'
 import DESCRIPTION_FIELD from '@salesforce/schema/TSANetCase__c.Description__c'
 
 import EXTERNAL_CASE_ID_FIELD from '@salesforce/schema/TSANetCase__c.tsaNetCaseId__c'
@@ -20,6 +20,7 @@ import REQUEST_DATE_FIELD from '@salesforce/schema/TSANetCase__c.RequestDate__c'
 import RESPONSE_DATE_FIELD from '@salesforce/schema/TSANetCase__c.ResponseDate__c'
 import ESCALATION_INSTRUCTIONS_FIELD from '@salesforce/schema/TSANetCase__c.EscalationInstructions__c'
 import ADMIN_NOTE_FIELD from '@salesforce/schema/TSANetCase__c.AdminNote__c'
+import RECEIVER_CASE_NUMBER from '@salesforce/schema/TSANetCase__c.ReceiverCaseNumber__c'
 
 
 
@@ -47,6 +48,7 @@ export default class TsaNetRecordPage extends LightningElement {
     typeField = TYPE_FIELD
     summaryField = SUMMARY_FIELD
     descriptionField = DESCRIPTION_FIELD
+    receiverCaseNumber = RECEIVER_CASE_NUMBER 
     
     externalCaseId = EXTERNAL_CASE_ID_FIELD
     statusField = STATUS_FIELD

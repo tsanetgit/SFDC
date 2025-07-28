@@ -379,7 +379,7 @@
                             <value>CreatedAt__c</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Summary__c</value>
+                            <value>FullSummary__c</value>
                         </valueListItems>
                         <valueListItems>
                             <value>Description__c</value>
