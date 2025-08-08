@@ -5,7 +5,7 @@ Use Issues https://github.com/tsanetgit/SFDC/issues to log bugs and enhancements
 
 <b>Install Guide:</b>  Download the install guide
 
-https://github.com/tsanetgit/SFDC/blob/main/Connect%202.0%20SFDC%20Package%20Install%20Guide%20v3.0.docx
+https://github.com/tsanetgit/SFDC/blob/main/Connect.2.0.SFDC.Package.Install.Guide.v3.0.4.docx
 
 <b>User Guide:</b>  Download the user guide  
 
