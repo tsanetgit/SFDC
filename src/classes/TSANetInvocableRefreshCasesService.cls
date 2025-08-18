@@ -1,4 +1,7 @@
 global class TSANetInvocableRefreshCasesService {
+
+    global static tsanet_connect__TSANet_Credentials__c credential = CredentialManager.getCredentials();
+    
 	global class TSANetRefreshResult {
         @InvocableVariable 
         global Boolean result;
@@ -12,25 +15,17 @@ global class TSANetInvocableRefreshCasesService {
         }
         Boolean result = false;
         try {
-            TSANetService.getRelatedCollaborationCases(caseRecordId);   
+            TSANetService.getRelatedCollaborationCases(caseRecordId, null);   
             result = true;
-        } catch(Exception e){
-            refreshCasesAndUpdateToken(caseRecordId);
-            result = true;
-        }
+        } catch(Exception e){}
 
         TSANetRefreshResult refreshResult = new TSANetRefreshResult();
         refreshResult.result = result;
         return new TSANetRefreshResult[]{ refreshResult };
     }
     
+    @Deprecated
     global static Boolean refreshCasesAndUpdateToken(String caseId){
-        String token = TSANetService.getBearerAccessToken();
-        TSANetService.getRelatedCollaborationCasesWithToken(caseId, token);
-        
-        String userId = TSANetService.CONFIG.tsanet_connect__IntegrationUser__c == NULL ? UserInfo.getUserId() : TSANetService.CONFIG.tsanet_connect__IntegrationUser__c;
-        Database.update(new User(Id = userId, tsanet_connect__tsaNetAccessToken__c = token)).isSuccess();
-        
-        return true;
+		return true;
     }
 }

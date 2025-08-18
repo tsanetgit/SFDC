@@ -1,4 +1,6 @@
 global class TSANetInvocableGetCompanyService {
+
+    global static tsanet_connect__TSANet_Credentials__c credential = CredentialManager.getCredentials();
     
     global  class TSANetCompanyResult {
         @InvocableVariable 
@@ -8,19 +10,7 @@ global class TSANetInvocableGetCompanyService {
     @InvocableMethod(label='Get TSANet Companies' description='Returns the list of TSANet Companies' category='TSANet')
     global static TSANetCompanyResult[] getCompanies(String[] companyName) {
         String name = companyName[0];
-        String body = '';
-        try {
-            System.debug('start body 2 : ' + body);
-            body = TSANetService.getCompaniesByName(name);
-            System.debug('body 1 : ' + body);
-            
-            if(body == 'The authorization token provided was invalid.'){
-                body = getCompaniesAndUpdateToken(name);
-            }
-            
-        } catch(Exception e){
-            body = getCompaniesAndUpdateToken(name);
-        }
+        String body = TSANetService.getCompaniesByName(name, null);
 
         TSANetCompanyResult result = new TSANetCompanyResult();
         TSANetCompanyOption[] companies = (TSANetCompanyOption[]) System.JSON.deserialize(body, TSANetCompanyOption[].class);
@@ -31,19 +21,8 @@ global class TSANetInvocableGetCompanyService {
         return new TSANetCompanyResult[]{ result };
     }
     
+    @Deprecated
     global static String getCompaniesAndUpdateToken(String name){
-        String token = TSANetService.getBearerAccessToken();
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint(TSANetService.endpoint + TSANetService.companies_path + name);
-        req.setHeader('Authorization', 'Bearer ' + token);
-        req.setMethod('GET');
-        Http http = new Http();
-        HTTPResponse res = http.send(req);
-        System.debug(res.getBody());
-        
-        String userId = TSANetService.CONFIG.tsanet_connect__IntegrationUser__c == NULL ? UserInfo.getUserId() : TSANetService.CONFIG.tsanet_connect__IntegrationUser__c;
-        Database.update(new User(Id = userId, tsanet_connect__tsaNetAccessToken__c = token)).isSuccess();
-        
-        return res.getBody();
+        return '';
     }
 }

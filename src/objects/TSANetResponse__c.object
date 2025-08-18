@@ -161,6 +161,18 @@
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
     <fields>
+        <fullName>CaseId__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>CaseId</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>CreatedAt__c</fullName>
         <deprecated>false</deprecated>
         <label>Created At</label>
@@ -206,7 +218,7 @@
         <fullName>Note__c</fullName>
         <deprecated>false</deprecated>
         <label>Note</label>
-        <length>32768</length>
+        <length>131000</length>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>Html</type>

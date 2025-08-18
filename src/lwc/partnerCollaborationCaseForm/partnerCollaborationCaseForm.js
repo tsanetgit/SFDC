@@ -1,10 +1,6 @@
 import { LightningElement, api, track } from 'lwc'
 import { NavigationMixin } from "lightning/navigation"
 
-import getCustomFields from '@salesforce/apex/TSANetService.getCustomFields'
-
-import getTierPickListValues from '@salesforce/apex/TSANetService.getTierPickListValues'
-
 import { 
     TYPING_INTERVAL, PRIORITIES, REQUIRED_FIELDS_WARNING,
     getCaseInfo, getNewAccessToken, getCompanies, createNewCollaborationCase, getCompanyForm, toast 
@@ -205,39 +201,6 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
                     }
                 })
 
-                /*
-                
-                this.form?.customerData && this.form?.customerData.forEach(customField => {
-                    getCustomFields({ documentId: this.form.documentId, fieldId: customField.id }).then(resp => {
-                        console.log('resp :', JSON.stringify(resp))
-                        let field = JSON.parse(resp)
-                        if(!this.skipCustomFields.includes(field.label)){
-                            //field['required'] = true // REMOVE 
-                            field['isSelect'] = field?.type == 'SELECT'
-                            field['isTierSelect'] = field?.type == 'TIERSELECT'
-                            field['isString'] = field?.type == 'STRING'
-
-                            if(field?.isSelect){
-                                let options = field?.options.split('\r\n')
-                                field['values'] = options.map(o => ({ label: o, value: o }))
-                            }
-
-                            if(field?.isTierSelect){
-                                getTierPickListValues({ documentId: this.form.documentId, fieldId: customField.id }).then(options => {
-                                    console.log('options : ', JSON.stringify(options))
-                                    let values = options && JSON.parse(options)
-                                    let mappedValues = values.map(o => ({ label: o.value, value: o.value, children: o.children }))
-                                    field['values'] = mappedValues
-                                    this.tierPicklistValues.set(field.label, undefined)
-                                })
-                            }
-                            
-                            customFields.push(field)
-                        }
-                        this.isLoading = false
-                    })
-                })
-                */
                 console.log('customFields :', JSON.stringify(customFields))
 
                 this.customFields = customFields;
@@ -327,8 +290,11 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
             this.isDone = true
 
         }).catch(error => {
-            console.error('error: ', error)
-            toast(this, 'Error', 'error', error?.body?.message)
+            let errorResponse = error?.body?.message
+            console.log('ERROR : ', errorResponse)
+            let err = JSON.parse(errorResponse)
+            let errorMessage = err?.message
+            toast(this, 'Error', 'error', errorMessage)
         }).finally(() => {
             this.isLoading = false
         })

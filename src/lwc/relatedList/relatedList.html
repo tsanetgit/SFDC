@@ -67,7 +67,7 @@
                                             <template if:false={isLogin}>
                                                 <div style="margin-right: 20px;">
                                                     <template if:true={record.isHideAction}>
-                                                        <lightning-button-menu icon-size="xx-small" menu-alignment="right" variant="bare" data-id={record.tsanet_connect__tsaNetCaseId__c} onselect={handleOnSelectAction}>
+                                                        <lightning-button-menu icon-size="xx-small" menu-alignment="right" variant="bare" data-id={record.tsanet_connect__tsaNetCaseId__c} data-token={record.tsanet_connect__Token__c} onselect={handleOnSelectAction}>
                                                             <template if:true={record.isAcceptable}>
                                                                 <lightning-menu-item value="accept" label="Accept"></lightning-menu-item>
                                                             </template>
@@ -143,7 +143,7 @@
 
     <template if:true={isNoteMode}>
         <c-tsa-net-case-add-note 
-            case-id={externalCaseId} 
+            case-id={caseToken} 
             onclose={handleCloseNoteMode} 
             current-user={currentUser}>
         </c-tsa-net-case-add-note>

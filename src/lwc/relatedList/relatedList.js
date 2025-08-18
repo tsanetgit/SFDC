@@ -25,6 +25,7 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
     isResponseMode = false
     isAttachmentMode = false
     externalCaseId 
+    caseToken
 
     logo = TSANetLogo
     @track columns
@@ -137,8 +138,10 @@ export default class RelatedList extends NavigationMixin(LightningElement) {
         let selectedItemValue = event.detail.value;
 
         let externalId = event.currentTarget.dataset.id
+        let token = event.currentTarget.dataset.token
         let record = this.records.find(r => ( r.tsanet_connect__tsaNetCaseId__c == externalId))
         this.externalCaseId = externalId
+        this.caseToken = token
         this.record = record
 
         if(selectedItemValue == 'note'){

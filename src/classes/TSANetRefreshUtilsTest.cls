@@ -3,8 +3,6 @@ public class TSANetRefreshUtilsTest {
     
     @testSetup static void testSetup() {
         
-        update new User(Id = UserInfo.getUserId(), tsanet_connect__tsaNetAccessToken__c = 'test-token'); 
-        
         tsanet_connect__TSANetConfiguration__c config = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
         config.tsanet_connect__IntegrationUser__c = UserInfo.getUserId();
         upsert config;
@@ -13,6 +11,7 @@ public class TSANetRefreshUtilsTest {
         credentials.tsanet_connect__UserName__c = 'username@gmail.com';
         credentials.tsanet_connect__Password__c = 'password111';
         credentials.tsanet_connect__Environment__c = 'dev';
+        credentials.tsanet_connect__Token__c = 'token';
         credentials.tsanet_connect__isPrimary__c = true;
         insert credentials;
 
@@ -55,8 +54,7 @@ public class TSANetRefreshUtilsTest {
         
         Test.startTest();
         try	{
-            TSANetRefreshUtils.getAccessToken();
-            update new User(Id = UserInfo.getUserId(), tsanet_connect__tsaNetAccessToken__c = NULL);
+            delete [SELECT Id FROM tsanet_connect__TSANet_Credentials__c];
             TSANetRefreshUtils controller = new TSANetRefreshUtils(new ApexPages.StandardController(new tsanet_connect__TSANetCase__c()));
     		controller.refresh();
         } catch(Exception e){

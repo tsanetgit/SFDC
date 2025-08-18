@@ -17,7 +17,7 @@ global class TSANetInvocableCreateCollaborationCase {
         TSANetInput input = data[0];
         String json = JSON.serialize(input.form);
         
-        String body = TSANetService.createCollaborationCase(input.caseRecord.Id, json);
+        String body = TSANetService.createCollaborationCase(input.caseRecord.Id, json, null);
         
         if(!Test.isRunningTest()){ TSANetUtils.futureRefresh(input.caseRecord.Id); }
         

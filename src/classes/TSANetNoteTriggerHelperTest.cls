@@ -11,6 +11,7 @@ public class TSANetNoteTriggerHelperTest {
         credentials.tsanet_connect__UserName__c = 'username@gmail.com';
         credentials.tsanet_connect__Password__c = 'password111';
         credentials.tsanet_connect__Environment__c = 'dev';
+        credentials.tsanet_connect__Token__c = 'token';
         credentials.tsanet_connect__isPrimary__c = true;
         insert credentials;
 

@@ -4,7 +4,7 @@ import getCaseInformation from '@salesforce/apex/TSANetUtils.getCaseInformation'
 import getCompaniesByName from '@salesforce/apex/TSANetService.getCompaniesByName'
 
 import createCollaborationCase from '@salesforce/apex/TSANetService.createCollaborationCase'
-import getAccessToken from '@salesforce/apex/TSANetService.getAccessToken'
+import getAccessToken from '@salesforce/apex/AuthManager.updateAccessToken'
 
 import approveIncomingRequest from '@salesforce/apex/TSANetService.approveIncomingRequest'
 import rejectTSANetCase from '@salesforce/apex/TSANetService.rejectTSANetCase'
@@ -15,9 +15,7 @@ import getFormByCompanyId from '@salesforce/apex/TSANetService.getFormByCompanyI
 
 import getTSANetCases from '@salesforce/apex/TSANetUtils.getTSANetCases'
 
-import createCaseNote from '@salesforce/apex/TSANetService.createCaseNote'
-
-import getSFCaseInformation from '@salesforce/apex/TSANetUtils.getSFCaseInformation'
+import createCaseNote from '@salesforce/apex/TSANetService.createTSANetNote'
 
 export const TYPING_INTERVAL = 300
 
@@ -119,7 +117,7 @@ export const createNewCollaborationCase = (caseId, json) => {
 
 export const approveRequest = (token, json) => {
     return new Promise((resolve, reject) => {
-        approveIncomingRequest({ token, json})
+        approveIncomingRequest({ caseToken: token, json })
         .then(response => resolve(response))
         .catch(error => reject(error))
     })
@@ -159,22 +157,14 @@ export const getCompanyForm = (companyId, mode) => {
 
 export const createTSANetCaseNote = (caseId, json) => {
     return new Promise((resolve, reject) => {
-        createCaseNote({ caseId, json })
+        createCaseNote({ caseToken: caseId, json, token: undefined })
         .then(response => resolve(response))
         .catch(error => reject(error))
     })
 }
 
-export const getSFTSANetCases = (caseId) => {
-    return new Promise((resolve, reject) => {
-        getSFCaseInformation({ caseId })
-        .then(response => resolve(prepareCaseData(response)))
-        .catch(error => reject(error))
-    })
-}
-
 export const toast = (self, title, variant, message) => {
-    self.dispatchEvent(new ShowToastEvent({ title: title, variant: variant, message: message }))
+    self.dispatchEvent(new ShowToastEvent({ title, variant, message }))
 }
 
 export const deepCopy = (value) => {

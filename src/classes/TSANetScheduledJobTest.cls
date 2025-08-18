@@ -12,6 +12,7 @@ public class TSANetScheduledJobTest {
         credentials.tsanet_connect__UserName__c = 'username@gmail.com';
         credentials.tsanet_connect__Password__c = 'password111';
         credentials.tsanet_connect__Environment__c = 'dev';
+        credentials.tsanet_connect__Token__c = 'token';
         credentials.tsanet_connect__isPrimary__c = true;
         insert credentials;
         
@@ -33,11 +34,6 @@ public class TSANetScheduledJobTest {
         TSANetCase__c tsaNetCase = new TSANetCase__c(tsanet_connect__Token__c = 'test-token', tsanet_connect__Case__c = caseRecord.Id);
         insert tsaNetCase;
 	}
-
-    /*@isTest
-    public static void getEndpointTest(){
-        TSANetScheduledJob.getEndpoint();
-    }*/
     
     @isTest
     public static void getRelatedCollaborationCasesTest(){
@@ -49,7 +45,7 @@ public class TSANetScheduledJobTest {
         String CRON_EXP = '0 '+ dt.minute() + ' * ' + dt.day() + ' ' + dt.month() + ' ? ' + dt.year();
         String jobId = System.schedule('TSANetScheduledJobTest', CRON_EXP, new TSANetScheduledJob());
         
-        TSANetScheduledJob.parseTSANetCases(body, [SELECT Id FROM Case LIMIT 1].Id);
+        ParserManager.parseTSANetCases(body, [SELECT Id FROM Case LIMIT 1].Id);
         Test.stopTest();
     }
 }

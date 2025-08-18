@@ -56,63 +56,51 @@ export default class SendAdditionalInfo extends NavigationMixin(LightningElement
         this.additionalInfo = event.target.value
     }
 
-    validate(data){
-        if(data.requestedInformation
-        ){ return true } 
-        else { return false }
-    }
-
     handleSendAdditionalInfo(){
 
-        let requestData = {
-            "requestedInformation": this.additionalInfo 
-        }
+        let requestData = this.getRequestData()
+        this.validateRequestData(requestData)
 
-        if(!this.validate(requestData)){
-            toast(this, 'Warning', 'warning', 'Please check if all the data has been filled out correctly!')
-            return;
-        }       
-
-        console.log('requestData :', JSON.stringify(requestData))
+        console.log('REJECT REQUEST DATA:', JSON.stringify(requestData))
 
         this.isLoading = true
-
         sendAdditionalInfo(this.record?.Id, JSON.stringify(requestData)).then(response => {
-            console.log(response)
-
+            console.log('RESPONSE : ', response)
             this.isDone = true
             toast(this, 'Success', 'success', 'Additional Information has been sent!')
-
             this.handleCloseWindow(true)
-
         }).catch(error => {
-            if(error?.body?.message == 'Unauthorized'){
-                getNewAccessToken().then(response => {
-                    if(response){
-                        sendAdditionalInfo(this.record?.Id, JSON.stringify(requestData)).then(response => {
-                            console.log(response)
-                
-                            this.isDone = true
-                            toast(this, 'Success', 'success', 'Additional Information has been sent!')
-                
-                            this.handleCloseWindow(true)
-                        })
-                    } else {
-                        console.log(error)
-                        toast(this, 'Error', 'error', error?.body?.message)
-                    }
-                }).catch(err => {
-                    console.log(err)
-                    toast(this, 'Error', 'error', err?.body?.message)
-                })
-            } else {
-                console.log(error)
-                toast(this, 'Error', 'error', error?.body?.message)
-            }
+            let errorResponse = error?.body?.message
+            console.log('ERROR : ', errorResponse)
+            let err = JSON.parse(errorResponse)
+            let errorMessage = err?.message
+            toast(this, 'Error', 'error', errorMessage)
             
             getRelatedTSANetCases(undefined)
         })
         .catch(error => toast(this, 'Error', 'error', error?.body?.message))
         .finally(() => this.isLoading = false)
+    }
+
+    getRequestData(){
+
+         let requestData = {
+            "requestedInformation": this.additionalInfo 
+        }
+        
+        return requestData;
+    }
+
+    validateRequestData(requestData){
+        if(!this.validate(requestData)){
+            toast(this, 'Warning', 'warning', 'Please check if all the data has been filled out correctly!')
+            return;
+        }       
+    }
+
+    validate(data){
+        if(data.requestedInformation
+        ){ return true } 
+        else { return false }
     }
 }

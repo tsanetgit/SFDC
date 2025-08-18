@@ -1,10 +1,23 @@
 public class TSANetCredentialsHelper {
+    
+    public static void getToken(tsanet_connect__TSANet_Credentials__c[] credentials){
+        for(tsanet_connect__TSANet_Credentials__c credential : credentials){
+            if(credential.tsanet_connect__isPrimary__c == true){
+                if(!Test.isRunningTest()){
+                    InternalProcessManager.execute(credential);
+                }
+            }
+        }
+    }
 
     public static void turnOfPrimaryTSANetCredentials(tsanet_connect__TSANet_Credentials__c[] newCredentials){
         Boolean isPrimary = false;
         for(tsanet_connect__TSANet_Credentials__c newCredential : newCredentials){
             if(newCredential.tsanet_connect__isPrimary__c == true){
                 isPrimary = true;
+                if(newCredential.IntegrationUser__c == NULL){
+                    newCredential.IntegrationUser__c = UserInfo.getUserId();
+                }
             }
         }
         
@@ -27,9 +40,19 @@ public class TSANetCredentialsHelper {
         for(tsanet_connect__TSANet_Credentials__c newCredential : newCredentials){
             if(newCredential.tsanet_connect__isPrimary__c == true && 
                ( oldCredentials.get(newCredential.Id).tsanet_connect__isPrimary__c != newCredential.tsanet_connect__isPrimary__c )){
-               isPrimary = true;
-               credentialIds.add(newCredential.Id);
+               	
+                isPrimary = true;
+               	if(!Test.isRunningTest()){
+               		InternalProcessManager.execute(newCredential);
+               	}
+               	credentialIds.add(newCredential.Id);
             }
+            
+            if(newCredential.tsanet_connect__isPrimary__c == false && 
+               ( oldCredentials.get(newCredential.Id).tsanet_connect__isPrimary__c != newCredential.tsanet_connect__isPrimary__c )){
+                ConfigManager.removeConfig();
+            }
+            
         }
         
         if(isPrimary == TRUE){
@@ -64,6 +87,8 @@ public class TSANetCredentialsHelper {
         for(tsanet_connect__TSANet_Credentials__c credential : credentials){
             if(credential.tsanet_connect__isPrimary__c == TRUE){
                 credential.addError('You can’t remove primary credentials. Please mark them as non-primary and try again!');
+            } else {
+                ConfigManager.removeConfig();
             }
         }
     }

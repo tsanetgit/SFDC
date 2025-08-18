@@ -1,6 +1,6 @@
 import { LightningElement, track, api } from 'lwc'
 import TSANetLogo from '@salesforce/resourceUrl/TSANetLogo'
-import { getNewAccessToken, getSFTSANetCases, getCaseInfo, toast } from 'c/tsaNetHelper'
+import { getNewAccessToken, getCaseInfo, toast } from 'c/tsaNetHelper'
  
 export default class TsaNetApplication extends LightningElement {
     @api recordId
@@ -24,6 +24,7 @@ export default class TsaNetApplication extends LightningElement {
         .then(() => this.isLoading = false)
         .catch(error => { 
             
+            console.log('error : ', error)
             console.log('error?.body?.message : ', error?.body?.message)
 
             if(error?.body?.message == 'Unauthorized'){
@@ -34,21 +35,14 @@ export default class TsaNetApplication extends LightningElement {
                         getCaseInfo(this.recordId)
                         .then(data => this.setData(data))
                         .catch(error => { 
-                            if(error?.body?.message == 'Unauthorized'){
-                                this.isLoading = false
-                                this.isLogin = true
-                            } else {
-                                toast(this, 'Error', 'error', error?.body?.message)
-                            }
-
-                            this.setSFCases()
+                            console.error('error : ', error)
                         })
                         .finally(() => this.isLoading = false)
                     } else {
                         this.isLoading = false
                         this.isLogin = true
                         toast(this, 'Unauthorized!', 'warning', 'Please check your username and password!')
-                        this.setSFCases()
+                        console.error('response : ', response)
                     }
                 })
                 .catch(error => { 
@@ -61,19 +55,10 @@ export default class TsaNetApplication extends LightningElement {
                 this.isLogin = true
 
                 toast(this, 'Warning!', 'warning', error?.body?.message)
-                this.setSFCases()
                 return
             } else {
                 //this.isLoading = false
             }
-        })
-    }
-
-    setSFCases(){
-        getSFTSANetCases(this.recordId).then(data => {
-            console.log('data setSFCases : ', data)
-            this.isUnauthorized = data?.relatedCases.length == 0
-            this.setData(data)
         })
     }
 

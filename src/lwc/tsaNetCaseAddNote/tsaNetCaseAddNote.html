@@ -5,9 +5,6 @@
           <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleClose}>
             <lightning-icon icon-name="utility:close"></lightning-icon>
           </button>
-          <lightning-record-edit-form
-                object-api-name='tsanet_connect__TSANetNote__c'
-                >
           <div class="slds-modal__header">
             <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Add New Note</h1>
           </div>
@@ -18,20 +15,8 @@
                 </div>
             </template>
             <template if:false={isLoading}>
-            <lightning-input-field name="summary" field-name='tsanet_connect__Summary__c' onchange={handleChangeField}></lightning-input-field>
-            
-            <!--div class="slds-m-horizontal_xx-small">
-              <lightning-select
-                
-                name="priority"
-                field-name='tsanet_connect__Priority__c'
-                label="Priority"
-                value={priority}
-                options={priorities}
-                onchange={handleChangePriority}
-                required ></lightning-select>
-            </div-->
-            <lightning-input-field name="description" field-name='tsanet_connect__Description__c' onchange={handleChangeField}></lightning-input-field>
+              <lightning-input type="text" label="Summary" name="summary" onchange={handleChangeField} required></lightning-input>
+              <lightning-textarea label="Description" name="description" onchange={handleChangeField} required></lightning-textarea>
             </template>
           </div>
           <div class="slds-modal__footer">
@@ -46,7 +31,6 @@
                     </template>
                 </template>
           </div>
-        </lightning-record-edit-form>
         </div>
       </section>
       <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>

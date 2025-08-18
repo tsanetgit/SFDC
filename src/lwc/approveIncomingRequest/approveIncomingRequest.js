@@ -91,35 +91,12 @@ export default class ApproveIncomingRequest extends NavigationMixin(LightningEle
             this.handleCloseWindow(true)
 
         }).catch(error => {
-            if(error?.body?.message == 'Unauthorized'){
-                getNewAccessToken().then(response => {
-                    if(response){
-                        approveRequest(this.record?.tsanet_connect__Token__c, JSON.stringify(requestData)).then(response => {
-                            console.log(response)
-                
-                            this.isDone = true
-                            toast(this, 'Success', 'success', 'The case have been submitted successfully!')
-                
-                            this.handleCloseWindow(true)
-                        })
-                    } else {
-                        console.log(error)
-                        toast(this, 'Error', 'error', error?.body?.message)
-                    }
-                }).catch(err => {
-                    console.log(err)
-                    toast(this, 'Error', 'error', err?.body?.message)
-                })
-            } else {
-                console.log(error)
-                toast(this, 'Error', 'error', error?.body?.message)
-            }
-            
-            getRelatedTSANetCases(undefined)
-
-        })
-        .catch(error => toast(this, 'Error', 'error', error?.body?.message))
-        .finally(() => this.isLoading = false)
+            let errorResponse = error?.body?.message
+            console.log('ERROR : ', errorResponse)
+            let err = JSON.parse(errorResponse)
+            let errorMessage = err?.message
+            toast(this, 'Error', 'error', errorMessage)
+        }).finally(() => this.isLoading = false)
 
     }
 }

@@ -86,6 +86,13 @@
                     <stringValue>Approved</stringValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>$Record.tsanet_connect__CreatorName__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>SYSTEM</stringValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>UpdateRelatedCase</targetReference>
             </connector>

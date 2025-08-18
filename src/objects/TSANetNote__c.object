@@ -161,6 +161,17 @@
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
     <fields>
+        <fullName>CaseId__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>CaseId</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>CompanyName__c</fullName>
         <deprecated>false</deprecated>
         <externalId>false</externalId>

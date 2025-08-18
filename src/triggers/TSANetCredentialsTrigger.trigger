@@ -1,23 +1,23 @@
-trigger TSANetCredentialsTrigger on tsanet_connect__TSANet_Credentials__c (before insert, before update, before delete) {
+trigger TSANetCredentialsTrigger on tsanet_connect__TSANet_Credentials__c (before insert, after insert, before update, before delete) {
     if (Trigger.isBefore) {
         if(Trigger.isInsert) {
-            tsanet_connect__TSANet_Credentials__c[] newCredentials = (tsanet_connect__TSANet_Credentials__c[]) Trigger.new;
-            
-            TSANetCredentialsHelper.turnOfPrimaryTSANetCredentials(newCredentials);
+            TSANetCredentialsHelper.turnOfPrimaryTSANetCredentials((tsanet_connect__TSANet_Credentials__c[]) Trigger.new);
         }
         
         if(Trigger.isUpdate) {
-            tsanet_connect__TSANet_Credentials__c[] newCredentials = (tsanet_connect__TSANet_Credentials__c[]) Trigger.new;
-        	Map<Id, tsanet_connect__TSANet_Credentials__c> oldCredentials = (Map<Id, tsanet_connect__TSANet_Credentials__c>) Trigger.oldMap;
-            
-            TSANetCredentialsHelper.turnOfPrimaryTSANetCredentialsOnUpdate(newCredentials, oldCredentials);
-            TSANetCredentialsHelper.changePrimaryUser(newCredentials, oldCredentials);
+            TSANetCredentialsHelper.turnOfPrimaryTSANetCredentialsOnUpdate((tsanet_connect__TSANet_Credentials__c[]) Trigger.new, 
+                                                                           (Map<Id, tsanet_connect__TSANet_Credentials__c>) Trigger.oldMap);
+            TSANetCredentialsHelper.changePrimaryUser((tsanet_connect__TSANet_Credentials__c[]) Trigger.new, 
+                                                      (Map<Id, tsanet_connect__TSANet_Credentials__c>) Trigger.oldMap);
         }
         
         if(Trigger.isDelete) {
-            tsanet_connect__TSANet_Credentials__c[] credentials = (tsanet_connect__TSANet_Credentials__c[]) Trigger.old;
-
-            TSANetCredentialsHelper.checkPrimaryTSANetCredentialsOnDelete(credentials);
+            TSANetCredentialsHelper.checkPrimaryTSANetCredentialsOnDelete((tsanet_connect__TSANet_Credentials__c[]) Trigger.old);
+        }
+    }
+    if (Trigger.isAfter) {
+        if(Trigger.isInsert) {
+            TSANetCredentialsHelper.getToken((tsanet_connect__TSANet_Credentials__c[]) Trigger.new);
         }
     }
 }

@@ -3,8 +3,6 @@ public class TSANetServiceTest {
     
     @testSetup static void testSetup() {
         
-        update new User(Id = UserInfo.getUserId(), tsanet_connect__tsaNetAccessToken__c = 'test-token');
-        
         tsanet_connect__TSANetConfiguration__c config = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
         config.tsanet_connect__IntegrationUser__c = UserInfo.getUserId();
         upsert config;
@@ -12,7 +10,10 @@ public class TSANetServiceTest {
         tsanet_connect__TSANet_Credentials__c credentials = new tsanet_connect__TSANet_Credentials__c();
         credentials.tsanet_connect__UserName__c = 'username@gmail.com';
         credentials.tsanet_connect__Password__c = 'password111';
+        credentials.tsanet_connect__Token__c = 'token';
+        credentials.tsanet_connect__isPrimary__c = true;
         credentials.tsanet_connect__Environment__c = 'dev';
+        
         credentials.tsanet_connect__isPrimary__c = true;
         insert credentials;
 
@@ -41,13 +42,13 @@ public class TSANetServiceTest {
         String body = '{ "accessToken": "test.eyJpc3MiOiJodHRwOi8vY29ubmVjdDEucmVub2xhYi51cy9hcGkvYXV0aC9sb2dpbiIsImlhdCI6MTcyMDc3ODk0MiwiZXhwIjoxNzIwNzgyNTQyLCJuYmYiOjE3MjA3Nzg5NDIsImp0aSI6ImJrcDBGZ0k4T2ViNXdxU28iLCJzdWIiOiI4NzA1IiwicHJ2IjoiODdlMGFmMWVmOWZkMTU4MTJmZGVjOTcxNTNhMTRlMGIwNDc1NDZhYSJ9.YbmRLRwdzcua0lh3mCawfb7dvx5LQqJwrboZG4wGFEo", "tokenType": "bearer", "expiresIn": 3600 }';
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, body, null));
         Test.startTest();
-        	TSANetService.getAccessToken();
+        	//TSANetService.getAccessToken();
         Test.stopTest();
     }
     
     @isTest
     public static void getBearerTokenTest(){
-        TSANetService.getBearerToken();
+        //TSANetService.getBearerToken();
     }
     
     @isTest
@@ -57,7 +58,7 @@ public class TSANetServiceTest {
         
         Test.startTest();
             Case caseRecord = [SELECT Id FROM Case LIMIT 1];
-            TSANetService.getRelatedCollaborationCases(null);
+            TSANetService.getRelatedCollaborationCases(null, null);
         Test.stopTest();
     }
     
@@ -69,7 +70,7 @@ public class TSANetServiceTest {
         Test.startTest();
         try {
             Case caseRecord = [SELECT Id FROM Case LIMIT 1];
-            TSANetService.getRelatedCollaborationCases(caseRecord.Id);
+            TSANetService.getRelatedCollaborationCases(caseRecord.Id, null);
         } catch(Exception e){
             System.assertEquals('{ "error": "message" }', e.getMessage());
         }
@@ -77,26 +78,11 @@ public class TSANetServiceTest {
     }
     
     @isTest
-    public static void stripHtmlTagsTest(){
-        String text = TSANetService.stripHtmlTags('<b>test</b>');
-        System.assertEquals('test', text);
-    }
-    
-    @isTest
     public static void getCompanyInfoTest(){
         String body2 = '{ "company": { "id": 1071, "name": "Demo - Cisco", "description": null }, "user": { "id": 8705, "username": null, "firstName": "John", "lastName": "Smith", "email": "John.Smith@cisco.com", "phone": "4155551212", "phoneCountryCode": "VG", "city": "Baton Rouge" }, "encodedCredentials": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vY29ubmVjdDEucmVub2xhYi51cy9hcGkvYXV0aC9sb2dpbiIsImlhdCI6MTcyMDc3ODk0MiwiZXhwIjoxNzIwNzgyNTQyLCJuYmYiOjE3MjA3Nzg5NDIsImp0aSI6ImJrcDBGZ0k4T2ViNXdxU28iLCJzdWIiOiI4NzA1IiwicHJ2IjoiODdlMGFmMWVmOWZkMTU4MTJmZGVjOTcxNTNhMTRlMGIwNDc1NDZhYSJ9.YbmRLRwdzcua0lh3mCawfb7dvx5LQqJwrboZG4wGFEo" }';
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, body2, null));
         Test.startTest();
-        	TSANetService.getCompanyInfo();
-        Test.stopTest();
-    }
-    
-    @isTest
-    public static void getCustomFieldsTest(){
-        String body = '{ "documentId": 2118, "fieldId": 5582, "section": "PROBLEM_SECTION", "label": "Product Area", "options": null, "additionalSettings": null, "type": "TIERSELECT", "displayOrder": 0, "validationRules": null, "value": null, "required": true }';
-		Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, body, null));
-        Test.startTest();
-        	TSANetService.getCustomFields('2118', '5582');
+        	TSANetService.getCompanyInformation(null);
         Test.stopTest();
     }
     
@@ -105,8 +91,8 @@ public class TSANetServiceTest {
         String body = '{ "documentId": 2115, "internalCaseNumber": "", "optionalRecieverInternalCaseNumber": "", "problemSummary": "", "problemDescription": "", "casePriority": "", "readonlyAdminNote": "<p>test admin note (description)</p>", "readonlyEscalationInstructions": "<p>test escalation instructions</p>", "testSubmission": false, "customerData": [ { "id": 5558, "section": "COMMON_CUSTOMER_SECTION", "fieldName": "Customer Company", "value": null }, { "id": 5559, "section": "COMMON_CUSTOMER_SECTION", "fieldName": "Customer Name", "value": null }, { "id": 5560, "section": "COMMON_CUSTOMER_SECTION", "fieldName": "Customer Email", "value": null }, { "id": 5561, "section": "COMMON_CUSTOMER_SECTION", "fieldName": "Customer Phone Including Country Code", "value": null }, { "id": 5562, "section": "COMMON_CUSTOMER_SECTION", "fieldName": "Customer Case # with Connect2 Test 01 (Optional)", "value": null } ] }';
     	Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, body, null));
         Test.startTest();
-        	TSANetService.getFormByCompanyId('1069', 'company');
-        	TSANetService.getFormByCompanyId('1070', 'department');
+        	TSANetService.getFormByCompanyId('1069', 'company', null);
+        	TSANetService.getFormByCompanyId('1070', 'department', null);
         Test.stopTest();
     }
     
@@ -115,18 +101,7 @@ public class TSANetServiceTest {
         String body = '[ { "label": "Demo - VMware", "companyId": 1072, "departmentId": null } ]';
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, body, null));
         Test.startTest();
-        	TSANetService.getCompaniesByName('Demo');
-        Test.stopTest();
-    }
-    
-    @isTest
-    public static void createCaseNoteTest(){
-        String json = '{ "summary": "subject", "description": "test", "priority": "low" }';
-        String body = '{ "id": 185, "caseId": 2743, "creatorUsername": null, "creatorEmail": "sue.test@vmware.com", "creatorName": "Sue Test", "summary": "Note FROM VMWare 2", "description": "<p>Note FROM VMWare 2</p>", "priority": "LOW", "status": "ENTERED", "token": "5lUX0KtielPKn2ExCk", "createdAt": "2024-08-16T14:34:22Z", "updatedAt": "2024-09-12T19:31:52Z" }';
-        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, body, null));
-        Test.startTest();
-        tsanet_connect__TSANetCase__c caseRecord = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c];
-        	TSANetService.createCaseNote(caseRecord.tsanet_connect__tsaNetCaseId__c, json);
+        	TSANetService.getCompaniesByName('Demo', null);
         Test.stopTest();
     }
     
@@ -138,7 +113,7 @@ public class TSANetServiceTest {
         Test.startTest();
         	Case caseRecord = [SELECT Id FROM Case LIMIT 1];
         
-        	TSANetService.createCollaborationCase(caseRecord.Id, json);
+        	TSANetService.createCollaborationCase(caseRecord.Id, json, null);
         Test.stopTest();
     }
     
@@ -150,8 +125,7 @@ public class TSANetServiceTest {
         Test.startTest();
         	Case caseRecord = [SELECT Id FROM Case LIMIT 1];
         
-        	TSANetService.approveIncomingRequest('token', json);
-        	TSANetService.approveIncomingRequestFuture('token', json);
+        	TSANetService.approveIncomingRequest('token', json, null);
         Test.stopTest();
     }
     

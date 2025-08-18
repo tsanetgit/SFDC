@@ -178,7 +178,7 @@ IF({!$Record.tsanet_connect__TSANetCase__r.Owner:User.Id} != NULL, {!$Record.tsa
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>recipientIds</name>
         <dataType>String</dataType>

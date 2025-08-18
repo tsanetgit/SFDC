@@ -1,6 +1,6 @@
 import { LightningElement, api } from 'lwc'
 import { NavigationMixin } from "lightning/navigation"
-import { rejectRequest, getNewAccessToken, getRelatedTSANetCases, toast } from 'c/tsaNetHelper'
+import { rejectRequest, getRelatedTSANetCases, toast } from 'c/tsaNetHelper'
  
 export default class RejectIncomingRequest extends NavigationMixin(LightningElement) {
 
@@ -67,6 +67,35 @@ export default class RejectIncomingRequest extends NavigationMixin(LightningElem
 
     handleReject(){
 
+        let requestData = this.getRequestData()
+        this.validateRequestData(requestData)
+
+        console.log('REJECT REQUEST DATA:', JSON.stringify(requestData))
+
+        this.isLoading = true
+        rejectRequest(this.record?.Id, JSON.stringify(requestData)).then(response => {
+            console.log('RESPONSE : ', esponse)
+
+            this.isDone = true
+            toast(this, 'Success', 'success', 'The case have been rejected successfully!')
+
+            this.handleCloseWindow(true)
+
+        }).catch(error => {
+            let errorResponse = error?.body?.message
+            console.log('ERROR : ', errorResponse)
+            let err = JSON.parse(errorResponse)
+            let errorMessage = err?.message
+            toast(this, 'Error', 'error', errorMessage)
+            
+            getRelatedTSANetCases(undefined)
+
+        })
+        .finally(() => this.isLoading = false)
+    }
+
+    getRequestData(){
+
         let requestData = {
             "reason": this.reason 
         }
@@ -80,55 +109,14 @@ export default class RejectIncomingRequest extends NavigationMixin(LightningElem
             requestData["engineerEmail"] = this.currentUser.Email
             requestData["engineerPhone"] = this.currentUser.Phone
         }
+        
+        return requestData;
+    }
 
+    validateRequestData(requestData){
         if(!this.validate(requestData)){
             toast(this, 'Warning', 'warning', 'Please check if all the data has been filled out correctly!')
             return;
-        }       
-
-        console.log('requestData :', JSON.stringify(requestData))
-
-        this.isLoading = true
-
-        rejectRequest(this.record?.Id, JSON.stringify(requestData)).then(response => {
-            console.log(response)
-
-            this.isDone = true
-            toast(this, 'Success', 'success', 'The case have been rejected successfully!')
-
-            this.handleCloseWindow(true)
-
-        }).catch(error => {
-            if(error?.body?.message == 'Unauthorized'){
-                getNewAccessToken().then(response => {
-                    if(response){
-                        rejectRequest(this.record?.Id, JSON.stringify(requestData)).then(response => {
-                            console.log(response)
-                
-                            this.isDone = true
-                            toast(this, 'Success', 'success', 'The case have been rejected successfully!')
-                
-                            this.handleCloseWindow(true)
-                        })
-                    } else {
-                        console.log(error)
-                        toast(this, 'Error', 'error', error?.body?.message)
-                    }
-                }).catch(err => {
-                    console.log(err)
-                    toast(this, 'Error', 'error', err?.body?.message)
-                })
-            } else {
-                console.log(error)
-                toast(this, 'Error', 'error', error?.body?.message)
-            }
-            
-
-            getRelatedTSANetCases(undefined)
-
-        })
-        .catch(error => toast(this, 'Error', 'error', error?.body?.message))
-        .finally(() => this.isLoading = false)
-        
+        }  
     }
 }

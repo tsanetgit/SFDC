@@ -33,41 +33,36 @@ export default class TsaNetCaseAddNote extends NavigationMixin(LightningElement)
 
         console.log(JSON.stringify(this.note))
 
+        if(!this.note?.summary || !this.note?.description){
+            toast(this, 'Warning', 'warning', 'Please fill in all fields!')
+            return;
+        }
+
         this.isLoading = true
         let caseRecordId = this.caseId + ''
         let json = JSON.stringify(this.note)
+
         createTSANetCaseNote(caseRecordId, json)
         .then(response => {
             console.log('response : ', response)
-            this.isLoading = false
+            
             if(response){
                 toast(this, 'Success', 'success', 'The Note have been created successfully!')
+                this.isLoading = false
                 this.handleCloseWindow(true)
             }
         }).catch(error => {
-            if(error.body.message == 'Unauthorized'){
-                getNewAccessToken().then(res => {
-                    console.log('res: ', res)
-                    createTSANetCaseNote(caseRecordId, json)
-                    .then(response => {
-                        console.log('response : ', response)
-                        this.isLoading = false
-                        if(response){
-                            toast(this, 'Success', 'success', 'The Note have been created successfully!')
-                            this.handleCloseWindow(true)
-                        }
-                    })
-                })
-            }
+            console.error('error : ', error)
         })
     }
     
     handleChangeField(event){
-        let text = event.target.value
+        let text = event?.target?.value
+        let fieldName = event?.target?.name
         if(text.includes('class="')){
             text = text.replace(/\s*class="[^"]*"/g, '');
         }
-        this.note[event.target.name] = text
+        this.note[fieldName] = text
     }
 
     handleChangePriority(event){

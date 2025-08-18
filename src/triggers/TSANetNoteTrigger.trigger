@@ -1,15 +1,16 @@
-trigger TSANetNoteTrigger on TSANetNote__c (after insert, after update) {
+trigger TSANetNoteTrigger on TSANetNote__c (before insert, after insert, after update) {
+    
+    if (Trigger.isBefore) {
+        if(Trigger.isInsert) {
+            TSANetNoteTriggerHelper.handleBeforeInsert((TSANetNote__c[]) Trigger.new);
+        }
+    }
 	if (Trigger.isAfter) {
         if(Trigger.isInsert) {
-            TSANetNote__c[] notes = (TSANetNote__c[]) Trigger.new;
-            
-            TSANetNoteTriggerHelper.handleAfterInsert(notes);
+            TSANetNoteTriggerHelper.handleAfterInsert((TSANetNote__c[]) Trigger.new);
         }
         if(Trigger.isUpdate) {
-            TSANetNote__c[] notes = (TSANetNote__c[]) Trigger.new;
-        	Map<Id, TSANetNote__c> oldNotes = (Map<Id, TSANetNote__c>) Trigger.oldMap;
-            
-            TSANetNoteTriggerHelper.handleAfterUpdate(notes, oldNotes);
+            TSANetNoteTriggerHelper.handleAfterUpdate((TSANetNote__c[]) Trigger.new, (Map<Id, TSANetNote__c>) Trigger.oldMap);
         }
     }
 }

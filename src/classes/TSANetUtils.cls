@@ -2,6 +2,8 @@ public without sharing class TSANetUtils {
     
     public static String ADMIN_PERMISSION_SET_NAME = 'TSANetConnectPermissionsAdmin';
     
+    public static tsanet_connect__TSANet_Credentials__c credential = CredentialManager.getCredentials();
+    
     public class CaseInfo {
         @AuraEnabled
         public Boolean isAdmin = getUserPermission();
@@ -16,7 +18,7 @@ public without sharing class TSANetUtils {
         
         public CaseInfo(Case caseRecord){
             this.caseRecord = caseRecord;
-            this.relatedCases = TSANetService.getRelatedCollaborationCases(caseRecord == NULL ? NULL : caseRecord.CaseNumber);
+            this.relatedCases = TSANetService.getRelatedCollaborationCases(caseRecord == NULL ? NULL : caseRecord.CaseNumber, NULL);
         }
     }
 
@@ -78,12 +80,12 @@ public without sharing class TSANetUtils {
     
     @AuraEnabled
     public static tsanet_connect__TSANetCase__c[] getTSANetCases(Id caseId){
-        return TSANetService.getRelatedCollaborationCases(caseId);
+        return TSANetService.getRelatedCollaborationCases(caseId, null);
     }
     
     @future(callout=true)
     public static void futureRefresh(Id caseId){ 
-        TSANetService.getRelatedCollaborationCases(caseId);
+        TSANetService.getRelatedCollaborationCases(caseId, null);
     }
     
     @AuraEnabled
@@ -96,11 +98,9 @@ public without sharing class TSANetUtils {
             
             upsert config;
             
-            tsanet_connect__TSANet_Credentials__c credentials = TSANetService.getCredentials();
-            credentials.tsanet_connect__UserName__c = username;
-            credentials.tsanet_connect__Password__c = password;
-            
-            update credentials;
+            credential.tsanet_connect__UserName__c = username;
+            credential.tsanet_connect__Password__c = password;
+            update credential;
             
         } else {
 
@@ -111,11 +111,9 @@ public without sharing class TSANetUtils {
             config.tsanet_connect__companyId__c = NULL;
             config.tsanet_connect__IntegrationUser__c = NULL;
             
-            tsanet_connect__TSANet_Credentials__c credentials = TSANetService.getCredentials();
-            credentials.tsanet_connect__UserName__c = NULL;
-            credentials.tsanet_connect__Password__c = NULL;
-            
-            update credentials;
+            credential.tsanet_connect__UserName__c = NULL;
+            credential.tsanet_connect__Password__c = NULL;
+            update credential;
             
             return Database.upsert(config).isSuccess();
         }
@@ -161,7 +159,8 @@ public without sharing class TSANetUtils {
     
     @AuraEnabled
     public static Boolean getNewAccessToken(){
-        return TSANetService.getAccessToken();
+        //return TSANetService.getAccessToken();
+        return AuthManager.updateAccessToken();
     }
     
     @AuraEnabled
@@ -206,6 +205,24 @@ public without sharing class TSANetUtils {
         ContentVersion[] contentVersions = [SELECT Id, ContentDocumentId, Title FROM ContentVersion WHERE ContentDocumentId IN:contentDocumentIds];
         
         return contentVersions;
+    }
+    
+    @AuraEnabled
+    public static String createCaseNote(String caseId, String json){
+        
+        tsanet_connect__TSANetCase__c tsaNetCase = [SELECT Id FROM tsanet_connect__TSANetCase__c WHERE tsanet_connect__tsaNetCaseId__c =:caseId];
+        Map<String, Object> data = (Map<String, Object>) System.JSON.deserializeUntyped(json);
+        
+        tsanet_connect__TSANetNote__c note = new tsanet_connect__TSANetNote__c();
+        note.tsanet_connect__TSANetCase__c = tsaNetCase.Id;
+        note.tsanet_connect__FullSummary__c = (String) data.get('summary');
+        note.tsanet_connect__Description__c = (String) data.get('description');
+        note.tsanet_connect__Priority__c = (String) data.get('priority');
+        note.tsanet_connect__isApiNote__c = false;
+        
+        insert note;
+        
+        return note.Id;
     }
     
     public static void helpTest(){

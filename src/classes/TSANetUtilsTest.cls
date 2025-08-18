@@ -3,8 +3,6 @@ public class TSANetUtilsTest {
     
     @testSetup static void testSetup() {
         
-        update new User(Id = UserInfo.getUserId(), tsanet_connect__tsaNetAccessToken__c = 'test-token');
-        
         tsanet_connect__TSANetConfiguration__c config = tsanet_connect__TSANetConfiguration__c.getOrgDefaults();
         config.tsanet_connect__IntegrationUser__c = UserInfo.getUserId();
         upsert config;
@@ -13,6 +11,7 @@ public class TSANetUtilsTest {
         credentials.tsanet_connect__UserName__c = 'username@gmail.com';
         credentials.tsanet_connect__Password__c = 'password111';
         credentials.tsanet_connect__Environment__c = 'dev';
+        credentials.tsanet_connect__Token__c = 'token';
         credentials.tsanet_connect__isPrimary__c = true;
         insert credentials;
 
@@ -148,6 +147,17 @@ public class TSANetUtilsTest {
         
         Test.startTest();
         	TSANetUtils.futureRefresh(null);
+        Test.stopTest();
+    }
+    
+    @isTest
+    public static void createCaseNoteTest(){
+        String json = '{ "summary": "subject", "description": "test", "priority": "low" }';
+        String body = '{ "id": 185, "caseId": 2743, "creatorUsername": null, "creatorEmail": "sue.test@vmware.com", "creatorName": "Sue Test", "summary": "Note FROM VMWare 2", "description": "<p>Note FROM VMWare 2</p>", "priority": "LOW", "status": "ENTERED", "token": "5lUX0KtielPKn2ExCk", "createdAt": "2024-08-16T14:34:22Z", "updatedAt": "2024-09-12T19:31:52Z" }';
+        Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, body, null));
+        Test.startTest();
+        tsanet_connect__TSANetCase__c caseRecord = [SELECT Id, tsanet_connect__tsaNetCaseId__c FROM tsanet_connect__TSANetCase__c];
+        	TSANetUtils.createCaseNote(caseRecord.tsanet_connect__tsaNetCaseId__c, json);
         Test.stopTest();
     }
     

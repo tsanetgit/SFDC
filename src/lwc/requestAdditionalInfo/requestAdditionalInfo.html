@@ -30,14 +30,14 @@
                                 <template if:true={caseRecord}>
                                     <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only required></lightning-input>
                                     <lightning-input type="text" label="Owner Name" value={caseRecord.Owner.Name} read-only required></lightning-input>
-                                    <lightning-input type="email" label="Owner Email" value={caseRecord.Owner.Email} read-only ></lightning-input>
+                                    <lightning-input type="email" label="Owner Email" value={caseRecord.Owner.Email} read-only></lightning-input>
                                     <lightning-input type="tel" label="Owner Phone" value={caseRecord.Owner.Phone} read-only ></lightning-input>
                                     <lightning-input type="text" label="Case Number" value={caseRecord.CaseNumber} read-only required></lightning-input>
                               </template>
                               <template if:false={caseRecord}>
                                     <lightning-input type="text" label="Company Name" value={record.tsanet_connect__receivedCompanyName__c} read-only required></lightning-input>
                                     <lightning-input type="text" label="Owner Name" value={currentUser.Name} read-only required></lightning-input>
-                                    <lightning-input type="email" label="Owner Email" value={currentUser.Email} read-only ></lightning-input>
+                                    <lightning-input type="email" label="Owner Email" value={currentUser.Email} read-only></lightning-input>
                                     <lightning-input type="tel" label="Owner Phone" value={currentUser.Phone} read-only ></lightning-input>
                             </template>
                             </template>
