@@ -1,4 +1,4 @@
-global with sharing class TSANetInvocableApproveRequestService {
+global without sharing class TSANetInvocableApproveRequestService {
 
     global static tsanet_connect__TSANet_Credentials__c credential = CredentialManager.getCredentials();
     

@@ -9,6 +9,7 @@ global class TSANetCaseRequest {
     global String engineerPhone { get; set; }
     @AuraEnabled 
     global String nextSteps { get; set; }
+    
     global Integer id;
     global String type;
     global String createdAt;

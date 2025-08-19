@@ -2,7 +2,6 @@ import { LightningElement, api } from 'lwc'
 import { NavigationMixin } from "lightning/navigation"
 import { requestAdditionalInfo, getRelatedTSANetCases, toast } from 'c/tsaNetHelper'
  
- 
 export default class RequestAdditionalInfo extends NavigationMixin(LightningElement) {
 
     @api recordId
@@ -74,9 +73,11 @@ export default class RequestAdditionalInfo extends NavigationMixin(LightningElem
         }).catch(error => {
             let errorResponse = error?.body?.message
             console.log('ERROR : ', errorResponse)
-            let err = JSON.parse(errorResponse)
-            let errorMessage = err?.message
-            toast(this, 'Error', 'error', errorMessage)
+            if(errorResponse){
+                let err = JSON.parse(errorResponse)
+                let errorMessage = err?.message
+                toast(this, 'Error', 'error', errorMessage)
+            }
             getRelatedTSANetCases(undefined)
         })
         .catch(error => toast(this, 'Error', 'error', error?.body?.message))

@@ -62,6 +62,10 @@ public class TSANetService {
             }
         }  
         
+        if(!Test.isRunningTest()){
+            getRelatedCollaborationCases(null, token);
+        }
+        
         return res.getBody();
     }
     
@@ -256,7 +260,7 @@ public class TSANetService {
         }
         
         if(!Test.isRunningTest()){
-            System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null));
+            getRelatedCollaborationCases(null, token);
         }
         return res.getBody();
     }
@@ -293,7 +297,9 @@ public class TSANetService {
             }
         }
         
-        System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null));
+        if(!Test.isRunningTest()){
+            getRelatedCollaborationCases(null, token);
+        }
         
         return res.getBody();
     }
@@ -330,7 +336,9 @@ public class TSANetService {
             }
         }
         
-        System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null));
+        if(!Test.isRunningTest()){
+            getRelatedCollaborationCases(null, token);
+        }
         
         return res.getBody();
     }
@@ -366,7 +374,9 @@ public class TSANetService {
             }
         }
         
-        System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null));
+        if(!Test.isRunningTest()){
+            getRelatedCollaborationCases(null, token);
+        }
         
         return res.getBody();
     }
@@ -402,7 +412,9 @@ public class TSANetService {
             }
         }
         
-        System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null));
+        if(!Test.isRunningTest()){
+            getRelatedCollaborationCases(null, token);
+        }
         
         return res.getBody();
     }
@@ -495,12 +507,6 @@ public class TSANetService {
             body += 'Content-Disposition: form-data; name="files"; filename="' + fileName + '"' + lineBreak;
             body += 'Content-Type: multipart/form-data' + lineBreak + lineBreak;
             body += EncodingUtil.base64Decode(base64String) + lineBreak;
-            
-            /*ContentVersion cv = new ContentVersion();
-            cv.Title = fileName;
-            cv.PathOnClient = fileName;
-            cv.VersionData = EncodingUtil.base64Decode(base64String);
-            versions.add(cv);*/
             
         }
         

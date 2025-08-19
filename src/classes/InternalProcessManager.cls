@@ -14,7 +14,7 @@ public with sharing class InternalProcessManager {
         
         CronTrigger[] crons = [SELECT Id, CronJobDetailId, CronJobDetail.Name, State FROM CronTrigger WHERE CronJobDetail.Name = 'TSANetScheduledJob'];
         if(crons.size() == 0){
-            //System.schedule('TSANetScheduledJob', '0 0 * * * ?', new TSANetScheduledJob());
+            System.schedule('TSANetScheduledJob', '0 0 * * * ?', new TSANetScheduledJob());
         }
     }
     

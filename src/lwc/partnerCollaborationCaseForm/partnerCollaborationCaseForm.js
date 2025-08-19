@@ -292,9 +292,11 @@ export default class PartnerCollaborationCaseForm extends NavigationMixin(Lightn
         }).catch(error => {
             let errorResponse = error?.body?.message
             console.log('ERROR : ', errorResponse)
-            let err = JSON.parse(errorResponse)
-            let errorMessage = err?.message
-            toast(this, 'Error', 'error', errorMessage)
+            if(errorResponse){
+                let err = JSON.parse(errorResponse)
+                let errorMessage = err?.message
+                toast(this, 'Error', 'error', errorMessage)
+            }
         }).finally(() => {
             this.isLoading = false
         })

@@ -74,7 +74,7 @@ export default class RejectIncomingRequest extends NavigationMixin(LightningElem
 
         this.isLoading = true
         rejectRequest(this.record?.Id, JSON.stringify(requestData)).then(response => {
-            console.log('RESPONSE : ', esponse)
+            console.log('RESPONSE : ', response)
 
             this.isDone = true
             toast(this, 'Success', 'success', 'The case have been rejected successfully!')
@@ -84,10 +84,11 @@ export default class RejectIncomingRequest extends NavigationMixin(LightningElem
         }).catch(error => {
             let errorResponse = error?.body?.message
             console.log('ERROR : ', errorResponse)
-            let err = JSON.parse(errorResponse)
-            let errorMessage = err?.message
-            toast(this, 'Error', 'error', errorMessage)
-            
+            if(errorResponse){
+                let err = JSON.parse(errorResponse)
+                let errorMessage = err?.message
+                toast(this, 'Error', 'error', errorMessage)
+            }
             getRelatedTSANetCases(undefined)
 
         })
