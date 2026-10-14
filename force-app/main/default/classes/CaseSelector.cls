@@ -37,6 +37,21 @@ public with sharing class CaseSelector {
     }
 
     /**
+     * Bulk minimal lookup keyed by Id (invocable use, one query per batch).
+     * @param caseIds set of Case record Ids
+     * @return map of Id to Case with Id and CaseNumber
+     */
+    public static Map<Id, Case> getByIds(Set<Id> caseIds) {
+        if (caseIds == null || caseIds.isEmpty()) { return new Map<Id, Case>(); }
+        return new Map<Id, Case>([
+            SELECT Id, CaseNumber
+            FROM Case
+            WHERE Id IN :caseIds
+            WITH USER_MODE
+        ]);
+    }
+
+    /**
      * Owner detail for PATCH sync back to TSANet.
      * @param caseId the Case record Id
      * @return Case with owner detail fields

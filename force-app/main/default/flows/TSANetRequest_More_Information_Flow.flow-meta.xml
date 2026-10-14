@@ -93,12 +93,4 @@
         </inputAssignments>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </subflows>
-    <variables>
-        <name>TSANetCaseRequestInfo</name>
-        <apexClass>tsanetconnect__TSANetRequestInfoForm</apexClass>
-        <dataType>Apex</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
 </Flow>

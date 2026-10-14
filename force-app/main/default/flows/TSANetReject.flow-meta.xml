@@ -7,6 +7,9 @@
         <locationY>468</locationY>
         <actionName>TSANetInvocableRejectCollaborationCase</actionName>
         <actionType>apex</actionType>
+        <faultConnector>
+            <targetReference>HandleActionFault</targetReference>
+        </faultConnector>
         <flowTransactionModel>NewTransaction</flowTransactionModel>
         <inputParameters>
             <name>caseRecord</name>
@@ -33,7 +36,28 @@
     </actionCalls>
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>Reusable subflow that performs the rejection logic for inbound TSANet collaboration requests.</description>
+    <assignments>
+        <name>HandleActionFault</name>
+        <description>Returns an Apex action fault to the caller as isSuccess = false with the fault message.</description>
+        <label>Handle Action Fault</label>
+        <locationX>920</locationX>
+        <locationY>468</locationY>
+        <assignmentItems>
+            <assignToReference>isSuccess</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <description>Reusable subflow that performs the rejection logic for inbound TSANet collaboration requests. A fault in the Apex action is returned to the caller as isSuccess = false with the fault message.</description>
     <environments>Default</environments>
     <interviewLabel>TSANet Reject {!$Flow.CurrentDateTime}</interviewLabel>
     <isTemplate>true</isTemplate>

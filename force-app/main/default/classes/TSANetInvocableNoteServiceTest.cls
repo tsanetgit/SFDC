@@ -41,6 +41,62 @@ public class TSANetInvocableNoteServiceTest {
         System.assertEquals(UserInfo.getLastName(), submittedBy.get('lastName'), 'Note must be sent as the current user');
     }
 
+    @IsTest
+    static void bulkInputsPersistNotesInOneDml(){
+        String body = '{ "id": 185, "caseId": 2743, "creatorName": "Sue Test", "summary": "Note", "description": "<p>Note</p>", "priority": "LOW", "status": "ENTERED", "token": "{token}", "createdAt": "2024-08-16T14:34:22Z", "updatedAt": "2024-09-12T19:31:52Z" }';
+        // The sixth callout fails so the batch mixes successes with a failure.
+        Test.setMock(HttpCalloutMock.class, new TokenizedNoteMock(body, 5));
+        tsanetconnect__TSANetCase__c caseRecord = [SELECT Id, tsanetconnect__Token__c FROM tsanetconnect__TSANetCase__c WITH USER_MODE LIMIT 1];
+
+        TSANetInvocableNoteService.TSANetInput[] inputs = new TSANetInvocableNoteService.TSANetInput[]{};
+        for (Integer i = 0; i < 6; i++) {
+            TSANetInvocableNoteService.TSANetInput input = new TSANetInvocableNoteService.TSANetInput();
+            input.caseRecord = caseRecord;
+            input.note = new TSANetNoteForm();
+            inputs.add(input);
+        }
+
+        Test.startTest();
+            Integer dmlBefore = Limits.getDmlStatements();
+            TSANetInvocableNoteService.TSANetNoteResult[] results = TSANetInvocableNoteService.createNote(inputs);
+            Integer dmlUsed = Limits.getDmlStatements() - dmlBefore;
+        Test.stopTest();
+
+        System.assertEquals(inputs.size(), results.size(), 'Expected one result per input, in order');
+        System.assertEquals(1, dmlUsed, 'All notes must be upserted in a single DML after the callouts');
+        for (Integer i = 0; i < 5; i++) {
+            System.assertEquals(true, results[i].isSuccess, 'Valid input should succeed: ' + results[i].message);
+        }
+        System.assertEquals(false, results[5].isSuccess, 'A failed callout must fail its own input without aborting the batch');
+        System.assertEquals(5, [SELECT COUNT() FROM tsanetconnect__TSANetNote__c], 'One note persisted per successful callout');
+    }
+
+    /**
+     * Returns the response body with a unique token per request so each note upserts as a new row,
+     * and throws on the configured call index to simulate one failed callout.
+     */
+    private class TokenizedNoteMock implements HttpCalloutMock {
+        private String responseBody;
+        private Integer failOnCall;
+        private Integer calls = 0;
+
+        TokenizedNoteMock(String responseBody, Integer failOnCall) {
+            this.responseBody = responseBody;
+            this.failOnCall = failOnCall;
+        }
+
+        public HTTPResponse respond(HTTPRequest req) {
+            if (calls == failOnCall) {
+                calls++;
+                throw new CalloutException('Simulated TSANet outage');
+            }
+            HttpResponse res = new HttpResponse();
+            res.setStatusCode(200);
+            res.setBody(responseBody.replace('{token}', 'note-token-' + (calls++)));
+            return res;
+        }
+    }
+
     /** Captures the outbound note JSON so tests can assert submittedBy. */
     private class CapturingNoteMock implements HttpCalloutMock {
         public String lastBody;

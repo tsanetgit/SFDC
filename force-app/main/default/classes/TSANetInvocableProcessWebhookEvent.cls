@@ -30,8 +30,8 @@ global with sharing class TSANetInvocableProcessWebhookEvent {
     }
 
     /**
-     * Notifies the UI for a batch of inbound webhook events. Queueable refresh is
-     * started by TSANetWebhookRestService so it inherits the Integration User.
+     * Notifies the UI for a batch of inbound webhook events with one query and one publish.
+     * Queueable refresh is started by TSANetWebhookRestService so it inherits the Integration User.
      * @param inputs the webhook events delivered by the flow
      * @return one result per input, in the same order
      */
@@ -42,15 +42,22 @@ global with sharing class TSANetInvocableProcessWebhookEvent {
             return results;
         }
 
+        Set<String> requestTokens = new Set<String>();
         for(WebhookEventInput input : inputs){
-            results.add(accept(input));
+            WebhookEventResult result = accept(input);
+            if(result.isSuccess){
+                requestTokens.add(input.requestToken);
+            }
+            results.add(result);
         }
+
+        TSANetWebhookNotifier.notifyProcessingStarted(requestTokens);
 
         return results;
     }
 
     /**
-     * Validates one event and, when usable, notifies the UI.
+     * Validates one event; the UI notification itself is sent once for the whole batch.
      * @param input the event to validate
      * @return the result for this event
      */
@@ -62,8 +69,6 @@ global with sharing class TSANetInvocableProcessWebhookEvent {
             result.message = 'Missing request token';
             return result;
         }
-
-        TSANetWebhookNotifier.notifyProcessingStarted(input.requestToken);
 
         result.isSuccess = true;
         result.message = 'Event accepted';

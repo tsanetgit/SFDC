@@ -10,6 +10,9 @@
         <connector>
             <targetReference>ResultHandler</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>FaultScreen</targetReference>
+        </faultConnector>
         <flowTransactionModel>Automatic</flowTransactionModel>
         <inputParameters>
             <name>caseRecord</name>
@@ -102,6 +105,31 @@
         <object>TSANetCase__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <screens>
+        <name>FaultScreen</name>
+        <description>Shows the Apex action fault message instead of an unhandled fault.</description>
+        <label>Unexpected Error Screen</label>
+        <locationX>920</locationX>
+        <locationY>799</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>FaultMessage</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(169, 1, 1);&quot;&gt;The request could not be sent to TSANet: {!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
     <screens>
         <name>RequestInformationScreen</name>
         <label>Request Information Screen</label>

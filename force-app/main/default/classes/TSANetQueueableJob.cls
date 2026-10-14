@@ -34,6 +34,16 @@ public inherited sharing class TSANetQueueableJob implements Queueable, Database
         if(!CredentialManager.isConnected()){
             return false;
         }
+        return enqueue(caseNumber);
+    }
+
+    /**
+     * Enqueues a collaboration-case sync without checking the credential; callers that
+     * process a batch resolve the connection state once and call this per item.
+     * @param caseNumber optional case number filter
+     * @return true when the job was enqueued
+     */
+    public static Boolean enqueue(String caseNumber){
         System.enqueueJob(new TSANetQueueableJob(0, null, null, null, null, caseNumber));
         return true;
     }

@@ -22,7 +22,9 @@ global with sharing class TSANetInvocableNoteService {
     }
 
     /**
-     * Creates a note on the specified TSANet collaboration case.
+     * Creates a note on each specified TSANet collaboration case.
+     * All callouts run first and the returned notes are persisted in one DML afterwards,
+     * which keeps the database out of the loop and avoids callout-after-DML failures.
      * @param data list of TSANetInput containing the case and note form
      * @return one result per input, in the same order
      */
@@ -33,12 +35,19 @@ global with sharing class TSANetInvocableNoteService {
             return results;
         }
 
+        tsanetconnect__TSANetNote__c[] notes = new tsanetconnect__TSANetNote__c[]{};
+        Set<String> caseTokens = new Set<String>();
+
         for (TSANetInput input : data) {
             TSANetNoteResult result = new TSANetNoteResult();
             try {
                 String caseToken = input.caseRecord.tsanetconnect__Token__c;
                 applyCurrentUserAsSubmitter(input.note);
-                TSANetService.createTSANetNote(caseToken, JSON.serialize(input.note, true));
+                tsanetconnect__TSANetNote__c note = TSANetService.sendTSANetNote(caseToken, JSON.serialize(input.note, true));
+                if (note != null) {
+                    notes.add(note);
+                }
+                caseTokens.add(caseToken);
                 result.message = 'Note has been created successfully';
                 result.isSuccess = true;
             } catch (Exception e) {
@@ -47,6 +56,8 @@ global with sharing class TSANetInvocableNoteService {
             }
             results.add(result);
         }
+
+        TSANetService.persistTSANetNotes(notes, caseTokens);
         return results;
     }
 

@@ -13,15 +13,35 @@ public with sharing class TSANetWebhookNotifier {
         if(requestToken == null){
             return null;
         }
-        tsanetconnect__TSANetCase__c[] cases = [
-            SELECT Id, tsanetconnect__Case__c
-            FROM tsanetconnect__TSANetCase__c
-            WHERE tsanetconnect__Token__c = :requestToken
-            WITH USER_MODE
-            LIMIT 1
-        ];
+        return getCaseIdsByTokens(new Set<String>{ requestToken }).get(requestToken);
+    }
 
-        return cases.isEmpty() ? null : cases[0].tsanetconnect__Case__c;
+    /**
+     * Resolves the Salesforce Cases behind a batch of collaboration request tokens in one query.
+     * @param requestTokens the collaboration request tokens
+     * @return map of token to related Case Id; tokens without a linked case are absent
+     */
+    public static Map<String, Id> getCaseIdsByTokens(Set<String> requestTokens){
+        Map<String, Id> caseIdsByToken = new Map<String, Id>();
+        if(requestTokens == null){
+            return caseIdsByToken;
+        }
+        // A null token would otherwise match cases with no token at all.
+        requestTokens.remove(null);
+        if(requestTokens.isEmpty()){
+            return caseIdsByToken;
+        }
+        for(tsanetconnect__TSANetCase__c tsaNetCase : [
+            SELECT tsanetconnect__Token__c, tsanetconnect__Case__c
+            FROM tsanetconnect__TSANetCase__c
+            WHERE tsanetconnect__Token__c IN :requestTokens
+            WITH USER_MODE
+        ]){
+            if(tsaNetCase.tsanetconnect__Case__c != null){
+                caseIdsByToken.put(tsaNetCase.tsanetconnect__Token__c, tsaNetCase.tsanetconnect__Case__c);
+            }
+        }
+        return caseIdsByToken;
     }
 
     /**
@@ -29,13 +49,26 @@ public with sharing class TSANetWebhookNotifier {
      * @param requestToken the collaboration request token being processed
      */
     public static void notifyProcessingStarted(String requestToken){
+        notifyProcessingStarted(new Set<String>{ requestToken });
+    }
+
+    /**
+     * Publishes the typing indicator for every related case in one query and one publish;
+     * never throws to callers.
+     * @param requestTokens the collaboration request tokens being processed
+     */
+    public static void notifyProcessingStarted(Set<String> requestTokens){
         try {
-            Id caseId = getCaseIdByToken(requestToken);
-            if(caseId != null){
-                publishCaseUpdated(caseId, requestToken, false);
+            Map<String, Id> caseIdsByToken = getCaseIdsByTokens(requestTokens);
+            tsanetconnect__TSANetCaseUpdated__e[] events = new tsanetconnect__TSANetCaseUpdated__e[]{};
+            for(String requestToken : caseIdsByToken.keySet()){
+                events.add(buildCaseUpdated(caseIdsByToken.get(requestToken), requestToken, false));
+            }
+            if(!events.isEmpty()){
+                EventBus.publish(events);
             }
         } catch(Exception e){
-            ErrorLogger.logError(e, 'TSANET_WEBHOOK_EVENT_HANDLER', new Map<String, String>{ 'requestToken' => requestToken });
+            ErrorLogger.logError(e, 'TSANET_WEBHOOK_EVENT_HANDLER', new Map<String, String>{ 'requestTokens' => String.valueOf(requestTokens) });
         }
     }
 
@@ -46,10 +79,15 @@ public with sharing class TSANetWebhookNotifier {
      * @param isSync false when processing starts, true once the data is refreshed
      */
     public static void publishCaseUpdated(Id caseId, String requestToken, Boolean isSync){
-        EventBus.publish(new tsanetconnect__TSANetCaseUpdated__e(
+        EventBus.publish(buildCaseUpdated(caseId, requestToken, isSync));
+    }
+
+    /** Builds a case-updated platform event without publishing it. */
+    private static tsanetconnect__TSANetCaseUpdated__e buildCaseUpdated(Id caseId, String requestToken, Boolean isSync){
+        return new tsanetconnect__TSANetCaseUpdated__e(
             tsanetconnect__CaseId__c = caseId,
             tsanetconnect__RequestToken__c = requestToken,
             tsanetconnect__IsSync__c = isSync
-        ));
+        );
     }
 }

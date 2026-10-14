@@ -1,5 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>AttachCaseToCollaborationRequest</name>
+        <description>Links the created Case through Apex because an after-save flow must not update its own record.</description>
+        <label>Attach Case to Collaboration Request</label>
+        <locationX>871</locationX>
+        <locationY>658</locationY>
+        <actionName>TSANetInvocableLinkCaseToRequest</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>TSANetAcceptAutomation</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>CreateSalesforceCaseRecord</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>tsaNetCaseId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>TSANetInvocableLinkCaseToRequest</nameSegment>
+    </actionCalls>
     <apiVersion>61.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
@@ -118,22 +144,6 @@
         <object>Asset</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
-    <recordUpdates>
-        <name>AttachCaseToCollaborationRequest</name>
-        <label>Attach Case to Collaboration Request</label>
-        <locationX>871</locationX>
-        <locationY>658</locationY>
-        <connector>
-            <targetReference>TSANetAcceptAutomation</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>Case__c</field>
-            <value>
-                <elementReference>CreateSalesforceCaseRecord</elementReference>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
     <start>
         <locationX>529</locationX>
         <locationY>48</locationY>
@@ -222,11 +232,4 @@
         </inputAssignments>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </subflows>
-    <variables>
-        <name>recipientIds</name>
-        <dataType>String</dataType>
-        <isCollection>true</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
 </Flow>

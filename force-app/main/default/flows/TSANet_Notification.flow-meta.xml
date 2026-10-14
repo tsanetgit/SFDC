@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Mark_Note_Notified</name>
+        <description>Sets isNotified__c through Apex because an after-save flow must not update its own record.</description>
+        <label>Mark Note Notified</label>
+        <locationX>656</locationX>
+        <locationY>646</locationY>
+        <actionName>TSANetInvocableMarkNotesNotified</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>noteIds</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>TSANetInvocableMarkNotesNotified</nameSegment>
+    </actionCalls>
     <apiVersion>61.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>Template record-triggered flow that sends notifications to case owners for new TSANet notes. Triggers on Create and Update so notes synced via refresh/webhook upsert (which resolves to UPDATE for existing rows) are still notified; the isNotified__c entry condition guarantees once-only delivery. Notes created before today are stamped isNotified__c = true by the TSANetNote trigger (TSANetNoteTriggerHelper.markStaleNotesAsNotified), so a full sync after connecting credentials does not notify for historical notes. Subscribers can deactivate or clone this template to customize.</description>
+    <description>Template record-triggered flow that sends notifications to case owners for new TSANet notes. Triggers on Create and Update so notes synced via refresh/webhook upsert (which resolves to UPDATE for existing rows) are still notified; the isNotified__c entry condition guarantees once-only delivery. Notes created before today are stamped isNotified__c = true by the TSANetNote trigger (TSANetNoteTriggerHelper.markStaleNotesAsNotified), so a full sync after connecting credentials does not notify for historical notes. The flag is set through the TSANet Mark Notes Notified Apex action because an after-save flow must not update its own triggering record. Subscribers can deactivate or clone this template to customize.</description>
     <environments>Default</environments>
     <formulas>
         <name>Body</name>
@@ -53,19 +70,6 @@
         <object>TSANetCase__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
-    <recordUpdates>
-        <name>Update_Is_Notified</name>
-        <label>Update Is Notified</label>
-        <locationX>656</locationX>
-        <locationY>646</locationY>
-        <inputAssignments>
-            <field>isNotified__c</field>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
     <start>
         <locationX>530</locationX>
         <locationY>48</locationY>
@@ -91,7 +95,7 @@
         <locationX>656</locationX>
         <locationY>510</locationY>
         <connector>
-            <targetReference>Update_Is_Notified</targetReference>
+            <targetReference>Mark_Note_Notified</targetReference>
         </connector>
         <flowName>TSANetNotification</flowName>
         <inputAssignments>

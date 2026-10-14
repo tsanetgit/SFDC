@@ -24,18 +24,57 @@ public with sharing class TSANetAPIService {
      * @return raw API response body
      */
     public static String createTSANetNote(String caseToken, String json){
-        HttpResponse res = NamedCredentialHttpClient.sendPost(buildEndpointWithToken(EndpointManager.notes, caseToken), json);
+        String body = sendTSANetNote(caseToken, json);
 
-        try {
-            tsanetconnect__TSANetNote__c noteRecord = ParserManager.parseTSANetNote(res.getBody());
-            Database.upsert(noteRecord, tsanetconnect__TSANetNote__c.tsanetconnect__Token__c, false, AccessLevel.USER_MODE);
-        } catch(Exception e) {
-            ErrorLogger.logError(e, 'CREATE_TSANET_NOTE_UPSERT', new Map<String, String>{ 'caseToken' => caseToken, 'response' => res.getBody() });
+        tsanetconnect__TSANetNote__c noteRecord = parseTSANetNote(caseToken, body);
+        if(noteRecord != null){
+            persistTSANetNotes(new tsanetconnect__TSANetNote__c[]{ noteRecord });
         }
 
         TSANetCaseRefreshService.enqueueByToken(caseToken);
 
-        return res.getBody();
+        return body;
+    }
+
+    /**
+     * Sends a note to the TSANet API without touching the database, so batch callers
+     * can run every callout first and persist the results in a single DML.
+     * @param caseToken unique token of the TSANet case
+     * @param json serialised note payload
+     * @return raw API response body
+     */
+    public static String sendTSANetNote(String caseToken, String json){
+        return NamedCredentialHttpClient.sendPost(buildEndpointWithToken(EndpointManager.notes, caseToken), json).getBody();
+    }
+
+    /**
+     * Parses a create-note response into a local note record; logs and returns null on failure.
+     * @param caseToken unique token of the TSANet case, for error context
+     * @param body raw API response body
+     * @return the parsed note record, or null when the body could not be parsed
+     */
+    public static tsanetconnect__TSANetNote__c parseTSANetNote(String caseToken, String body){
+        try {
+            return ParserManager.parseTSANetNote(body);
+        } catch(Exception e) {
+            ErrorLogger.logError(e, 'CREATE_TSANET_NOTE_UPSERT', new Map<String, String>{ 'caseToken' => caseToken, 'response' => body });
+            return null;
+        }
+    }
+
+    /**
+     * Upserts the given notes by token in one partial-success DML; errors are logged, not thrown.
+     * @param notes local note records parsed from API responses
+     */
+    public static void persistTSANetNotes(tsanetconnect__TSANetNote__c[] notes){
+        if(notes == null || notes.isEmpty()){
+            return;
+        }
+        try {
+            Database.upsert(notes, tsanetconnect__TSANetNote__c.tsanetconnect__Token__c, false, AccessLevel.USER_MODE);
+        } catch(Exception e) {
+            ErrorLogger.logError(e, 'CREATE_TSANET_NOTE_UPSERT', new Map<String, String>{ 'noteCount' => String.valueOf(notes.size()) });
+        }
     }
 
     /**

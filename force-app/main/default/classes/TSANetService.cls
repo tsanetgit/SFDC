@@ -46,6 +46,30 @@ public with sharing class TSANetService {
     }
 
     /**
+     * Sends a note to the TSANet API and returns the parsed local record without persisting it.
+     * Batch callers collect these and finish with persistTSANetNotes so one DML covers the batch.
+     * @param caseToken unique token of the TSANet case
+     * @param json serialised note payload
+     * @return the parsed note record, or null when the response could not be parsed
+     */
+    public static tsanetconnect__TSANetNote__c sendTSANetNote(String caseToken, String json){
+        String body = TSANetAPIService.sendTSANetNote(caseToken, json);
+        return TSANetAPIService.parseTSANetNote(caseToken, body);
+    }
+
+    /**
+     * Upserts notes returned by sendTSANetNote in a single DML and queues a refresh per case.
+     * @param notes parsed note records to persist
+     * @param caseTokens tokens of the cases that received a note
+     */
+    public static void persistTSANetNotes(tsanetconnect__TSANetNote__c[] notes, Set<String> caseTokens){
+        TSANetAPIService.persistTSANetNotes(notes);
+        for(String caseToken : caseTokens){
+            TSANetCaseRefreshService.enqueueByToken(caseToken);
+        }
+    }
+
+    /**
      * Fetches a single collaboration request from the TSANet API.
      * @param caseToken the collaboration request token
      * @return raw API response body for the collaboration request
